@@ -21,11 +21,13 @@ export const Credits = () => {
 
 [Balatro Background Shaders](https://www.shadertoy.com/view/XXtBRr) by [xxidbr9](https://www.shadertoy.com/user/xxidbr9)
 
-[Voronoi - distances](https://www.shadertoy.com/view/ldl3W8) by [iq](https://www.shadertoy.com/user/iq)
-
 [Noise animation - Electric](https://www.shadertoy.com/view/ldlXRS) by [nimitz](https://www.shadertoy.com/user/nimitz)
 
+[Particle Experiment 7](https://www.shadertoy.com/view/MddGWN) by [aiekick](https://www.shadertoy.com/user/aiekick)
+
 [Novatrix](https://uvcanvas.com/docs/components/novatrix) by [UVCanvas](https://uvcanvas.com/)
+
+[Voronoi - distances](https://www.shadertoy.com/view/ldl3W8) by [iq](https://www.shadertoy.com/user/iq)
 
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
