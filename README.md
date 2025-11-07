@@ -1,7 +1,11 @@
 # Merucav | מרוכב
 An advanced gradient design and editing tool.
 
+SourceForge page: https://sourceforge.net/projects/merucav/
+
 Check it out at https://merucav.netlify.app/
+
+![Preview](https://raw.githubusercontent.com/Northstrix/merucav/refs/heads/main/preview.webp)
 
 The app itself is distributed under the MIT license; the shaders may be covered by other licenses.
 
