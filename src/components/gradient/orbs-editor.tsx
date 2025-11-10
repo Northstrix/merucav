@@ -237,7 +237,7 @@ export function OrbsEditor({ config, setConfig, openConfirmDialog }: OrbsEditorP
                 onClick={() => setColorDialogId(orb.id)} 
                 className="cursor-pointer"
                 >
-                <ColorCard hexColor={orb.color} id={orb.id} />
+                <ColorCard hexColor={orb.color} id={orb.id} isPointerCursorOnHover={true}/>
                 </div>
               </DialogTrigger>
                 <DialogContent className="max-w-[90vw] w-full md:max-w-6xl h-[80vh] flex flex-col">
