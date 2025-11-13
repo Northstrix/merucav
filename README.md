@@ -1,5 +1,5 @@
 # Merucav | מרוכב
-An advanced gradient design and editing tool made using [Firebase Studio](https://firebase.studio/), [Next.js](https://nextjs.org/), and [Perplexity](https://www.perplexity.ai/).
+A modern digital design tool made using [Firebase Studio](https://firebase.studio/), [Next.js](https://nextjs.org/), and [Perplexity](https://www.perplexity.ai/).
 
 SourceForge page: https://sourceforge.net/projects/merucav/
 
