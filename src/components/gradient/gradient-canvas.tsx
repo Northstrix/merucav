@@ -1,3 +1,7 @@
+
+
+
+
 'use client';
 import React, { useMemo, useRef, useEffect, useState, Suspense, lazy } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -232,6 +236,30 @@ export interface GradientConfig {
         hue: number;
         saturation: number;
     };
+     discGlare: ShaderSetting & {
+        phase: number;
+        distortion: number;
+        zoom: number;
+        contrast: number;
+        gamma: number;
+        hue: number;
+    };
+    hydrogen: ShaderSetting & {
+        n: number;
+        l: number;
+        m: number;
+        zoom: number;
+        contrast: number;
+        gamma: number;
+        hue: number;
+        saturation: number;
+        color1_r: number;
+        color1_g: number;
+        color1_b: number;
+        color2_r: number;
+        color2_g: number;
+        color2_b: number;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -382,6 +410,36 @@ export function getDefaultGradientConfig(): GradientConfig {
             scale: 8.0,
             ...defaultHueSat,
         },
+         discGlare: {
+            enabled: false,
+            opacity: 1,
+            transform: { ...defaultTransform },
+            phase: 1.5,
+            distortion: 0.7,
+            zoom: 1.0,
+            contrast: 5.0,
+            gamma: 1.5,
+            hue: 0,
+        },
+        hydrogen: {
+            enabled: false,
+            opacity: 1,
+            transform: { ...defaultTransform },
+            n: 8.0,
+            l: 4.0,
+            m: 3.0,
+            zoom: 20,
+            contrast: 10.0,
+            gamma: 0.2,
+            hue: 129,
+            saturation: 1.20,
+            color1_r: 0.0,
+            color1_g: 1.0,
+            color1_b: 0.4,
+            color2_r: 0.1,
+            color2_g: 1.0,
+            color2_b: 0.46,
+        }
     },
     grainAmount: 0,
     grainSize: 1.5,
@@ -1923,6 +1981,354 @@ function VoronoiShader({ config, globalConfig }: { config: GradientConfig['shade
     return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
 }
 
+const discGlareFragShader = `
+precision highp float;
+uniform vec2 uResolution;
+uniform float uTime;
+uniform float uPhase;
+uniform float uDistortion;
+uniform float uZoom;
+uniform float uContrast;
+uniform float uGamma;
+uniform float uHue;
+
+${hueSatHelpers}
+
+const float PI = 3.14159265359;
+
+vec3 palette(float t) {
+    vec3 a = vec3(0.5, 0.5, 0.5);
+    vec3 b = vec3(0.5, 0.5, 0.5);
+    vec3 c = vec3(1.0, 1.0, 0.5);
+    vec3 d = vec3(0.8, 0.9, 0.3);
+    return a + b*cos(6.28318*(c*t+d));
+}
+
+void main() {
+    vec2 uv = (2.0 * gl_FragCoord.xy - uResolution.xy) / min(uResolution.x, uResolution.y);
+    uv *= uZoom;
+
+    float t = uTime * 0.1;
+
+    vec2 p = uv;
+    p.x += 0.5 * sin(2.0 * PI * p.y + t);
+    p.y += 0.5 * cos(2.0 * PI * p.x + t);
+
+    float r = length(p);
+    float a = atan(p.y, p.x);
+    
+    float v = sin(uPhase * 10.0 * r - a * 5.0 + t * 2.0);
+    v *= cos(a * 3.0 + t);
+    
+    float distortion = sin(r * 10.0 + t) * uDistortion;
+    v += distortion;
+
+    float val = pow(abs(v), uGamma) * uContrast;
+    val = mod(val, 1.0);
+
+    vec3 color = palette(val);
+    
+    vec3 hsv = rgb2hsv(color);
+    hsv.x += uHue / 360.0;
+    color = hsv2rgb(hsv);
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+
+function DiscGlareShader({ config, globalConfig }: { config: GradientConfig['shaders']['discGlare'], globalConfig: GradientConfig }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl');
+        if (!gl) return;
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        gl.shaderSource(vertexShader, commonVertShaderWithTransform);
+        gl.compileShader(vertexShader);
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(fragmentShader, discGlareFragShader);
+        gl.compileShader(fragmentShader);
+        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+            console.error('Disc Glare Shader compile error:', gl.getShaderInfoLog(fragmentShader));
+            return;
+        }
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(positionAttributeLocation);
+        gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+        const uTimeLocation = gl.getUniformLocation(program, 'uTime');
+        const uResolutionLocation = gl.getUniformLocation(program, 'uResolution');
+        const uPhase = gl.getUniformLocation(program, 'uPhase');
+        const uDistortion = gl.getUniformLocation(program, 'uDistortion');
+        const uZoom = gl.getUniformLocation(program, 'uZoom');
+        const uContrast = gl.getUniformLocation(program, 'uContrast');
+        const uGamma = gl.getUniformLocation(program, 'uGamma');
+        const uHue = gl.getUniformLocation(program, 'uHue');
+        
+        const uTranslationLocation = gl.getUniformLocation(program, 'u_translation');
+        const uRotationLocation = gl.getUniformLocation(program, 'u_rotation');
+        const uScaleLocation = gl.getUniformLocation(program, 'u_scale');
+        
+        let animationFrameId: number;
+        let startTime = Date.now();
+        const render = (time: number) => {
+            if(!gl) return;
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uTimeLocation, time);
+            gl.uniform2f(uResolutionLocation, gl.canvas.width, gl.canvas.height);
+            
+            gl.uniform1f(uPhase, config.phase);
+            gl.uniform1f(uDistortion, config.distortion);
+            gl.uniform1f(uZoom, config.zoom);
+            gl.uniform1f(uContrast, config.contrast);
+            gl.uniform1f(uGamma, config.gamma);
+            gl.uniform1f(uHue, config.hue);
+
+            gl.uniform2f(uTranslationLocation, config.transform.translateX / 100, -config.transform.translateY / 100);
+            gl.uniform1f(uRotationLocation, config.transform.rotation * (Math.PI / 180));
+            gl.uniform1f(uScaleLocation, config.transform.scale);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+        const renderLoop = () => {
+            const time = globalConfig.paused ? globalConfig.motion / 100 * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+            else render(time);
+        };
+        renderLoop();
+        return () => { if(animationFrameId) cancelAnimationFrame(animationFrameId); };
+    }, [config, globalConfig.paused, globalConfig.motion]);
+    return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
+}
+
+const hydrogenFragShader = `
+precision highp float;
+
+uniform vec2 uResolution;
+uniform float uTime;
+uniform float uN;
+uniform float uL;
+uniform float uM;
+uniform float uZoom;
+uniform float uContrast;
+uniform float uGamma;
+uniform float uHue;
+uniform float uSaturation;
+uniform vec3 uColor1;
+uniform vec3 uColor2;
+
+${hueSatHelpers}
+
+const float PI = 3.14159265359;
+const float a0 = 1.0;
+
+// Hardcoded factorial values for GLSL ES 1.0 compatibility
+float fact(float n_float) {
+    int n = int(n_float);
+    if (n <= 1) return 1.0;
+    if (n == 2) return 2.0;
+    if (n == 3) return 6.0;
+    if (n == 4) return 24.0;
+    if (n == 5) return 120.0;
+    if (n == 6) return 720.0;
+    if (n == 7) return 5040.0;
+    if (n == 8) return 40320.0;
+    if (n == 9) return 362880.0;
+    if (n == 10) return 3628800.0;
+    return 1.0; // Fallback for larger numbers
+}
+
+
+float laguerre(float p_float, float q_float, float x) {
+    int p = int(p_float);
+    if (p == 0) return 1.0;
+    if (p == 1) return 1.0 + q_float - x;
+    if (p == 2) return (x*x - 2.0*(q_float+2.0)*x + (q_float+1.0)*(q_float+2.0)) / 2.0;
+    if (p == 3) return (-x*x*x + 3.0*(q_float+3.0)*x*x - 3.0*(q_float+2.0)*(q_float+3.0)*x + (q_float+1.0)*(q_float+2.0)*(q_float+3.0)) / 6.0;
+    
+    // Fallback for higher p
+    return 1.0 - x / (q_float + 1.0);
+}
+
+float legendre(float l_float, float m_float, float x) {
+    int l = int(l_float);
+    int m = int(abs(m_float));
+
+    if (l == 0 && m == 0) return 1.0;
+    if (l == 1 && m == 0) return x;
+    if (l == 1 && m == 1) return -sqrt(1.0 - x*x);
+    if (l == 2 && m == 0) return 0.5 * (3.0*x*x - 1.0);
+    if (l == 2 && m == 1) return -3.0*x*sqrt(1.0 - x*x);
+    if (l == 2 && m == 2) return 3.0 * (1.0 - x*x);
+    if (l == 3 && m == 0) return 0.5 * x * (5.0*x*x - 3.0);
+    if (l == 3 && m == 1) return -1.5 * (5.0*x*x - 1.0) * sqrt(1.0 - x*x);
+    if (l == 3 && m == 2) return 15.0 * x * (1.0 - x*x);
+    if (l == 3 && m == 3) return -15.0 * pow(1.0 - x*x, 1.5);
+    
+    // Fallback
+    return 1.0;
+}
+
+
+float wave_function(float r, float theta, float phi) {
+    float n_f = uN;
+    float l_f = uL;
+    float m_f = uM;
+    
+    // Constraints are handled in JS, but good practice to have them here too
+    if(l_f >= n_f || abs(m_f) > l_f) return 0.0;
+
+    float rho = 2.0 * r / (n_f * a0);
+    
+    float L = laguerre(n_f - l_f - 1.0, 2.0 * l_f + 1.0, rho);
+
+    float radial_part = exp(-rho / 2.0) * pow(rho, l_f) * L;
+    
+    float P = legendre(l_f, m_f, cos(theta));
+
+    float angular_part = P;
+    
+    if(uM != 0.0){
+      angular_part *= cos(m_f * phi);
+    }
+
+    float psi = radial_part * angular_part;
+    return psi;
+}
+
+vec3 palette(float t) {
+    return mix(uColor1, uColor2, t);
+}
+
+void main() {
+    vec2 uv = (2.0 * gl_FragCoord.xy - uResolution.xy) / uResolution.y;
+    uv *= uZoom;
+    vec3 pos = vec3(uv.x, uv.y, 0.0);
+
+    float r = length(pos) * 15.0; 
+    float theta = acos(clamp(pos.z / (r + 1e-5), -1.0, 1.0));
+    float phi = atan(pos.y, pos.x);
+
+    float psi = wave_function(r, theta, phi);
+    
+    float probability = psi * psi;
+
+    float val = pow(probability * uContrast, uGamma);
+    
+    vec3 color = palette(val);
+
+    vec3 hsv = rgb2hsv(color);
+    hsv.x += uHue / 360.0;
+    hsv.y *= uSaturation;
+    color = hsv2rgb(hsv);
+    
+    color = mix(vec3(0.0), color, clamp(val, 0.0, 1.0));
+
+    gl_FragColor = vec4(color, 1.0);
+}
+`;
+
+function HydrogenShader({ config, globalConfig }: { config: GradientConfig['shaders']['hydrogen'], globalConfig: GradientConfig }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl');
+        if (!gl) return;
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        gl.shaderSource(vertexShader, commonVertShaderWithTransform);
+        gl.compileShader(vertexShader);
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(fragmentShader, hydrogenFragShader);
+        gl.compileShader(fragmentShader);
+        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+            console.error('Hydrogen Shader compile error:', gl.getShaderInfoLog(fragmentShader));
+            return;
+        }
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(positionAttributeLocation);
+        gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+        const uTimeLocation = gl.getUniformLocation(program, 'uTime');
+        const uResolutionLocation = gl.getUniformLocation(program, 'uResolution');
+        const uN = gl.getUniformLocation(program, 'uN');
+        const uL = gl.getUniformLocation(program, 'uL');
+        const uM = gl.getUniformLocation(program, 'uM');
+        const uZoom = gl.getUniformLocation(program, 'uZoom');
+        const uContrast = gl.getUniformLocation(program, 'uContrast');
+        const uGamma = gl.getUniformLocation(program, 'uGamma');
+        const uHue = gl.getUniformLocation(program, 'uHue');
+        const uSaturation = gl.getUniformLocation(program, 'uSaturation');
+        const uColor1 = gl.getUniformLocation(program, 'uColor1');
+        const uColor2 = gl.getUniformLocation(program, 'uColor2');
+        
+        const uTranslationLocation = gl.getUniformLocation(program, 'u_translation');
+        const uRotationLocation = gl.getUniformLocation(program, 'u_rotation');
+        const uScaleLocation = gl.getUniformLocation(program, 'u_scale');
+        
+        let animationFrameId: number;
+        let startTime = Date.now();
+        const render = (time: number) => {
+            if(!gl) return;
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uTimeLocation, time);
+            gl.uniform2f(uResolutionLocation, gl.canvas.width, gl.canvas.height);
+            
+            gl.uniform1f(uN, config.n);
+            gl.uniform1f(uL, config.l);
+            gl.uniform1f(uM, config.m);
+            gl.uniform1f(uZoom, config.zoom);
+            gl.uniform1f(uContrast, config.contrast);
+            gl.uniform1f(uGamma, config.gamma);
+            gl.uniform1f(uHue, config.hue);
+            gl.uniform1f(uSaturation, config.saturation);
+            gl.uniform3f(uColor1, config.color1_r, config.color1_g, config.color1_b);
+            gl.uniform3f(uColor2, config.color2_r, config.color2_g, config.color2_b);
+
+            gl.uniform2f(uTranslationLocation, config.transform.translateX / 100, -config.transform.translateY / 100);
+            gl.uniform1f(uRotationLocation, config.transform.rotation * (Math.PI / 180));
+            gl.uniform1f(uScaleLocation, config.transform.scale);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+        const renderLoop = () => {
+            const time = globalConfig.paused ? globalConfig.motion / 100 * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+            else render(time);
+        };
+        renderLoop();
+        return () => { if(animationFrameId) cancelAnimationFrame(animationFrameId); };
+    }, [config, globalConfig.paused, globalConfig.motion]);
+    return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
+}
+
 function ShaderWrapper({ config, globalConfig, children }: { config: ShaderSetting, globalConfig: GradientConfig, children: React.ReactNode}) {
     const { transform } = config;
     const style: React.CSSProperties = {
@@ -1934,8 +2340,9 @@ function ShaderWrapper({ config, globalConfig, children }: { config: ShaderSetti
         transform: `translate(${transform.translateX}%, ${transform.translateY}%) rotate(${transform.rotation}deg) scale(${transform.scale})`,
         willChange: 'transform, opacity',
     };
-    return <div style={style}>{children}</div>
+    return <div style={style}>{children}</div>;
 }
+
 
 export function GradientCanvas({ config }: { config: GradientConfig }) {
   const {
@@ -2028,6 +2435,16 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.voronoi.enabled && (
             <ShaderWrapper config={shaders.voronoi} globalConfig={config}>
                 <VoronoiShader config={shaders.voronoi} globalConfig={config} />
+            </ShaderWrapper>
+        )}
+        {shaders.discGlare.enabled && (
+            <ShaderWrapper config={shaders.discGlare} globalConfig={config}>
+                <DiscGlareShader config={shaders.discGlare} globalConfig={config} />
+            </ShaderWrapper>
+        )}
+        {shaders.hydrogen.enabled && (
+            <ShaderWrapper config={shaders.hydrogen} globalConfig={config}>
+                <HydrogenShader config={shaders.hydrogen} globalConfig={config} />
             </ShaderWrapper>
         )}
       </div>
@@ -2539,3 +2956,5 @@ const Shape = ({ shapeConfig, corrosionFreq, config }: { shapeConfig: ShapeConfi
         </>
     )
 }
+
+

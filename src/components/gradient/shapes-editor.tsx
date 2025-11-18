@@ -276,6 +276,7 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
             )}
 
             <ControlSliderRow
+              id={`shape-alpha-${shape.id}`}
               label={t('alpha')}
               value={extractAlphaFromHex(shape.color)}
               onValueChange={(val) => updateShape(shape.id, { color: applyAlphaToHex(shape.color, val) })}
@@ -290,28 +291,35 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
             
             {shape.shape === 'triangle' && (
                 <div className='space-y-4 pt-2 border-t border-muted/20'>
-                    <ControlSliderRow label={`${t('angle')} A`} value={shape.triangle.angleA} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, angleA: v}})} min={1} max={178} step={0.1} unit="°" isRTL={isRTL} />
-                    <ControlSliderRow label={`${t('angle')} B`} value={shape.triangle.angleB} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, angleB: v}})} min={1} max={178} step={0.1} unit="°" isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-angleA-${shape.id}`} label={`${t('angle')} A`} value={shape.triangle.angleA} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, angleA: v}})} min={1} max={178} step={0.1} unit="°" isRTL={isRTL} />
+                    <CustomSlider id={`shape-angleA-slider-${shape.id}`} value={shape.triangle.angleA} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, angleA: v}})} min={1} max={178} step={0.1} isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-angleB-${shape.id}`} label={`${t('angle')} B`} value={shape.triangle.angleB} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, angleB: v}})} min={1} max={178} step={0.1} unit="°" isRTL={isRTL} />
+                    <CustomSlider id={`shape-angleB-slider-${shape.id}`} value={shape.triangle.angleB} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, angleB: v}})} min={1} max={178} step={0.1} isRTL={isRTL} />
                     <div className="space-y-2">
                         <div className="flex justify-between" dir={isRTL ? 'rtl' : 'ltr'}>
                             <Label>{t('angle')} C</Label>
                             <span className="text-sm text-muted-foreground">{shape.triangle.angleC.toFixed(1)}°</span>
                         </div>
                     </div>
-                    <ControlSliderRow label={t('height')} value={shape.triangle.height} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, height: v}})} min={0.1} max={500} step={0.1} unit="px" isRTL={isRTL} />
-                    <ControlSliderRow label={t('base')} value={shape.triangle.base} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, base: v}})} min={0.1} max={500} step={0.1} unit="px" isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-height-${shape.id}`} label={t('height')} value={shape.triangle.height} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, height: v}})} min={0.1} max={500} step={0.1} unit="px" isRTL={isRTL} />
+                    <CustomSlider id={`shape-height-slider-${shape.id}`} value={shape.triangle.height} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, height: v}})} min={0.1} max={500} step={0.1} isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-base-${shape.id}`} label={t('base')} value={shape.triangle.base} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, base: v}})} min={0.1} max={500} step={0.1} unit="px" isRTL={isRTL} />
+                    <CustomSlider id={`shape-base-slider-${shape.id}`} value={shape.triangle.base} onValueChange={v => updateShape(shape.id, {triangle: {...shape.triangle, base: v}})} min={0.1} max={500} step={0.1} isRTL={isRTL} />
                 </div>
             )}
              {shape.shape === 'beam' && (
                 <div className='space-y-4 pt-2 border-t border-muted/20'>
-                    <ControlSliderRow label={t('startSpread')} value={shape.beam.spreadStart} onValueChange={v => updateShape(shape.id, {beam: {...shape.beam, spreadStart: v}})} min={0} max={500} step={1} unit="px" isRTL={isRTL} />
-                    <ControlSliderRow label={t('endSpread')} value={shape.beam.spreadEnd} onValueChange={v => updateShape(shape.id, {beam: {...shape.beam, spreadEnd: v}})} min={0} max={500} step={1} unit="px" isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-spreadStart-${shape.id}`} label={t('startSpread')} value={shape.beam.spreadStart} onValueChange={v => updateShape(shape.id, {beam: {...shape.beam, spreadStart: v}})} min={0} max={500} step={1} unit="px" isRTL={isRTL} />
+                    <CustomSlider id={`shape-spreadStart-slider-${shape.id}`} value={shape.beam.spreadStart} onValueChange={v => updateShape(shape.id, {beam: {...shape.beam, spreadStart: v}})} min={0} max={500} step={1} isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-spreadEnd-${shape.id}`} label={t('endSpread')} value={shape.beam.spreadEnd} onValueChange={v => updateShape(shape.id, {beam: {...shape.beam, spreadEnd: v}})} min={0} max={500} step={1} unit="px" isRTL={isRTL} />
+                    <CustomSlider id={`shape-spreadEnd-slider-${shape.id}`} value={shape.beam.spreadEnd} onValueChange={v => updateShape(shape.id, {beam: {...shape.beam, spreadEnd: v}})} min={0} max={500} step={1} isRTL={isRTL} />
                 </div>
             )}
 
             {shape.shape === 'quadratic' && (
                 <div className='space-y-4 pt-2 border-t border-muted/20'>
-                    <ControlSliderRow label={t('aperture')} value={shape.quadratic.aperture} onValueChange={v => updateShape(shape.id, {quadratic: {...shape.quadratic, aperture: v}})} min={0} max={1} step={0.01} isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-aperture-${shape.id}`} label={t('aperture')} value={shape.quadratic.aperture} onValueChange={v => updateShape(shape.id, {quadratic: {...shape.quadratic, aperture: v}})} min={0} max={1} step={0.01} isRTL={isRTL} />
+                    <CustomSlider id={`shape-aperture-slider-${shape.id}`} value={shape.quadratic.aperture} onValueChange={v => updateShape(shape.id, {quadratic: {...shape.quadratic, aperture: v}})} min={0} max={1} step={0.01} isRTL={isRTL} />
                 </div>
             )}
             
@@ -346,6 +354,7 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
                                 <div className="flex items-center gap-2">
                                     <div className="flex-grow">
                                         <ControlSliderRow
+                                            id={`shape-grad-stop-${color.id}`}
                                             label={t('stop')}
                                             value={color.stop}
                                             onValueChange={val => updateShape(shape.id, (current) => {
@@ -356,6 +365,12 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
                                             })}
                                             min={0} max={100} step={0.1} unit="%" isRTL={isRTL}
                                         />
+                                        <CustomSlider id={`shape-grad-stop-slider-${color.id}`} value={color.stop} onValueChange={val => updateShape(shape.id, (current) => {
+                                                const newGradient = { ...(current.gradient || { colors: [], angle: 90 }) };
+                                                const newColors = [...newGradient.colors];
+                                                newColors[idx] = { ...newColors[idx], stop: val };
+                                                return { gradient: { ...newGradient, colors: newColors }};
+                                            })} min={0} max={100} step={0.1} isRTL={isRTL} />
                                     </div>
                                     <RadixButton variant="destructive" size="icon" className="h-8 w-8 mt-4" onClick={() => removeGradientColor(shape.id, color.id)}>
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M6 6 L18 18 M18 6 L6 18"></path></svg>
@@ -366,7 +381,8 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
                         </React.Fragment>
                     ))}
                     <Button variant="outline" onClick={() => addGradientColor(shape.id)}>{t('addColor')}</Button>
-                    <ControlSliderRow label={t('angle')} value={shape.gradient?.angle ?? 90} onValueChange={v => updateShape(shape.id, { gradient: { ...(shape.gradient || {colors:[]}), angle: v } })} min={0} max={360} step={1} unit="°" isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-grad-angle-${shape.id}`} label={t('angle')} value={shape.gradient?.angle ?? 90} onValueChange={v => updateShape(shape.id, { gradient: { ...(shape.gradient || {colors:[]}), angle: v } })} min={0} max={360} step={1} unit="°" isRTL={isRTL} />
+                    <CustomSlider id={`shape-grad-angle-slider-${shape.id}`} value={shape.gradient?.angle ?? 90} onValueChange={v => updateShape(shape.id, { gradient: { ...(shape.gradient || {colors:[]}), angle: v } })} min={0} max={360} step={1} isRTL={isRTL} />
                  </div>
             )}
 
@@ -394,9 +410,12 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
             />
             
             <h3 className="font-semibold pt-2 border-t border-muted/20" style={{textAlign: isRTL ? 'right' : 'left'}}>{t('effects')}</h3>
-            <ControlSliderRow label={t('rotation')} value={shape.rotation} onValueChange={v => updateShape(shape.id, { rotation: v })} min={-360} max={360} step={0.1} unit="°" isRTL={isRTL} />
-            <ControlSliderRow label={t('corrosion')} value={shape.corrosion} onValueChange={v => updateShape(shape.id, { corrosion: v })} min={0} max={100} step={0.1} isRTL={isRTL} />
-            <ControlSliderRow label={t('overflow')} value={shape.overflow} onValueChange={v => updateShape(shape.id, { overflow: v })} min={0} max={400} step={0.1} unit="px" isRTL={isRTL} />
+            <ControlSliderRow id={`shape-rotation-${shape.id}`} label={t('rotation')} value={shape.rotation} onValueChange={v => updateShape(shape.id, { rotation: v })} min={-360} max={360} step={0.1} unit="°" isRTL={isRTL} />
+            <CustomSlider id={`shape-rotation-slider-${shape.id}`} value={shape.rotation} onValueChange={v => updateShape(shape.id, { rotation: v })} min={-360} max={360} step={0.1} isRTL={isRTL} />
+            <ControlSliderRow id={`shape-corrosion-${shape.id}`} label={t('corrosion')} value={shape.corrosion} onValueChange={v => updateShape(shape.id, { corrosion: v })} min={0} max={100} step={0.1} isRTL={isRTL} />
+            <CustomSlider id={`shape-corrosion-slider-${shape.id}`} value={shape.corrosion} onValueChange={v => updateShape(shape.id, { corrosion: v })} min={0} max={100} step={0.1} isRTL={isRTL} />
+            <ControlSliderRow id={`shape-overflow-${shape.id}`} label={t('overflow')} value={shape.overflow} onValueChange={v => updateShape(shape.id, { overflow: v })} min={0} max={400} step={0.1} unit="px" isRTL={isRTL} />
+            <CustomSlider id={`shape-overflow-slider-${shape.id}`} value={shape.overflow} onValueChange={v => updateShape(shape.id, { overflow: v })} min={0} max={400} step={0.1} isRTL={isRTL} />
         
             <h3 className="font-semibold pt-2 border-t border-muted/20" style={{textAlign: isRTL ? 'right' : 'left'}}>{t('animation')}</h3>
             <FloatingLabelCombobox
@@ -418,8 +437,10 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
 
             {(shape.animation.mode === 'rotate' || shape.animation.mode === 'pulsate') && (
                  <div className="space-y-3 pt-3 border-t border-muted/20">
-                    <ControlSliderRow label={t('transformOriginX')} value={shape.transformOrigin.x} onValueChange={v => updateShape(shape.id, { transformOrigin: { ...shape.transformOrigin, x: v } })} min={-100} max={200} step={0.1} unit="%" isRTL={isRTL} />
-                    <ControlSliderRow label={t('transformOriginY')} value={shape.transformOrigin.y} onValueChange={v => updateShape(shape.id, { transformOrigin: { ...shape.transformOrigin, y: v } })} min={-100} max={200} step={0.1} unit="%" isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-originX-${shape.id}`} label={t('transformOriginX')} value={shape.transformOrigin.x} onValueChange={v => updateShape(shape.id, { transformOrigin: { ...shape.transformOrigin, x: v } })} min={-100} max={200} step={0.1} unit="%" isRTL={isRTL} />
+                    <CustomSlider id={`shape-originX-slider-${shape.id}`} value={shape.transformOrigin.x} onValueChange={v => updateShape(shape.id, { transformOrigin: { ...shape.transformOrigin, x: v } })} min={-100} max={200} step={0.1} isRTL={isRTL} />
+                    <ControlSliderRow id={`shape-originY-${shape.id}`} label={t('transformOriginY')} value={shape.transformOrigin.y} onValueChange={v => updateShape(shape.id, { transformOrigin: { ...shape.transformOrigin, y: v } })} min={-100} max={200} step={0.1} unit="%" isRTL={isRTL} />
+                    <CustomSlider id={`shape-originY-slider-${shape.id}`} value={shape.transformOrigin.y} onValueChange={v => updateShape(shape.id, { transformOrigin: { ...shape.transformOrigin, y: v } })} min={-100} max={200} step={0.1} isRTL={isRTL} />
                  </div>
             )}
 
@@ -478,14 +499,13 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
 }
 
 
-function ControlSliderRow({ label, value = 0, onValueChange, min, max, step, unit='', isRTL }: { label: string, value: number, onValueChange: (v: number) => void, min: number, max: number, step: number, unit?:string, isRTL: boolean }) {
+function ControlSliderRow({ id, label, value = 0, onValueChange, min, max, step, unit='', isRTL }: { id: string, label: string, value: number, onValueChange: (v: number) => void, min: number, max: number, step: number, unit?:string, isRTL: boolean }) {
     return (
         <div className="space-y-2">
             <div className="flex justify-between" dir={isRTL ? 'rtl' : 'ltr'}>
                 <Label>{label}</Label>
                 <span className="text-sm text-muted-foreground">{value.toFixed(step < 1 ? 2 : 1)}{unit}</span>
             </div>
-            <CustomSlider id={label} value={value} onValueChange={onValueChange} min={min} max={max} step={step} isRTL={isRTL} />
         </div>
     )
 }
@@ -552,10 +572,10 @@ function PulsateSection({ t, pulsate, onMinSizeChange, onMaxSizeChange, onDurati
 
     return (
         <div className="space-y-3">
-            <ControlSliderRow label={t('minSize')} value={pulsate.minSize} onValueChange={onMinSizeChange} min={0} max={2} step={0.1} unit="x" isRTL={isRTL} />
-            <CustomSlider value={pulsate.minSize} onValueChange={onMinSizeChange} min={0} max={2} step={0.1} unit="x" isRTL={isRTL} />
-            <ControlSliderRow label={t('maxSize')} value={pulsate.maxSize} onValueChange={onMaxSizeChange} min={0} max={3} step={0.1} unit="x" isRTL={isRTL} />
-            <CustomSlider value={pulsate.maxSize} onValueChange={onMaxSizeChange} min={0} max={3} step={0.1} unit="x" isRTL={isRTL} />
+            <ControlSliderRow id="pulsate-min-size" label={t('minSize')} value={pulsate.minSize} onValueChange={onMinSizeChange} min={0} max={2} step={0.1} unit="x" isRTL={isRTL} />
+            <CustomSlider id="pulsate-min-size-slider" value={pulsate.minSize} onValueChange={onMinSizeChange} min={0} max={2} step={0.1} isRTL={isRTL} />
+            <ControlSliderRow id="pulsate-max-size" label={t('maxSize')} value={pulsate.maxSize} onValueChange={onMaxSizeChange} min={0} max={3} step={0.1} unit="x" isRTL={isRTL} />
+            <CustomSlider id="pulsate-max-size-slider" value={pulsate.maxSize} onValueChange={onMaxSizeChange} min={0} max={3} step={0.1} isRTL={isRTL} />
             <FloatingLabelInput label={`${t('duration')} (s)`} value={String(pulsate.duration)} onValueChange={(v) => onDurationChange(Number(v))} type="number" />
         </div>
     )

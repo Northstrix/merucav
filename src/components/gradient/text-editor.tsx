@@ -162,7 +162,10 @@ export function TextEditor({ config, setConfig, openConfirmDialog }: TextEditorP
             <h3 className="font-semibold pt-2 border-t border-muted/20" style={{textAlign: isRTL ? 'right' : 'left'}}>{t('appearance')}</h3>
             <FloatingLabelCombobox label={t('fillMode')} value={text.fillMode} onValueChange={v => updateText(text.id, {fillMode: v as 'fill' | 'stroke'})} options={fillModeOptions} />
             {text.fillMode === 'stroke' && (
+              <>
                 <ControlSliderRow label={t('strokeWidth')} value={text.strokeWidth} onValueChange={v => updateText(text.id, {strokeWidth: v})} min={0.1} max={10} step={0.1} unit="px" isRTL={isRTL} />
+                <CustomSlider value={text.strokeWidth} onValueChange={v => updateText(text.id, {strokeWidth: v})} min={0.1} max={10} step={0.1} isRTL={isRTL} />
+              </>
             )}
 
             <h3 className="font-semibold pt-2 border-t border-muted/20" style={{textAlign: isRTL ? 'right' : 'left'}}>{t('font')}</h3>

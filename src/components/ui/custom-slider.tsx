@@ -2,7 +2,7 @@
 import React, { useState, useRef, useEffect, useCallback } from 'react';
 
 export interface CustomSliderProps {
-  id: string;
+  id?: string;
   min?: number;
   max?: number;
   step?: number;
@@ -29,6 +29,8 @@ export interface CustomSliderProps {
   ariaLabel?: string;
   isRTL?: boolean;
   keyStep?: number;
+  label?: string; // Add label to props
+  unit?: string;
 }
 
 export function CustomSlider({
@@ -151,16 +153,16 @@ export function CustomSlider({
   const computedFillWidth = (percentage / 100) * usableWidth;
   const baseFillWidth = Math.min(BASE_FILL_LENGTH, usableWidth);
 
-  const wrapperClasses = `namer-ui-slider-${id}-wrapper${disabled ? ' disabled' : ''}`;
-  const trackClass = `namer-ui-slider-${id}-track`;
-  const baseFillClass = `namer-ui-slider-${id}-baseFill`;
-  const fillClass = `namer-ui-slider-${id}-fill`;
-  const thumbClass = `namer-ui-slider-${id}-thumb`;
+  const wrapperId = `namer-ui-slider-${id}-wrapper`;
+  const trackId = `namer-ui-slider-${id}-track`;
+  const baseFillId = `namer-ui-slider-${id}-baseFill`;
+  const fillId = `namer-ui-slider-${id}-fill`;
+  const thumbId = `namer-ui-slider-${id}-thumb`;
 
   return (
     <div>
       <style>{`
-        .${wrapperClasses} {
+        #${wrapperId} {
           position: relative;
           width: ${width};
           height: ${thumbHeight};
@@ -170,11 +172,11 @@ export function CustomSlider({
           touch-action: none;
           outline: none;
         }
-        .${wrapperClasses}.disabled {
+        #${wrapperId}.disabled {
           cursor: not-allowed;
           opacity: 0.5;
         }
-        .${trackClass}, .${baseFillClass}, .${fillClass} {
+        #${trackId}, #${baseFillId}, #${fillId} {
           position: absolute;
           height: ${trackHeight};
           border-radius: ${trackFillBorderRadius};
@@ -182,20 +184,20 @@ export function CustomSlider({
           transform: translateY(-50%);
           transition: background-color 0.2s ease;
         }
-        .${trackClass} {
+        #${trackId} {
           background-color: ${colorTrackBackground};
           width: 100%;
         }
-        .${baseFillClass} {
+        #${baseFillId} {
           background-color: ${colorFillDefault};
           opacity: 1;
           z-index: 1;
         }
-        .${fillClass} {
+        #${fillId} {
           background-color: ${fillColor};
           z-index: 2;
         }
-        .${thumbClass} {
+        #${thumbId} {
           position: absolute;
           width: ${thumbWidth};
           height: ${thumbHeight};
@@ -212,7 +214,8 @@ export function CustomSlider({
 
       <div
         ref={sliderRef}
-        className={wrapperClasses}
+        id={wrapperId}
+        className={disabled ? 'disabled' : ''}
         onMouseDown={handleMouseDown}
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
@@ -228,10 +231,10 @@ export function CustomSlider({
         aria-disabled={disabled}
         dir={isRTL ? 'rtl' : 'ltr'}
       >
-        <div className={trackClass} />
+        <div id={trackId} />
 
         <div
-          className={baseFillClass}
+          id={baseFillId}
           style={
             isRTL
               ? {
@@ -248,7 +251,7 @@ export function CustomSlider({
         />
 
         <div
-          className={fillClass}
+          id={fillId}
           style={
             isRTL
               ? { right: DEAD_ZONE, width: computedFillWidth }
@@ -257,7 +260,7 @@ export function CustomSlider({
         />
 
         <div
-          className={thumbClass}
+          id={thumbId}
           style={
             isRTL
               ? {
