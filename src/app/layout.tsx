@@ -5,7 +5,7 @@ import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
   title: 'Merucav',
-  description: 'An advanced gradient design and editing tool.',
+  description: 'A modern digital design tool.',
 };
 
 export default function RootLayout({

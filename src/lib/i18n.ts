@@ -1,6 +1,7 @@
 
 
 
+
 export type Dictionary = typeof dictionaries.en;
 
 export const dictionaries = {
@@ -245,6 +246,8 @@ export const dictionaries = {
     magneticM: 'Magnetic (m)',
     color1: 'Color 1',
     color2: 'Color 2',
+    pulse: 'Pulse',
+    factor: 'Factor',
   },
   he: {
     appName: "מרוכב",
@@ -487,6 +490,8 @@ export const dictionaries = {
     magneticM: 'מגנטי (m)',
     color1: 'צבע 1',
     color2: 'צבע 2',
+    pulse: 'פולס',
+    factor: 'פקטור',
   },
   it: {
     appName: "Merucav",
@@ -729,6 +734,8 @@ export const dictionaries = {
     magneticM: 'Magnetico (m)',
     color1: 'Colore 1',
     color2: 'Colore 2',
+    pulse: 'Impulso',
+    factor: 'Fattore',
   },
   'es': {
     appName: "Merucav",
@@ -971,6 +978,8 @@ export const dictionaries = {
     magneticM: 'Magnético (m)',
     color1: 'Color 1',
     color2: 'Color 2',
+    pulse: 'Pulso',
+    factor: 'Factor',
   },
   pt: {
     appName: "Merucav",
@@ -1213,6 +1222,8 @@ export const dictionaries = {
     magneticM: 'Magnético (m)',
     color1: 'Cor 1',
     color2: 'Cor 2',
+    pulse: 'Pulso',
+    factor: 'Fator',
   },
   yue: {
     appName: "Merucav",
@@ -1455,6 +1466,8 @@ export const dictionaries = {
     magneticM: '磁量子數 (m)',
     color1: '顏色 1',
     color2: '顏色 2',
+    pulse: '脈衝',
+    factor: '因子',
   },
   ja: {
     appName: "Merucav",
@@ -1697,6 +1710,8 @@ export const dictionaries = {
     magneticM: '磁気量子数 (m)',
     color1: '色1',
     color2: '色2',
+    pulse: 'パルス',
+    factor: 'ファクター',
   },
   ko: {
     appName: "Merucav",
@@ -1939,5 +1954,7 @@ export const dictionaries = {
     magneticM: '자기양자수 (m)',
     color1: '색상 1',
     color2: '색상 2',
+    pulse: '펄스',
+    factor: '요인',
   },
 };

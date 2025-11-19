@@ -29,6 +29,8 @@ export const Credits = () => {
 
 [Voronoi - distances](https://www.shadertoy.com/view/ldl3W8) by [iq](https://www.shadertoy.com/user/iq)
 
+[pulse](https://codepen.io/VaaLaa/pen/yyeQdMZ) by [Andrei V](https://codepen.io/VaaLaa)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)

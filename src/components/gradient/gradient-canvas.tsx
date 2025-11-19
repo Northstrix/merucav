@@ -2,6 +2,8 @@
 
 
 
+
+
 'use client';
 import React, { useMemo, useRef, useEffect, useState, Suspense, lazy } from 'react';
 import { v4 as uuidv4 } from 'uuid';
@@ -260,6 +262,13 @@ export interface GradientConfig {
         color2_g: number;
         color2_b: number;
     };
+    pulse: ShaderSetting & {
+        speed: number;
+        factor: number;
+        hue: number;
+        saturation: number;
+        contrast: number;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -439,6 +448,16 @@ export function getDefaultGradientConfig(): GradientConfig {
             color2_r: 0.1,
             color2_g: 1.0,
             color2_b: 0.46,
+        },
+        pulse: {
+            enabled: false,
+            opacity: 1,
+            transform: { ...defaultTransform },
+            speed: 1,
+            factor: 0.2,
+            hue: 0,
+            saturation: 1,
+            contrast: 1,
         }
     },
     grainAmount: 0,
@@ -2329,6 +2348,160 @@ function HydrogenShader({ config, globalConfig }: { config: GradientConfig['shad
     return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
 }
 
+const pulseFragShader = `
+#ifdef GL_ES
+precision mediump float;
+#endif
+
+uniform vec2 u_resolution;
+uniform float u_time;
+uniform float u_speed;
+uniform float u_factor;
+uniform float u_hue;
+uniform float u_saturation;
+uniform float u_contrast;
+
+${hueSatHelpers}
+
+const float pi  = 3.1415926;
+
+vec3 palette3(float t, float factor) {
+    vec3 a = vec3(0.5) + 0.3 * sin(vec3(0.1, 0.3, 0.5) * factor);
+    vec3 b = vec3(0.5) + 0.3 * cos(vec3(0.2, 0.4, 0.6) * factor);
+    vec3 c = vec3(1.0) + 0.5 * sin(vec3(0.3, 0.7, 0.9) * factor);
+    vec3 d = vec3(0.25, 0.4, 0.55) + 0.2 * cos(vec3(0.5, 0.6, 0.7) * factor);
+    return a + b * cos(6.28318 * (c * t + d));
+}
+
+vec2 rotate(vec2 pos, float angle) {
+    float cosAngle = cos(angle);
+    float sinAngle = sin(angle);
+    mat2 rotationMatrix = mat2(cosAngle, -sinAngle, sinAngle, cosAngle);
+    return rotationMatrix * pos;
+}
+
+float oscillate(float time, float minVal, float maxVal) {
+    float sineWave = sin(time);
+    float normalizedSine = (sineWave + 1.0) / 2.0;
+    return mix(minVal, maxVal, normalizedSine);
+}
+
+float hash(vec2 p) {
+    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
+}
+
+float noise(vec2 p) {
+    vec2 i = floor(p);
+    vec2 f = fract(p);
+    vec2 u = f * f * (3.0 - 2.0 * f);
+    
+    return mix(mix(hash(i + vec2(0.0, 0.0)), hash(i + vec2(1.0, 0.0)), u.x),
+               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), u.x),
+               u.y);
+}
+
+void main(){
+  vec2 uv = (gl_FragCoord.xy/u_resolution)*2.0 - 1.0;
+  uv.x *= u_resolution.x/u_resolution.y;
+  uv = rotate(uv, u_time * u_speed * 0.03);
+  uv *= 15.0;
+  float t = u_time * u_speed * 0.2;
+  float r = length(uv);
+  float a = atan(uv.y, uv.x);
+
+  float N = 18.0;
+  a = abs(mod(a, (pi * 2.0)/N) - pi/N);
+  uv = vec2(cos(a), sin(a)) * r;
+  uv *= noise(uv + u_time * oscillate(u_time * 0.01, 0.01, 0.1)) * 0.05;
+
+  float v = 5.0 + 0.5*sin(5.0*uv.x + 10.0*uv.y + t*3.0) * (0.5 + 0.2*sin(0.5*r - t*5.0));
+
+  vec3 col = 0.5 + 0.5*cos(pi * 2.0 * (vec3(0.9,0.2,0.1)*v + vec3(0.0,0.2,0.35)));
+  
+  col = palette3(-length(col) * 1.9, length(col) * u_factor);
+  col = (col - 0.5) * u_contrast + 0.5;
+
+  vec3 hsv = rgb2hsv(col);
+  hsv.x += u_hue / 360.0;
+  hsv.y *= u_saturation;
+  col = hsv2rgb(hsv);
+
+  gl_FragColor = vec4(col, 1.0);
+}
+`;
+
+function PulseShader({ config, globalConfig }: { config: GradientConfig['shaders']['pulse'], globalConfig: GradientConfig }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl');
+        if (!gl) return;
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        gl.shaderSource(vertexShader, flowVertShader);
+        gl.compileShader(vertexShader);
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(fragmentShader, pulseFragShader);
+        gl.compileShader(fragmentShader);
+        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+            console.error('Pulse Shader compile error:', gl.getShaderInfoLog(fragmentShader));
+            return;
+        }
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        const positionAttributeLocation = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(positionAttributeLocation);
+        gl.vertexAttribPointer(positionAttributeLocation, 2, gl.FLOAT, false, 0, 0);
+
+        const uTimeLocation = gl.getUniformLocation(program, 'u_time');
+        const uResolutionLocation = gl.getUniformLocation(program, 'u_resolution');
+        const uSpeedLocation = gl.getUniformLocation(program, 'u_speed');
+        const uFactorLocation = gl.getUniformLocation(program, 'u_factor');
+        const uHueLocation = gl.getUniformLocation(program, 'u_hue');
+        const uSaturationLocation = gl.getUniformLocation(program, 'u_saturation');
+        const uContrastLocation = gl.getUniformLocation(program, 'u_contrast');
+
+        let animationFrameId: number;
+        let startTime = Date.now();
+        const render = (time: number) => {
+            if (!gl) return;
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uTimeLocation, time);
+            gl.uniform2f(uResolutionLocation, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uSpeedLocation, config.speed);
+            gl.uniform1f(uFactorLocation, config.factor);
+            gl.uniform1f(uHueLocation, config.hue);
+            gl.uniform1f(uSaturationLocation, config.saturation);
+            gl.uniform1f(uContrastLocation, config.contrast);
+
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+
+        const renderLoop = () => {
+            const time = globalConfig.paused ? globalConfig.motion / 100 * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+            else render(time);
+        };
+        renderLoop();
+        return () => { if (animationFrameId) cancelAnimationFrame(animationFrameId); };
+    }, [config, globalConfig.paused, globalConfig.motion]);
+    return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
+}
+
+
 function ShaderWrapper({ config, globalConfig, children }: { config: ShaderSetting, globalConfig: GradientConfig, children: React.ReactNode}) {
     const { transform } = config;
     const style: React.CSSProperties = {
@@ -2445,6 +2618,11 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.hydrogen.enabled && (
             <ShaderWrapper config={shaders.hydrogen} globalConfig={config}>
                 <HydrogenShader config={shaders.hydrogen} globalConfig={config} />
+            </ShaderWrapper>
+        )}
+        {shaders.pulse.enabled && (
+            <ShaderWrapper config={shaders.pulse} globalConfig={config}>
+                <PulseShader config={shaders.pulse} globalConfig={config} />
             </ShaderWrapper>
         )}
       </div>
@@ -2956,5 +3134,7 @@ const Shape = ({ shapeConfig, corrosionFreq, config }: { shapeConfig: ShapeConfi
         </>
     )
 }
+
+
 
 

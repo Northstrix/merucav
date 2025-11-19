@@ -2,6 +2,8 @@
 
 
 
+
+
 'use client';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
 import { GradientConfig } from "./types";
@@ -38,7 +40,7 @@ export function GradientPropertiesEditor({ config, setConfig }: GradientProperti
         setConfig(newConfig);
     };
 
-    const { flow, tranquiluxe, kaleidoscope, fate, structuredNoise, balatro, electricPulse, laserBlast, novatrix, voronoi, discGlare, hydrogen } = config.shaders;
+    const { flow, tranquiluxe, kaleidoscope, fate, structuredNoise, balatro, electricPulse, laserBlast, novatrix, voronoi, discGlare, hydrogen, pulse } = config.shaders;
 
     const renderShaderControls = (shaderName: keyof GradientConfig['shaders'], shaderConfig: any, children: React.ReactNode) => (
         <AccordionItem value={shaderName} className="border-b-0">
@@ -298,12 +300,12 @@ export function GradientPropertiesEditor({ config, setConfig }: GradientProperti
                 ))}
                 {renderShaderControls('hydrogen', hydrogen, (
                     <div className='space-y-4'>
-                        <ControlSlider label={t('principalN')} value={hydrogen.n} min={1} max={10} step={0.001} onValueChange={(v) => updateShaderConfig('hydrogen', 'n', v)} isRTL={isRTL} />
-                        <CustomSlider id="hydrogen-n" value={hydrogen.n} min={1} max={10} step={0.001} onValueChange={(v) => updateShaderConfig('hydrogen', 'n', v)} isRTL={isRTL} />
-                        <ControlSlider label={t('azimuthalL')} value={hydrogen.l} min={0} max={hydrogen.n - 1} step={0.01} onValueChange={(v) => updateShaderConfig('hydrogen', 'l', v)} isRTL={isRTL} />
-                        <CustomSlider id="hydrogen-l" value={hydrogen.l} min={0} max={hydrogen.n - 1} step={0.01} onValueChange={(v) => updateShaderConfig('hydrogen', 'l', v)} isRTL={isRTL} />
-                        <ControlSlider label={t('magneticM')} value={hydrogen.m} min={-hydrogen.l} max={hydrogen.l} step={0.01} onValueChange={(v) => updateShaderConfig('hydrogen', 'm', v)} isRTL={isRTL} />
-                        <CustomSlider id="hydrogen-m" value={hydrogen.m} min={-hydrogen.l} max={hydrogen.l} step={0.01} onValueChange={(v) => updateShaderConfig('hydrogen', 'm', v)} isRTL={isRTL} />
+                        <ControlSlider label={t('principalN')} value={hydrogen.n} min={1} max={7} step={1} onValueChange={(v) => updateShaderConfig('hydrogen', 'n', v)} isRTL={isRTL} />
+                        <CustomSlider id="hydrogen-n" value={hydrogen.n} min={1} max={7} step={1} onValueChange={(v) => updateShaderConfig('hydrogen', 'n', v)} isRTL={isRTL} />
+                        <ControlSlider label={t('azimuthalL')} value={hydrogen.l} min={0} max={hydrogen.n - 1} step={1} onValueChange={(v) => updateShaderConfig('hydrogen', 'l', v)} isRTL={isRTL} />
+                        <CustomSlider id="hydrogen-l" value={hydrogen.l} min={0} max={hydrogen.n - 1} step={1} onValueChange={(v) => updateShaderConfig('hydrogen', 'l', v)} isRTL={isRTL} />
+                        <ControlSlider label={t('magneticM')} value={hydrogen.m} min={-hydrogen.l} max={hydrogen.l} step={1} onValueChange={(v) => updateShaderConfig('hydrogen', 'm', v)} isRTL={isRTL} />
+                        <CustomSlider id="hydrogen-m" value={hydrogen.m} min={-hydrogen.l} max={hydrogen.l} step={1} onValueChange={(v) => updateShaderConfig('hydrogen', 'm', v)} isRTL={isRTL} />
                         
                         <ControlSlider label={t('zoom')} value={hydrogen.zoom} min={0.1} max={50} step={0.01} onValueChange={(v) => updateShaderConfig('hydrogen', 'zoom', v)} isRTL={isRTL} />
                         <CustomSlider id="hydrogen-zoom" value={hydrogen.zoom} min={0.1} max={50} step={0.01} onValueChange={(v) => updateShaderConfig('hydrogen', 'zoom', v)} isRTL={isRTL} />
@@ -333,6 +335,20 @@ export function GradientPropertiesEditor({ config, setConfig }: GradientProperti
                         <CustomSlider id="hydrogen-color2_b" value={hydrogen.color2_b} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig('hydrogen', 'color2_b', v)} isRTL={isRTL} />
                     </div>
                 ))}
+                {renderShaderControls('pulse', pulse, (
+                     <>
+                        <ControlSlider label={t('speed')} value={pulse.speed} min={0} max={100} step={0.1} onValueChange={(v) => updateShaderConfig('pulse', 'speed', v)} isRTL={isRTL} />
+                        <CustomSlider id="pulse-speed" value={pulse.speed} min={0} max={100} step={0.1} onValueChange={(v) => updateShaderConfig('pulse', 'speed', v)} isRTL={isRTL} />
+                        <ControlSlider label={t('factor')} value={pulse.factor} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig('pulse', 'factor', v)} isRTL={isRTL} />
+                        <CustomSlider id="pulse-factor" value={pulse.factor} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig('pulse', 'factor', v)} isRTL={isRTL} />
+                        <ControlSlider label={t('hue')} value={pulse.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig('pulse', 'hue', v)} isRTL={isRTL} />
+                        <CustomSlider id="pulse-hue" value={pulse.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig('pulse', 'hue', v)} isRTL={isRTL} />
+                        <ControlSlider label={t('saturation')} value={pulse.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig('pulse', 'saturation', v)} isRTL={isRTL} />
+                        <CustomSlider id="pulse-saturation" value={pulse.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig('pulse', 'saturation', v)} isRTL={isRTL} />
+                        <ControlSlider label={t('contrast')} value={pulse.contrast} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig('pulse', 'contrast', v)} isRTL={isRTL} />
+                        <CustomSlider id="pulse-contrast" value={pulse.contrast} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig('pulse', 'contrast', v)} isRTL={isRTL} />
+                    </>
+                ))}
             </Accordion>
         </div>
     );
@@ -348,3 +364,5 @@ function ControlSlider({ label, value, onValueChange, min, max, step, isRTL, uni
         </div>
     )
 }
+
+
