@@ -67,6 +67,8 @@ export function GradientPropertiesEditor({
     neonPolygon,
     exposedFilm,
     psychedelicGlass,
+    solarWhirls,
+    chargedCells,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -2918,6 +2920,534 @@ export function GradientPropertiesEditor({
             isRTL={isRTL}
           />
         </>)}
+        {renderShaderControls(
+          "solarWhirls",
+          solarWhirls,
+          <>
+            {/* SPEED */}
+            <ControlSlider
+              label={t("speed")}
+              value={solarWhirls.speed}
+              min={0}
+              max={5}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "speed", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-speed"
+              value={solarWhirls.speed}
+              min={0}
+              max={5}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "speed", v)}
+              isRTL={isRTL}
+            />
+
+            {/* HUE */}
+            <ControlSlider
+              label={t("hue")}
+              value={solarWhirls.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "hue", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-hue"
+              value={solarWhirls.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "hue", v)}
+              isRTL={isRTL}
+            />
+
+            {/* SATURATION */}
+            <ControlSlider
+              label={t("saturation")}
+              value={solarWhirls.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "saturation", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-saturation"
+              value={solarWhirls.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "saturation", v)}
+              isRTL={isRTL}
+            />
+
+            {/* COLOR 1 */}
+            <h4
+              className="text-xs font-medium pt-2"
+              style={{ textAlign: isRTL ? "right" : "left" }}
+            >
+              {t("color1")}
+            </h4>
+            <ControlSlider
+              label={t("rgbR")}
+              value={solarWhirls.color1_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color1_r", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color1_r"
+              value={solarWhirls.color1_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color1_r", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbG")}
+              value={solarWhirls.color1_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color1_g", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color1_g"
+              value={solarWhirls.color1_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color1_g", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbB")}
+              value={solarWhirls.color1_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color1_b", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color1_b"
+              value={solarWhirls.color1_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color1_b", v)}
+              isRTL={isRTL}
+            />
+
+            {/* COLOR 2 */}
+            <h4
+              className="text-xs font-medium pt-2"
+              style={{ textAlign: isRTL ? "right" : "left" }}
+            >
+              {t("color2")}
+            </h4>
+            <ControlSlider
+              label={t("rgbR")}
+              value={solarWhirls.color2_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color2_r", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color2_r"
+              value={solarWhirls.color2_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color2_r", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbG")}
+              value={solarWhirls.color2_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color2_g", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color2_g"
+              value={solarWhirls.color2_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color2_g", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbB")}
+              value={solarWhirls.color2_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color2_b", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color2_b"
+              value={solarWhirls.color2_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color2_b", v)}
+              isRTL={isRTL}
+            />
+
+            {/* COLOR 3 */}
+            <h4
+              className="text-xs font-medium pt-2"
+              style={{ textAlign: isRTL ? "right" : "left" }}
+            >
+              {t("color3")}
+            </h4>
+            <ControlSlider
+              label={t("rgbR")}
+              value={solarWhirls.color3_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color3_r", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color3_r"
+              value={solarWhirls.color3_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color3_r", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbG")}
+              value={solarWhirls.color3_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color3_g", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color3_g"
+              value={solarWhirls.color3_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color3_g", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbB")}
+              value={solarWhirls.color3_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color3_b", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="solarWhirls-color3_b"
+              value={solarWhirls.color3_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("solarWhirls", "color3_b", v)}
+              isRTL={isRTL}
+            />
+          </>
+        )}
+
+        {renderShaderControls(
+          "chargedCells",
+          chargedCells,
+          <>
+            {/* SPEED */}
+            <ControlSlider
+              label={t("speed")}
+              value={chargedCells.speed}
+              min={1}
+              max={15}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "speed", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-speed"
+              value={chargedCells.speed}
+              min={1}
+              max={15}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "speed", v)}
+              isRTL={isRTL}
+            />
+
+            {/* SCALE */}
+            <ControlSlider
+              label={t("scale")}
+              value={chargedCells.scale}
+              min={0.1}
+              max={10}
+              step={0.1}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "scale", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-scale"
+              value={chargedCells.scale}
+              min={0.1}
+              max={10}
+              step={0.1}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "scale", v)}
+              isRTL={isRTL}
+            />
+
+            {/* HUE */}
+            <ControlSlider
+              label={t("hue")}
+              value={chargedCells.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "hue", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-hue"
+              value={chargedCells.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "hue", v)}
+              isRTL={isRTL}
+            />
+
+            {/* SATURATION */}
+            <ControlSlider
+              label={t("saturation")}
+              value={chargedCells.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onValueChange={(v) =>
+                updateShaderConfig("chargedCells", "saturation", v)
+              }
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-saturation"
+              value={chargedCells.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onValueChange={(v) =>
+                updateShaderConfig("chargedCells", "saturation", v)
+              }
+              isRTL={isRTL}
+            />
+
+            {/* COLOR 1 */}
+            <h4
+              className="text-xs font-medium pt-2"
+              style={{ textAlign: isRTL ? "right" : "left" }}
+            >
+              {t("color1")}
+            </h4>
+            <ControlSlider
+              label={t("rgbR")}
+              value={chargedCells.color1_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color1_r", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color1_r"
+              value={chargedCells.color1_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color1_r", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbG")}
+              value={chargedCells.color1_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color1_g", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color1_g"
+              value={chargedCells.color1_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color1_g", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbB")}
+              value={chargedCells.color1_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color1_b", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color1_b"
+              value={chargedCells.color1_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color1_b", v)}
+              isRTL={isRTL}
+            />
+
+            {/* COLOR 2 */}
+            <h4
+              className="text-xs font-medium pt-2"
+              style={{ textAlign: isRTL ? "right" : "left" }}
+            >
+              {t("color2")}
+            </h4>
+            <ControlSlider
+              label={t("rgbR")}
+              value={chargedCells.color2_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color2_r", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color2_r"
+              value={chargedCells.color2_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color2_r", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbG")}
+              value={chargedCells.color2_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color2_g", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color2_g"
+              value={chargedCells.color2_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color2_g", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbB")}
+              value={chargedCells.color2_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color2_b", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color2_b"
+              value={chargedCells.color2_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color2_b", v)}
+              isRTL={isRTL}
+            />
+
+            {/* COLOR 3 */}
+            <h4
+              className="text-xs font-medium pt-2"
+              style={{ textAlign: isRTL ? "right" : "left" }}
+            >
+              {t("color3")}
+            </h4>
+            <ControlSlider
+              label={t("rgbR")}
+              value={chargedCells.color3_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color3_r", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color3_r"
+              value={chargedCells.color3_r}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color3_r", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbG")}
+              value={chargedCells.color3_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color3_g", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color3_g"
+              value={chargedCells.color3_g}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color3_g", v)}
+              isRTL={isRTL}
+            />
+            <ControlSlider
+              label={t("rgbB")}
+              value={chargedCells.color3_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color3_b", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="chargedCells-color3_b"
+              value={chargedCells.color3_b}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("chargedCells", "color3_b", v)}
+              isRTL={isRTL}
+            />
+          </>
+        )}
+
       </Accordion>
     </div>
   );

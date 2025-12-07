@@ -259,7 +259,9 @@ export const dictionaries = {
     exposedFilm: 'Exposed Film',
     rotationSpeed: 'Rotation Speed',
     psychedelicGlass: "Psychedelic Glass",
-    density: "Density"
+    density: "Density",
+    solarWhirls: "Solar Whirls",
+    chargedCells: "Charged Cells",
   },
   he: {
     appName: "מרוכב",
@@ -518,7 +520,9 @@ export const dictionaries = {
     exposedFilm: "פילם חשוף",
     rotationSpeed: "מהירות סיבוב",
     psychedelicGlass: "זכוכית פסיכדלית",
-    density: "צפיפות"
+    density: "צפיפות",
+    solarWhirls: "מערבולות שמש",
+    chargedCells: "תאים טעונים",
   },
   it: {
     appName: "Merucav",
@@ -777,7 +781,9 @@ export const dictionaries = {
     exposedFilm: "Pellicola Esposta",
     rotationSpeed: "Velocità di Rotazione",
     psychedelicGlass: "Vetro Psichedelico",
-    density: "Densità"
+    density: "Densità",
+    solarWhirls: "Vortici Solari",
+    chargedCells: "Celle Cariche",
   },
   es: {
     appName: "Merucav",
@@ -1036,7 +1042,9 @@ export const dictionaries = {
     exposedFilm: "Película Expuesta",
     rotationSpeed: "Velocidad de Rotación",
     psychedelicGlass: "Vidrio Psicodélico",
-    density: "Densidad"
+    density: "Densidad",
+    solarWhirls: "Remolinos Solares",
+    chargedCells: "Células Cargadas",
   },
   pt: {
     appName: "Merucav",
@@ -1295,7 +1303,9 @@ export const dictionaries = {
     exposedFilm: "Filme Exposto",
     rotationSpeed: "Velocidade de Rotação",
     psychedelicGlass: "Vidro Psicodélico",
-    density: "Densidade"
+    density: "Densidade",
+    solarWhirls: "Redemoinhos Solares",
+    chargedCells: "Células Carregadas",
   },
   yue: {
     appName: "Merucav",
@@ -1554,7 +1564,9 @@ export const dictionaries = {
     exposedFilm: "曝光底片",
     rotationSpeed: "旋轉速度",
     psychedelicGlass: "迷幻玻璃",
-    density: "密度"
+    density: "密度",
+    solarWhirls: "太陽漩渦",
+    chargedCells: "帶電細胞",
   },
   ja: {
     appName: "Merucav",
@@ -1813,7 +1825,9 @@ export const dictionaries = {
     exposedFilm: "露出フィルム",
     rotationSpeed: "回転速度",
     psychedelicGlass: "サイケデリックガラス",
-    density: "密度"
+    density: "密度",
+    solarWhirls: "太陽の渦巻き",
+    chargedCells: "荷電セル",
   },
   ko: {
     appName: "Merucav",
@@ -2072,7 +2086,9 @@ export const dictionaries = {
     exposedFilm: "노출 필름",
     rotationSpeed: "회전 속도",
     psychedelicGlass: "사이키델릭 글라스",
-    density: "밀도"
+    density: "밀도",
+    solarWhirls: "태양 소용돌이",
+    chargedCells: "대전 세포",
   },
   vi: {
     appName: "Merucav",
@@ -2331,7 +2347,9 @@ export const dictionaries = {
     exposedFilm: "Phim phơi sáng",
     rotationSpeed: "Tốc độ quay",
     psychedelicGlass: "Kính ảo giác",
-    density: "Mật độ"
+    density: "Mật độ",
+    solarWhirls: "Xoáy Nắng",
+    chargedCells: "Tế Bào Nạp Điện",
   },
   hi: {
     appName: "Merucav",
@@ -2590,7 +2608,9 @@ export const dictionaries = {
     exposedFilm: 'उजागर फ़िल्म',
     rotationSpeed: 'घुमाव गति',
     psychedelicGlass: "साइकेडेलिक कांच",
-    density: "घनत्व"
+    density: "घनत्व",
+    solarWhirls: "सौर भंवर",
+    chargedCells: "चार्ज कोशिकाएँ",
   },
   pl: {
     appName: "Merucav",
@@ -2849,7 +2869,9 @@ export const dictionaries = {
     exposedFilm: "Odsłonięty film",
     rotationSpeed: "Prędkość obrotu",
     psychedelicGlass: "Szkło Psychodeliczne",
-    density: "Gęstość"
+    density: "Gęstość",
+    solarWhirls: "Wir Słońca",
+    chargedCells: "Naładowane Komórki",
   },
   cs: {
     appName: "Merucav",
@@ -3108,7 +3130,9 @@ export const dictionaries = {
     exposedFilm: "Exponovaný film",
     rotationSpeed: "Rychlost rotace",
     psychedelicGlass: "Psychedelické Sklo",
-    density: "Hustota"
+    density: "Hustota",
+    solarWhirls: "Sluneční Víry",
+    chargedCells: "Nabité Buňky",
   },
   hu: {
     appName: "Merucav",
@@ -3367,7 +3391,9 @@ export const dictionaries = {
     exposedFilm: "Exponált film",
     rotationSpeed: "Forgási sebesség",
     psychedelicGlass: "Pszichedelikus Üveg",
-    density: "Sűrűség"
+    density: "Sűrűség",
+    solarWhirls: "Napfény Örvények",
+    chargedCells: "Töltött Sejtek",
   },
   fr: {
     appName: "Merucav",
@@ -3626,7 +3652,9 @@ export const dictionaries = {
     exposedFilm: "Film exposé",
     rotationSpeed: "Vitesse de rotation",
     psychedelicGlass: "Verre Psychédélique",
-    density: "Densité"
+    density: "Densité",
+    solarWhirls: "Tourbillons Solaires",
+    chargedCells: "Cellules Chargées",
   },
   de: {
     appName: "Merucav",
@@ -3885,7 +3913,9 @@ export const dictionaries = {
     exposedFilm: "Belichteter Film",
     rotationSpeed: "Rotationsgeschwindigkeit",
     psychedelicGlass: "Psychedelisches Glas",
-    density: "Dichte"
+    density: "Dichte",
+    solarWhirls: "Sonnenwirbel",
+    chargedCells: "Geladene Zellen",
   },
   nl: {
     appName: "Merucav",
@@ -4144,6 +4174,8 @@ export const dictionaries = {
     exposedFilm: 'Blootgestelde film',
     rotationSpeed: 'Rotatiesnelheid',
     psychedelicGlass: "Psychedelisch Glas",
-    density: "Dichtheid"
+    density: "Dichtheid",
+    solarWhirls: "Zonnewervelingen",
+    chargedCells: "Geladen Cellen",
   }
 };

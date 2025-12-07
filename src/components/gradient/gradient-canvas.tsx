@@ -304,6 +304,35 @@ export interface GradientConfig {
       density: number;
       glow: number;
     };
+    solarWhirls: ShaderSetting & {
+      speed: number;
+      hue: number;
+      saturation: number;
+      color1_r: number;
+      color1_g: number;
+      color1_b: number;
+      color2_r: number;
+      color2_g: number;
+      color2_b: number;
+      color3_r: number;
+      color3_g: number;
+      color3_b: number;
+    };
+    chargedCells: ShaderSetting & {
+      speed: number;
+      scale: number;
+      hue: number;
+      saturation: number;
+      color1_r: number;
+      color1_g: number;
+      color1_b: number;
+      color2_r: number;
+      color2_g: number;
+      color2_b: number;
+      color3_r: number;
+      color3_g: number;
+      color3_b: number;
+    };
 
   };
   grainAmount: number;
@@ -537,6 +566,42 @@ export function getDefaultGradientConfig(): GradientConfig {
           contrast: 1,
           density: 15.0,
           glow: 1.2
+        },
+        solarWhirls: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          speed: 1.0,
+          hue: 0,
+          saturation: 1,
+          color1_r: 0,
+          color1_g: 0.76,
+          color1_b: 0.4,
+          color2_r: 1.0,
+          color2_g: 1.0,
+          color2_b: 0.2,
+          color3_r: 0.1,
+          color3_g: 0.2,
+          color3_b: 0.5,
+        },
+
+        chargedCells: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          speed: 1.0,
+          scale: 5.0,
+          hue: 0,
+          saturation: 1,
+          color1_r: 0.18,
+          color1_g: 0.7,
+          color1_b: 0.4,
+          color2_r: 0.58,
+          color2_g: 1.0,
+          color2_b: 0.15,
+          color3_r: 0,
+          color3_g: 0.65,
+          color3_b: 0.31,
         },
     },
     grainAmount: 0,
@@ -3606,6 +3671,498 @@ function PsychedelicGlassShader({ config, globalConfig }: {
   return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
 }
 
+const solarWhirlsFragShader = `precision highp float;
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uSpeed;
+uniform float uHue;
+uniform float uSaturation;
+uniform vec3 uColor1;
+uniform vec3 uColor2;
+uniform vec3 uColor3;
+
+${hueSatHelpers}
+
+#define PI 3.14159
+
+float hash1( float n ) { return fract(sin(n)*43758.5453); }
+vec2  hash2( vec2  p ) {
+  p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
+  return fract(sin(p)*43758.5453);
+}
+
+vec4 voronoi( in vec2 x, float w, float time )
+{
+  vec2 n = floor( x );
+  vec2 f = fract( x );
+
+  vec4 m = vec4( 8.0, 0.0, 0.0, 0.0 );
+  for( int j=-2; j<=2; j++ )
+  for( int i=-2; i<=2; i++ )
+  {
+    vec2 g = vec2( float(i),float(j) );
+    vec2 o = hash2( n + g );
+
+    // animate
+    o = 0.5 + 0.5*sin( time + 6.2831*o );
+
+    // distance to cell
+    float d = length(g - f + o);
+
+    // cell color
+    vec3 col = 0.5 + 0.5*sin(
+      hash1(dot(n+g,vec2(7.0,113.0)))*2.5 +
+      3.5 +
+      vec3(2.0,3.0,0.0)
+    );
+    col = col * col;
+
+    // smooth min
+    float h = smoothstep( -1.0, 1.0, (m.x-d)/w );
+    m.x   = mix( m.x,     d, h ) - h*(1.0-h)*w/(1.0+3.0*w);
+    m.yzw = mix( m.yzw, col, h ) - h*(1.0-h)*w/(1.0+3.0*w);
+  }
+
+  return m;
+}
+
+// 3‑stop palette: color1 -> color2 -> color3
+vec3 paletteSolar(float t) {
+  t = clamp(t, 0.0, 1.0);
+  if (t < 0.5) {
+    float k = t / 0.5;
+    return mix(uColor1, uColor2, k);
+  } else {
+    float k = (t - 0.5) / 0.5;
+    return mix(uColor2, uColor3, k);
+  }
+}
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / uResolution.xy * 2.0 - 1.0;
+  uv.y *= uResolution.y / uResolution.x;
+
+  float t = uTime * 0.1 * uSpeed;
+
+  vec4 v = voronoi(2.0 * uv + t, 1.0, t);
+  v = voronoi(3.0 * v.xy, 1.0, t);
+  v = voronoi(3.0 * v.xy, 1.0, t);
+  v = voronoi(3.0 * v.xy, 1.0, t);
+
+  float d = 0.0;
+  d = max(v.x, d);
+  d = smoothstep(0.1, 0.5 + v.y * 0.1, d);
+
+  vec3 fgColor = paletteSolar(v.x);
+  vec3 bgColor = paletteSolar(v.y);
+
+  vec3 color = mix(bgColor, fgColor, d);
+
+  vec3 hsv = rgb2hsv(color);
+  hsv.x += uHue / 360.0;
+  hsv.y *= uSaturation;
+  color = hsv2rgb(hsv);
+
+  gl_FragColor = vec4(color, 1.0);
+}`;
+
+function SolarWhirlsShader({
+  config,
+  globalConfig,
+}: {
+  config: GradientConfig['shaders']['solarWhirls'];
+  globalConfig: GradientConfig;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const configString = useMemo(() => JSON.stringify(config), [config]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const gl =
+      canvas.getContext('webgl2', { preserveDrawingBuffer: true }) ||
+      canvas.getContext('webgl', { preserveDrawingBuffer: true });
+    if (!gl) {
+      console.error('WebGL not supported for Solar Whirls');
+      return;
+    }
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+    gl.shaderSource(vertexShader, commonVertShaderWithTransform);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fragmentShader, solarWhirlsFragShader);
+    gl.compileShader(fragmentShader);
+
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      console.error('Solar Whirls compile error:', gl.getShaderInfoLog(fragmentShader));
+      return;
+    }
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+      gl.STATIC_DRAW
+    );
+    const positionLocation = gl.getAttribLocation(program, 'a_position');
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const uniforms = {
+      uTime: gl.getUniformLocation(program, 'uTime'),
+      uResolution: gl.getUniformLocation(program, 'uResolution'),
+      uSpeed: gl.getUniformLocation(program, 'uSpeed'),
+      uHue: gl.getUniformLocation(program, 'uHue'),
+      uSaturation: gl.getUniformLocation(program, 'uSaturation'),
+      uColor1: gl.getUniformLocation(program, 'uColor1'),
+      uColor2: gl.getUniformLocation(program, 'uColor2'),
+      uColor3: gl.getUniformLocation(program, 'uColor3'),
+      u_translation: gl.getUniformLocation(program, 'u_translation'),
+      u_rotation: gl.getUniformLocation(program, 'u_rotation'),
+      u_scale: gl.getUniformLocation(program, 'u_scale'),
+    };
+
+    let startTime = Date.now();
+    let animationFrameId: number;
+
+    const render = (time: number) => {
+      const rect = canvas.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+      }
+
+      gl.clearColor(0, 0, 0, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      gl.uniform1f(uniforms.uTime!, time);
+      gl.uniform2f(uniforms.uResolution!, canvas.width, canvas.height);
+      gl.uniform1f(uniforms.uSpeed!, config.speed);
+      gl.uniform1f(uniforms.uHue!, config.hue);
+      gl.uniform1f(uniforms.uSaturation!, config.saturation);
+
+      gl.uniform3f(
+        uniforms.uColor1!,
+        config.color1_r,
+        config.color1_g,
+        config.color1_b
+      );
+      gl.uniform3f(
+        uniforms.uColor2!,
+        config.color2_r,
+        config.color2_g,
+        config.color2_b
+      );
+      gl.uniform3f(
+        uniforms.uColor3!,
+        config.color3_r,
+        config.color3_g,
+        config.color3_b
+      );
+
+      gl.uniform2f(
+        uniforms.u_translation!,
+        config.transform.translateX / 100,
+        -config.transform.translateY / 100
+      );
+      gl.uniform1f(
+        uniforms.u_rotation!,
+        (config.transform.rotation * Math.PI) / 180
+      );
+      gl.uniform1f(uniforms.u_scale!, config.transform.scale);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+
+    const loop = () => {
+      const elapsed = globalConfig.paused
+        ? (globalConfig.motion / 100) * 10
+        : (Date.now() - startTime) * 0.001;
+      render(elapsed);
+      if (!globalConfig.paused) {
+        animationFrameId = requestAnimationFrame(loop);
+      } else {
+        render(elapsed);
+      }
+    };
+
+    loop();
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [configString, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
+}
+
+const chargedCellsFragShader = `precision highp float;
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uSpeed;
+uniform float uScale;
+uniform float uHue;
+uniform float uSaturation;
+uniform vec3 uColor1;
+uniform vec3 uColor2;
+uniform vec3 uColor3;
+
+${hueSatHelpers}
+
+#define PI 3.14159
+
+float hash1( float n ) { return fract(sin(n)*43758.5453); }
+vec2  hash2( vec2  p ) {
+  p = vec2( dot(p,vec2(127.1,311.7)), dot(p,vec2(269.5,183.3)) );
+  return fract(sin(p)*43758.5453);
+}
+
+vec4 voronoi( in vec2 x, float w )
+{
+  vec2 n = floor( x );
+  vec2 f = fract( x );
+
+  vec4 m = vec4( 8.0, 0.0, 0.0, 0.0 );
+  for( int j=-2; j<=2; j++ )
+  for( int i=-2; i<=2; i++ )
+  {
+    vec2 g = vec2( float(i),float(j) );
+    vec2 o = hash2( n + g );
+
+    // animate
+    o = 0.5 + 0.5*sin( uTime + 6.2831*o );
+
+    // distance to cell
+    float d = length(g - f + o);
+
+    // cell color
+    vec3 col = 0.5 + 0.5*sin(
+      hash1(dot(n+g,vec2(7.0,113.0)))*2.5 +
+      3.5 +
+      vec3(2.0,3.0,0.0)
+    );
+    col = col * col;
+
+    // smooth min
+    float h = smoothstep( -1.0, 1.0, (m.x-d)/w );
+    m.x   = mix( m.x,     d, h ) - h*(1.0-h)*w/(1.0+3.0*w);
+    m.yzw = mix( m.yzw, col, h ) - h*(1.0-h)*w/(1.0+3.0*w);
+  }
+
+  return m;
+}
+
+float random(vec2 co)
+{
+  return fract(sin(dot(co.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float sdfGrid(vec2 uv, float r) {
+  vec2 c = uv * 4.0 * r;
+  float angle = r;
+  float thickness = 0.5 + r;
+  float one = abs(0.5 - mod(c.y + cos(angle) * c.x, 1.0)) * thickness;
+  float two = abs(0.5 - mod(c.y - cos(angle) * c.x, 1.0)) * thickness;
+  return min(one, two);
+}
+
+// 3‑stop palette: color1 -> color2 -> color3
+vec3 paletteCharged(float t) {
+  t = clamp(t, 0.0, 1.0);
+  if (t < 0.5) {
+    float k = t / 0.5;
+    return mix(uColor1, uColor2, k);
+  } else {
+    float k = (t - 0.5) / 0.5;
+    return mix(uColor2, uColor3, k);
+  }
+}
+
+void main() {
+  vec2 uv = gl_FragCoord.xy / uResolution.xy * 2.0 - 1.0;
+  uv.y *= uResolution.y / uResolution.x;
+
+  float t = sin(uTime * 0.1 * uSpeed);
+
+  vec4 v = voronoi(uScale * uv, 0.5);
+  float r = pow(v.y, 0.5);
+
+  float d = 0.0;
+  d = max(sdfGrid(uv - t, r), d);
+  d = max(sdfGrid(uv + t, 1.0 - r), -d);
+  d = smoothstep(0.1, 0.15 + r * 0.1, d);
+
+  vec3 fgColor = paletteCharged(0.6 * r);
+  vec3 bgColor = paletteCharged(0.1 * r);
+
+  // Add a slight edge accent using d
+  vec3 edgeColor = paletteCharged(clamp(r + d * 0.5, 0.0, 1.0));
+  vec3 color = mix(fgColor, bgColor, d);
+  color = mix(color, edgeColor, 0.35);
+
+  vec3 hsv = rgb2hsv(color);
+  hsv.x += uHue / 360.0;
+  hsv.y *= uSaturation;
+  color = hsv2rgb(hsv);
+
+  gl_FragColor = vec4(color, 1.0);
+}`;
+
+
+function ChargedCellsShader({
+  config,
+  globalConfig,
+}: {
+  config: GradientConfig['shaders']['chargedCells'];
+  globalConfig: GradientConfig;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const configString = useMemo(() => JSON.stringify(config), [config]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const gl =
+      canvas.getContext('webgl2', { preserveDrawingBuffer: true }) ||
+      canvas.getContext('webgl', { preserveDrawingBuffer: true });
+    if (!gl) {
+      console.error('WebGL not supported for Charged Cells');
+      return;
+    }
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+    gl.shaderSource(vertexShader, commonVertShaderWithTransform);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fragmentShader, chargedCellsFragShader);
+    gl.compileShader(fragmentShader);
+
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      console.error('Charged Cells compile error:', gl.getShaderInfoLog(fragmentShader));
+      return;
+    }
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(
+      gl.ARRAY_BUFFER,
+      new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]),
+      gl.STATIC_DRAW
+    );
+    const positionLocation = gl.getAttribLocation(program, 'a_position');
+    gl.enableVertexAttribArray(positionLocation);
+    gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+    const uniforms = {
+      uTime: gl.getUniformLocation(program, 'uTime'),
+      uResolution: gl.getUniformLocation(program, 'uResolution'),
+      uSpeed: gl.getUniformLocation(program, 'uSpeed'),
+      uScale: gl.getUniformLocation(program, 'uScale'),
+      uHue: gl.getUniformLocation(program, 'uHue'),
+      uSaturation: gl.getUniformLocation(program, 'uSaturation'),
+      uColor1: gl.getUniformLocation(program, 'uColor1'),
+      uColor2: gl.getUniformLocation(program, 'uColor2'),
+      uColor3: gl.getUniformLocation(program, 'uColor3'),
+      u_translation: gl.getUniformLocation(program, 'u_translation'),
+      u_rotation: gl.getUniformLocation(program, 'u_rotation'),
+      u_scale: gl.getUniformLocation(program, 'u_scale'),
+    };
+
+    let startTime = Date.now();
+    let animationFrameId: number;
+
+    const render = (time: number) => {
+      const rect = canvas.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+        gl.viewport(0, 0, canvas.width, canvas.height);
+      }
+
+      gl.clearColor(0, 0, 0, 1);
+      gl.clear(gl.COLOR_BUFFER_BIT);
+
+      gl.uniform1f(uniforms.uTime!, time);
+      gl.uniform2f(uniforms.uResolution!, canvas.width, canvas.height);
+      gl.uniform1f(uniforms.uSpeed!, config.speed);
+      gl.uniform1f(uniforms.uScale!, config.scale);
+      gl.uniform1f(uniforms.uHue!, config.hue);
+      gl.uniform1f(uniforms.uSaturation!, config.saturation);
+
+      gl.uniform3f(
+        uniforms.uColor1!,
+        config.color1_r,
+        config.color1_g,
+        config.color1_b
+      );
+      gl.uniform3f(
+        uniforms.uColor2!,
+        config.color2_r,
+        config.color2_g,
+        config.color2_b
+      );
+      gl.uniform3f(
+        uniforms.uColor3!,
+        config.color3_r,
+        config.color3_g,
+        config.color3_b
+      );
+
+      gl.uniform2f(
+        uniforms.u_translation!,
+        config.transform.translateX / 100,
+        -config.transform.translateY / 100
+      );
+      gl.uniform1f(
+        uniforms.u_rotation!,
+        (config.transform.rotation * Math.PI) / 180
+      );
+      gl.uniform1f(uniforms.u_scale!, config.transform.scale);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+
+    const loop = () => {
+      const elapsed = globalConfig.paused
+        ? (globalConfig.motion / 100) * 10
+        : (Date.now() - startTime) * 0.001;
+      render(elapsed);
+      if (!globalConfig.paused) {
+        animationFrameId = requestAnimationFrame(loop);
+      } else {
+        render(elapsed);
+      }
+    };
+
+    loop();
+
+    return () => {
+      if (animationFrameId) cancelAnimationFrame(animationFrameId);
+    };
+  }, [configString, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
+}
+
 function ShaderWrapper({ config, globalConfig, children }: { config: ShaderSetting, globalConfig: GradientConfig, children: React.ReactNode}) {
     const { transform } = config;
     const style: React.CSSProperties = {
@@ -3754,6 +4311,16 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
                     config={shaders.psychedelicGlass} 
                     globalConfig={config} 
                 />
+            </ShaderWrapper>
+        )}
+        {shaders.solarWhirls.enabled && (
+            <ShaderWrapper config={shaders.solarWhirls} globalConfig={config}>
+              <SolarWhirlsShader config={shaders.solarWhirls} globalConfig={config} />
+            </ShaderWrapper>
+        )}
+        {shaders.chargedCells.enabled && (
+            <ShaderWrapper config={shaders.chargedCells} globalConfig={config}>
+              <ChargedCellsShader config={shaders.chargedCells} globalConfig={config} />
             </ShaderWrapper>
         )}
       </div>
