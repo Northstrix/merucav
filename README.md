@@ -74,6 +74,10 @@ The app is fully localized into:
 
 [Non liquid glass](https://codepen.io/lekzd/pen/dPGYjdj) by [Alexander Korotaev](https://codepen.io/lekzd)
 
+[Voronoi from Voronoi from Voronoi from Voronoi](https://codepen.io/lekzd/pen/JoYzXpR) by [Alexander Korotaev](https://codepen.io/lekzd)
+
+[Floating voronoi lines](https://codepen.io/lekzd/pen/xbwMMzR) by [Alexander Korotaev](https://codepen.io/lekzd)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)
