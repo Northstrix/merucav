@@ -62,6 +62,16 @@ The app is fully localized into:
 
 [Voronoi - distances](https://www.shadertoy.com/view/ldl3W8) by [iq](https://www.shadertoy.com/user/iq)
 
+[pulse](https://codepen.io/VaaLaa/pen/yyeQdMZ) by [Andrei V](https://codepen.io/VaaLaa)
+
+[Truchet tiles](https://codepen.io/lekzd/pen/myPyoGM) by [Alexander Korotaev](https://codepen.io/lekzd)
+
+[🌌 Pulsating Neon Shape GLSL](https://codepen.io/equant_org/pen/ByKxPrr) by [Fabio E Zola](https://codepen.io/equant_org)
+
+[Harmonic Mandala in p5.js](https://codepen.io/VoXelo/pen/QwymLwW) by [Techartist](https://codepen.io/VoXelo)
+
+[Non liquid glass](https://codepen.io/lekzd/pen/dPGYjdj) by [Alexander Korotaev](https://codepen.io/lekzd)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)
@@ -95,6 +105,10 @@ The app is fully localized into:
 [チェックしないと押せないボタン](https://codepen.io/ash_creator/pen/JjZReNm) by [あしざわ - Webクリエイター](https://codepen.io/ash_creator)
 
 [Input Floating Label animation](https://codepen.io/Mahe76/pen/qBQgXyK) by [Elpeeda](https://codepen.io/Mahe76)
+
+[Accordion](https://21st.dev/molecule-lab-rushil/accordion/default) by [Molecule UI](https://21st.dev/molecule-ui)
+
+[View transitions - Demo](https://codepen.io/stefanjudis/pen/ByBbNGQ) by [Stefan Judis](https://codepen.io/stefanjudis)
 
 [Accordion](https://21st.dev/molecule-lab-rushil/accordion/default) by [Molecule UI](https://21st.dev/molecule-ui)
 
