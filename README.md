@@ -29,6 +29,8 @@ The app is fully localized into:
 
 ✅ Vietnamese
 
+✅ Hindi
+
 ✅ Polish
 
 ✅ Czech
