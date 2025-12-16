@@ -285,6 +285,8 @@ export function ShapesEditor({ config, setConfig, openConfirmDialog }: ShapesEdi
               step={0.01}
               isRTL={isRTL}
             />
+            <CustomSlider id={`shape-alpha-${shape.id}`} value={extractAlphaFromHex(shape.color)}               onValueChange={(val) => updateShape(shape.id, { color: applyAlphaToHex(shape.color, val) })} min={0} max={1} step={0.01} isRTL={isRTL} />
+
             
             <h3 className="font-semibold pt-2 border-t border-muted/20" style={{textAlign: isRTL ? 'right' : 'left'}}>{t('appearance')}</h3>
             <FloatingLabelCombobox label={t('shape')} value={shape.shape} onValueChange={v => updateShape(shape.id, {shape: v as ShapeType})} options={shapeOptions} />

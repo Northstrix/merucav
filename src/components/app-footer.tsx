@@ -50,9 +50,9 @@ export function AppFooter() {
   const [twelveToolsLoaded, setTwelveToolsLoaded] = useState(false);
   const [auraPlusPlusLoaded, setAuraPlusPlusLoaded] = useState(false);
   const [startupFameLoaded, setStartupFameLoaded] = useState(false);
+  const [launchItLoaded, setLaunchItLoaded] = useState(false);
 
-  const foundrListBadgeImg =
-    "https://www.foundrlist.me/api/badge/merucav?style=featured";
+  const foundrListBadgeImg = "https://www.foundrlist.me/api/badge/merucav?style=featured";
   const foundrListBadgeLink = "https://www.foundrlist.me/product/merucav";
 
   const productHuntBadgeImg =
@@ -66,13 +66,15 @@ export function AppFooter() {
   const twelveToolsImg = "https://twelve.tools/badge0-dark.svg";
   const twelveToolsLink = "https://twelve.tools";
 
-  const auraPlusPlusImg =
-    "https://auraplusplus.com/images/badges/featured-on-light.svg";
+  const auraPlusPlusImg = "https://auraplusplus.com/images/badges/featured-on-light.svg";
   const auraPlusPlusLink = "https://auraplusplus.com/projects/merucav";
 
   const startupFameImg = "https://startupfa.me/badges/featured/dark.webp";
   const startupFameLink =
     "https://startupfa.me/s/merucav.netlify.app?utm_source=merucav.netlify.app";
+
+  const launchItImg = "https://launchit.site/badges/featured-light-v2.svg";
+  const launchItLink = "https://launchit.site/launches/merucav";
 
   const safeFoundrListBadgeLink = sanitizeUrl(foundrListBadgeLink);
   const safeProductHuntBadgeLink = sanitizeUrl(productHuntBadgeLink);
@@ -80,6 +82,7 @@ export function AppFooter() {
   const safeTwelveToolsLink = sanitizeUrl(twelveToolsLink);
   const safeAuraPlusPlusLink = sanitizeUrl(auraPlusPlusLink);
   const safeStartupFameLink = sanitizeUrl(startupFameLink);
+  const safeLaunchItLink = sanitizeUrl(launchItLink);
 
   useEffect(() => {
     let foundrTimeout: NodeJS.Timeout;
@@ -286,39 +289,7 @@ export function AppFooter() {
             style={{
               borderRadius: 6,
               opacity: verifiedToolsLoaded ? 1 : 0.01,
-              height: verifiedToolsLoaded ? "54px" : "1px",
-              width: "auto",
-              objectFit: "contain",
-              transition: "opacity 0.2s ease-out",
-            }}
-          />
-        </a>
-      )}
-
-      {/* Twelve Tools badge */}
-      {safeTwelveToolsLink && (
-        <a
-          href={twelveToolsLoaded ? safeTwelveToolsLink : undefined}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "inline-flex",
-            justifyContent: "center",
-            alignItems: "center",
-            textDecoration: "none",
-            pointerEvents: twelveToolsLoaded ? "auto" : "none",
-          }}
-        >
-          <img
-            src={twelveToolsImg}
-            alt={twelveToolsLoaded ? "Featured on Twelve Tools" : ""}
-            loading="lazy"
-            onLoad={() => setTwelveToolsLoaded(true)}
-            onError={() => setTwelveToolsLoaded(false)}
-            style={{
-              borderRadius: 6,
-              opacity: twelveToolsLoaded ? 1 : 0.01,
-              height: twelveToolsLoaded ? "54px" : "1px",
+              height: verifiedToolsLoaded ? "72px" : "1px",
               width: "auto",
               objectFit: "contain",
               transition: "opacity 0.2s ease-out",
@@ -371,6 +342,72 @@ export function AppFooter() {
             />
           </a>
         </div>
+      )}
+
+      {/* LaunchIt badge */}
+      {safeLaunchItLink && (
+        <a
+          href={launchItLoaded ? safeLaunchItLink : undefined}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textDecoration: "none",
+            pointerEvents: launchItLoaded ? "auto" : "none",
+          }}
+        >
+          <img
+            src={launchItImg}
+            alt={launchItLoaded ? "Merucav - Featured on LaunchIt" : ""}
+            width={250}
+            height={54}
+            loading="lazy"
+            onLoad={() => setLaunchItLoaded(true)}
+            onError={() => setLaunchItLoaded(false)}
+            style={{
+              borderRadius: 6,
+              opacity: launchItLoaded ? 1 : 0.01,
+              height: launchItLoaded ? "54px" : "1px",
+              width: "auto",
+              objectFit: "contain",
+              transition: "opacity 0.2s ease-out",
+            }}
+          />
+        </a>
+      )}
+
+      {/* Twelve Tools badge */}
+      {safeTwelveToolsLink && (
+        <a
+          href={twelveToolsLoaded ? safeTwelveToolsLink : undefined}
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            display: "inline-flex",
+            justifyContent: "center",
+            alignItems: "center",
+            textDecoration: "none",
+            pointerEvents: twelveToolsLoaded ? "auto" : "none",
+          }}
+        >
+          <img
+            src={twelveToolsImg}
+            alt={twelveToolsLoaded ? "Featured on Twelve Tools" : ""}
+            loading="lazy"
+            onLoad={() => setTwelveToolsLoaded(true)}
+            onError={() => setTwelveToolsLoaded(false)}
+            style={{
+              borderRadius: 6,
+              opacity: twelveToolsLoaded ? 1 : 0.01,
+              height: twelveToolsLoaded ? "54px" : "1px",
+              width: "auto",
+              objectFit: "contain",
+              transition: "opacity 0.2s ease-out",
+            }}
+          />
+        </a>
       )}
 
       {/* Startup Fame badge */}
