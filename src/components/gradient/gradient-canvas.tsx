@@ -333,6 +333,30 @@ export interface GradientConfig {
       color3_g: number;
       color3_b: number;
     };
+    refractedWave: ShaderSetting & {
+      speed: number;
+      softness: number;
+      intensity: number;
+      noise: number;
+      shape: number;
+      colors: string[];
+      colorCount: number;
+    };
+    swirl: ShaderSetting & {
+      hue: number;
+      saturation: number;
+      speed: number;
+      colorBack: string;
+      colors: string[];
+      colorCount: number;
+      bandCount: number;
+      twist: number;
+      center: number;
+      proportion: number;
+      softness: number;
+      noise: number;
+      noiseFrequency: number;
+    };
 
   };
   grainAmount: number;
@@ -584,7 +608,6 @@ export function getDefaultGradientConfig(): GradientConfig {
           color3_g: 0.2,
           color3_b: 0.5,
         },
-
         chargedCells: {
           enabled: false,
           opacity: 1,
@@ -603,6 +626,37 @@ export function getDefaultGradientConfig(): GradientConfig {
           color3_g: 0.65,
           color3_b: 0.31,
         },
+        refractedWave: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          speed: 1.0,
+          softness: 0.5,
+          intensity: 0.5,
+          noise: 0.2,
+          shape: 3,
+          colors: ['#5100ff', '#00ff80', '#ffcc00', '#ea00ff', '#000000', '#000000', '#000000'],
+          colorCount: 4,
+        },
+        swirl: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          hue: 0,
+          saturation: 1,
+          speed: 1.0,
+          colorBack: "#000000",
+          colors: ['#5100ff', '#00ff80', '#ffcc00', '#ea00ff', '#000000', '#000000', '#000000', '#000000', '#000000', '#000000'],
+          colorCount: 4,
+          bandCount: 4.0,
+          twist: 0.5,
+          center: 0.0,
+          proportion: 0.5,
+          softness: 0.5,
+          noise: 0.2,
+          noiseFrequency: 0.4,
+        },
+
     },
     grainAmount: 0,
     grainSize: 1.5,
@@ -4163,6 +4217,402 @@ function ChargedCellsShader({
   return <canvas ref={canvasRef} style={{ width: '100%', height: '100%' }} />;
 }
 
+const refractedWaveFragShader = `#version 300 es
+precision highp float;
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uSpeed;
+uniform float uSoftness;
+uniform float uIntensity;
+uniform float uNoise;
+uniform float uShape;
+uniform vec4 uColorBack;
+uniform vec4 uColors[7];
+uniform float uColorCount;
+
+out vec4 fragColor;
+
+// Procedural Simplex, Noise, and Shapes built out from your paper-design repository code
+float hash11(float p) {
+    p = fract(p * .1031);
+    p *= p + 33.33;
+    p *= p + p;
+    return fract(p);
+}
+
+void main() {
+    vec2 shape_uv = (gl_FragCoord.xy * 2.0 - uResolution.xy) / uResolution.y;
+    float t = 0.1 * uTime * uSpeed;
+    float shape = 0.0;
+
+    // Simplified procedural generation engine variant for browser standalone compatibility
+    if (uShape < 1.5) {
+        float wave = cos(0.5 * shape_uv.x - 4. * t) * sin(1.5 * shape_uv.x + 2. * t);
+        shape = 1. - smoothstep(-1., 1., shape_uv.y + wave);
+    } else if (uShape < 2.5) {
+        shape = sin(shape_uv.x * 5.0) * cos(shape_uv.y * 5.0 - t);
+        shape = pow(abs(shape), 4.0);
+    } else {
+        // Fallback procedural blob layer warp
+        float dist = length(shape_uv);
+        shape = sin(dist * 4.0 - t * 5.0) * 0.5 + 0.5;
+    }
+
+    // Swirl/Warp noise distortion injected using uIntensity
+    float warpNoise = hash11(gl_FragCoord.x * uIntensity + gl_FragCoord.y);
+    shape += uIntensity * 0.2 * (warpNoise - 0.5);
+    shape += uNoise * 0.1 * (hash11(gl_FragCoord.y + t) - 0.5);
+
+    shape = clamp(shape, 0.0, 1.0);
+    float mixer = shape * (uColorCount - 1.0);
+    
+    vec4 gradient = uColors[0];
+    for (int i = 1; i < 7; i++) {
+        if (float(i) > uColorCount - 1.0) break;
+        float localT = clamp(mixer - float(i - 1), 0.0, 1.0);
+        localT = smoothstep(0.5 - 0.5 * uSoftness, 0.5 + 0.5 * uSoftness, localT);
+        gradient = mix(gradient, uColors[i], localT);
+    }
+
+    fragColor = mix(uColorBack, gradient, gradient.a);
+}
+`;
+
+export function RefractedWaveShader({ config, globalConfig }: { config: GradientConfig['shaders']['refractedWave'], globalConfig: GradientConfig }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl2'); // Require WebGL2 context for ES 300 shaders
+        if (!gl) return;
+
+        // Compile logic blocks matching your framework style
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        gl.shaderSource(vertexShader, `#version 300 es
+            in vec4 a_position;
+            void main() { gl_Position = a_position; }
+        `);
+        gl.compileShader(vertexShader);
+
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(fragmentShader, refractedWaveFragShader);
+        gl.compileShader(fragmentShader);
+
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        const posAttr = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(posAttr);
+        gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+        // Uniform pointers mapping
+        const uniforms = {
+            uTime: gl.getUniformLocation(program, 'uTime'),
+            uResolution: gl.getUniformLocation(program, 'uResolution'),
+            uSpeed: gl.getUniformLocation(program, 'uSpeed'),
+            uSoftness: gl.getUniformLocation(program, 'uSoftness'),
+            uIntensity: gl.getUniformLocation(program, 'uIntensity'),
+            uNoise: gl.getUniformLocation(program, 'uNoise'),
+            uShape: gl.getUniformLocation(program, 'uShape'),
+            uColorBack: gl.getUniformLocation(program, 'uColorBack'),
+        };
+
+        let startTime = Date.now();
+        let animationFrameId: number;
+
+        const render = (time: number) => {
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+            gl.uniform1f(uniforms.uTime, time);
+            gl.uniform2f(uniforms.uResolution, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uniforms.uSpeed, config.speed);
+            gl.uniform1f(uniforms.uSoftness, config.softness);
+            gl.uniform1f(uniforms.uIntensity, config.intensity);
+            gl.uniform1f(uniforms.uNoise, config.noise);
+            gl.uniform1f(uniforms.uShape, config.shape);
+            
+            gl.uniform4f(uniforms.uColorBack, 0, 0, 0, 0);
+
+            // Bind individual dynamic gradient color channels sequentially inside the uniform arrays block
+            config.colors.forEach((color, index) => {
+                const loc = gl.getUniformLocation(program, `uColors[${index}]`);
+                const rgba = hexToRgbaVec(color);
+                gl.uniform4f(loc, rgba[0], rgba[1], rgba[2], rgba[3]);
+            });
+
+            gl.uniform1f(gl.getUniformLocation(program, 'uColorCount'), config.colorCount);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+
+        const renderLoop = () => {
+            const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+        };
+
+        renderLoop();
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [config, globalConfig.paused, globalConfig.motion]);
+
+    return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+const swirlFragShader = `#version 300 es
+precision highp float;
+
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uSpeed;
+uniform vec4 uColorBack;
+uniform vec4 uColors[10];
+uniform float uColorCount;
+uniform float uBandCount;
+uniform float uTwist;
+uniform float uCenter;
+uniform float uProportion;
+uniform float uSoftness;
+uniform float uNoise;
+uniform float uNoiseFrequency;
+uniform float uHue;
+uniform float uSaturation;
+
+out vec4 fragColor;
+
+const float TWO_PI = 6.28318530718;
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+vec3 permute(vec3 x) { return mod(((x*34.0)+1.0)*x, 289.0); }
+
+float snoise(vec2 v){
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439,
+            -0.577350269189626, 0.024390243902439);
+    vec2 i  = floor(v + dot(v, C.yy) );
+    vec2 x0 = v -   i + dot(i, C.xx);
+    vec2 i1;
+    i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod(i, 289.0);
+    vec3 p = permute( permute( i.y + vec3(0.0, i1.y, 1.0 ))
+    + i.x + vec3(0.0, i1.x, 1.0 ));
+    vec3 m = max(0.5 - vec3(dot(x0,x0), dot(x12.xy,x12.xy),
+        dot(x12.zw,x12.zw)), 0.0);
+    m = m*m ;
+    m = m*m ;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * ( a0*a0 + h*h );
+    vec3 g;
+    g.x  = a0.x * x0.x  + h.x * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+}
+
+void main() {
+    vec2 shape_uv = (gl_FragCoord.xy * 2.0 - uResolution.xy) / uResolution.y;
+
+    float l = length(shape_uv);
+    l = max(1e-4, l);
+
+    float t = uTime * uSpeed;
+
+    float angle = ceil(uBandCount) * atan(shape_uv.y, shape_uv.x) + t;
+    float angle_norm = angle / TWO_PI;
+
+    float twist = 3.0 * clamp(uTwist, 0.0, 1.0);
+    float offset = pow(l, -twist) + angle_norm;
+
+    float shape = fract(offset);
+    shape = 1.0 - abs(2.0 * shape - 1.0);
+    shape += uNoise * snoise(15.0 * pow(uNoiseFrequency, 2.0) * shape_uv);
+
+    float mid = smoothstep(0.2, 0.2 + 0.8 * uCenter, pow(l, twist));
+    shape = mix(0.0, shape, mid);
+
+    float proportion = clamp(uProportion, 0.0, 1.0);
+    float exponent = mix(0.25, 1.0, proportion * 2.0);
+    exponent = mix(exponent, 10.0, max(0.0, proportion * 2.0 - 1.0));
+    shape = pow(shape, exponent);
+
+    float mixer = shape * uColorCount;
+    vec4 gradient = uColors[0];
+    gradient.rgb *= gradient.a;
+
+    float outerShape = 0.0;
+    for (int i = 1; i < 11; i++) {
+        if (float(i) > uColorCount) break;
+
+        float m = clamp(mixer - float(i - 1), 0.0, 1.0);
+        float aa = fwidth(m);
+        m = smoothstep(0.5 - 0.5 * uSoftness - aa, 0.5 + 0.5 * uSoftness + aa, m);
+
+        if (i == 1) {
+            outerShape = m;
+        }
+
+        vec4 c = uColors[i - 1];
+        c.rgb *= c.a;
+        gradient = mix(gradient, c, m);
+    }
+
+    float midAA = 0.1 * fwidth(pow(l, -twist));
+    float outerMid = smoothstep(0.2, 0.2 + midAA, pow(l, twist));
+    outerShape = mix(0.0, outerShape, outerMid);
+
+    vec3 baseColor = gradient.rgb * outerShape;
+    float opacity = gradient.a * outerShape;
+
+    vec3 bgColor = uColorBack.rgb * uColorBack.a;
+    baseColor = baseColor + bgColor * (1.0 - opacity);
+    opacity = opacity + uColorBack.a * (1.0 - opacity);
+
+    vec3 hsv = rgb2hsv(baseColor);
+    hsv.x += uHue / 360.0;
+    hsv.y *= uSaturation;
+    baseColor = hsv2rgb(hsv);
+
+    fragColor = vec4(baseColor, opacity);
+}
+`;
+
+export function SwirlShader({ config, globalConfig }: { config: GradientConfig['shaders']['swirl'], globalConfig: GradientConfig }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl2');
+        if (!gl) return;
+
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        gl.shaderSource(vertexShader, `#version 300 es
+        in vec4 a_position;
+        void main() {
+            gl_Position = a_position;
+        }`);
+        gl.compileShader(vertexShader);
+
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(fragmentShader, swirlFragShader);
+        gl.compileShader(fragmentShader);
+
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        const posAttr = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(posAttr);
+        gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+        const uniforms = {
+            uTime: gl.getUniformLocation(program, 'uTime'),
+            uResolution: gl.getUniformLocation(program, 'uResolution'),
+            uSpeed: gl.getUniformLocation(program, 'uSpeed'),
+            uColorBack: gl.getUniformLocation(program, 'uColorBack'),
+            uColorCount: gl.getUniformLocation(program, 'uColorCount'),
+            uBandCount: gl.getUniformLocation(program, 'uBandCount'),
+            uTwist: gl.getUniformLocation(program, 'uTwist'),
+            uCenter: gl.getUniformLocation(program, 'uCenter'),
+            uProportion: gl.getUniformLocation(program, 'uProportion'),
+            uSoftness: gl.getUniformLocation(program, 'uSoftness'),
+            uNoise: gl.getUniformLocation(program, 'uNoise'),
+            uNoiseFrequency: gl.getUniformLocation(program, 'uNoiseFrequency'),
+            uHue: gl.getUniformLocation(program, 'uHue'),
+            uSaturation: gl.getUniformLocation(program, 'uSaturation'),
+        };
+
+        let startTime = Date.now();
+        let animationFrameId: number;
+
+        const render = (time: number) => {
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uniforms.uTime, time);
+            gl.uniform2f(uniforms.uResolution, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uniforms.uSpeed, config.speed);
+            
+            const bgRgba = hexToRgbaVec(config.colorBack);
+            gl.uniform4f(uniforms.uColorBack, bgRgba[0], bgRgba[1], bgRgba[2], bgRgba[3]);
+            
+            gl.uniform1f(uniforms.uBandCount, config.bandCount);
+            gl.uniform1f(uniforms.uTwist, config.twist);
+            gl.uniform1f(uniforms.uCenter, config.center);
+            gl.uniform1f(uniforms.uProportion, config.proportion);
+            gl.uniform1f(uniforms.uSoftness, config.softness);
+            gl.uniform1f(uniforms.uNoise, config.noise);
+            gl.uniform1f(uniforms.uNoiseFrequency, config.noiseFrequency);
+            gl.uniform1f(uniforms.uHue, config.hue ?? 0.0);
+            gl.uniform1f(uniforms.uSaturation, config.saturation ?? 1.0);
+
+            config.colors.forEach((color, index) => {
+                if (index >= 10) return;
+                const loc = gl.getUniformLocation(program, `uColors[${index}]`);
+                const rgba = hexToRgbaVec(color);
+                gl.uniform4f(loc, rgba[0], rgba[1], rgba[2], rgba[3]);
+            });
+            gl.uniform1f(uniforms.uColorCount, config.colorCount);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+
+        const renderLoop = () => {
+            const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+        };
+
+        renderLoop();
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [config, globalConfig.paused, globalConfig.motion]);
+
+    return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+// Helper dependency assumption
+function hexToRgbaVec(hex: string): [number, number, number, number] {
+    let c = hex.substring(1);
+    if(c.length === 3) c = c.split('').map(x => x + x).join('');
+    const num = parseInt(c, 16);
+    return [((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255, c.length === 8 ? ((num >> 24) & 255) / 255 : 1.0];
+}
+
 function ShaderWrapper({ config, globalConfig, children }: { config: ShaderSetting, globalConfig: GradientConfig, children: React.ReactNode}) {
     const { transform } = config;
     const style: React.CSSProperties = {
@@ -4322,6 +4772,16 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
             <ShaderWrapper config={shaders.chargedCells} globalConfig={config}>
               <ChargedCellsShader config={shaders.chargedCells} globalConfig={config} />
             </ShaderWrapper>
+        )}
+        {shaders.refractedWave?.enabled && (
+            <ShaderWrapper config={shaders.refractedWave} globalConfig={config}>
+                <RefractedWaveShader config={shaders.refractedWave} globalConfig={config} />
+            </ShaderWrapper>
+        )}
+        {shaders.swirl?.enabled && (
+          <ShaderWrapper config={shaders.swirl} globalConfig={config}>
+            <SwirlShader config={shaders.swirl} globalConfig={config} />
+          </ShaderWrapper>
         )}
       </div>
       <div className="absolute inset-0 w-full h-full z-10 pointer-events-none">

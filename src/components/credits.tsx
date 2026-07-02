@@ -43,6 +43,12 @@ export const Credits = () => {
 
 [Floating voronoi lines](https://codepen.io/lekzd/pen/xbwMMzR) by [Alexander Korotaev](https://codepen.io/lekzd)
 
+[grain gradient](https://shaders.paper.design/grain-gradient) by [Paper Shaders](https://shaders.paper.design/)
+
+[swirl](https://shaders.paper.design/swirl) by [Paper Shaders](https://shaders.paper.design/)
+
+[shaders](https://github.com/paper-design/shaders) by [paper design](https://github.com/paper-design)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)
@@ -70,6 +76,8 @@ export const Credits = () => {
 [uuid](https://www.npmjs.com/package/uuid)
 
 [radix-ui](https://www.npmjs.com/package/radix-ui)
+
+[Google Gemini](https://gemini.google.com/app)
 
 [Custom Checkbox](https://21st.dev/Edil-ozi/custom-checkbox/default) by [Edil Ozi](https://21st.dev/Edil-ozi)
 

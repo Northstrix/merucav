@@ -77,13 +77,15 @@ export function GradientOverlayEditor({ config, setConfig }: GradientOverlayEdit
                                 onChange={(checked) => updateConfig('enabled', !!checked)}
                                 label={t('enableOverlay')}
                             />
-                             <CustomCheckbox
-                                id="invert-colors"
-                                direction={isRTL ? "rtl" : "ltr"}
-                                checked={config.overlay.invert}
-                                onChange={(checked) => updateConfig('invert', !!checked)}
-                                label={t('invertColors')}
-                            />
+                            {config.overlay.enabled && (
+                                <CustomCheckbox
+                                    id="invert-colors"
+                                    direction={isRTL ? "rtl" : "ltr"}
+                                    checked={config.overlay.invert}
+                                    onChange={(checked) => updateConfig('invert', !!checked)}
+                                    label={t('invertColors')}
+                                />
+                            )}
                         </div>
                         {config.overlay.enabled && (
                             <>

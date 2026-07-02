@@ -69,6 +69,9 @@ export function GradientPropertiesEditor({
     psychedelicGlass,
     solarWhirls,
     chargedCells,
+    refractedWave,
+    warp,
+    swirl,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -3445,6 +3448,124 @@ export function GradientPropertiesEditor({
               onValueChange={(v) => updateShaderConfig("chargedCells", "color3_b", v)}
               isRTL={isRTL}
             />
+          </>
+        )}
+
+        {renderShaderControls(
+          "refractedWave",
+          refractedWave,
+          <>
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={refractedWave.speed} min={0} max={5} step={0.1} onValueChange={(v) => updateShaderConfig("refractedWave", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="refractedWave-speed" value={refractedWave.speed} min={0} max={5} step={0.1} onValueChange={(v) => updateShaderConfig("refractedWave", "speed", v)} isRTL={isRTL} />
+
+            {/* SOFTNESS */}
+            <ControlSlider label={t("softness")} value={refractedWave.softness} min={0} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("refractedWave", "softness", v)} isRTL={isRTL} />
+            <CustomSlider id="refractedWave-softness" value={refractedWave.softness} min={0} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("refractedWave", "softness", v)} isRTL={isRTL} />
+
+            {/* WARP INTENSITY */}
+            <ControlSlider label={t("warpIntensity")} value={refractedWave.intensity} min={0} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("refractedWave", "intensity", v)} isRTL={isRTL} />
+            <CustomSlider id="refractedWave-intensity" value={refractedWave.intensity} min={0} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("refractedWave", "intensity", v)} isRTL={isRTL} />
+
+            {/* GRAIN NOISE */}
+            <ControlSlider label={t("grainNoise")} value={refractedWave.noise} min={0} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("refractedWave", "noise", v)} isRTL={isRTL} />
+            <CustomSlider id="refractedWave-noise" value={refractedWave.noise} min={0} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("refractedWave", "noise", v)} isRTL={isRTL} />
+
+            {/* SHAPE PROFILE */}
+            <ControlSlider label={t("shapeProfile")} value={refractedWave.shape} min={1} max={3} step={1} onValueChange={(v) => updateShaderConfig("refractedWave", "shape", v)} isRTL={isRTL} />
+            <CustomSlider id="refractedWave-shape" value={refractedWave.shape} min={1} max={3} step={1} onValueChange={(v) => updateShaderConfig("refractedWave", "shape", v)} isRTL={isRTL} />
+
+            {/* COLOR COUNT */}
+            <ControlSlider label={t("colorCount")} value={refractedWave.colorCount} min={1} max={7} step={1} onValueChange={(v) => updateShaderConfig("refractedWave", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="refractedWave-colorCount" value={refractedWave.colorCount} min={1} max={7} step={1} onValueChange={(v) => updateShaderConfig("refractedWave", "colorCount", v)} isRTL={isRTL} />
+
+            {/* DYNAMIC GRADIENT PICKERS */}
+            {refractedWave.colors.slice(0, refractedWave.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">
+                  {t("color")} {index + 1}
+                </span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...refractedWave.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("refractedWave", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "swirl",
+          swirl,
+          <>
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={swirl.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-speed" value={swirl.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "speed", v)} isRTL={isRTL} />
+
+            {/* HUE */}
+            <ControlSlider label={t("hue")} value={swirl.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("swirl", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-hue" value={swirl.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("swirl", "hue", v)} isRTL={isRTL} />
+
+            {/* SATURATION */}
+            <ControlSlider label={t("saturation")} value={swirl.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-saturation" value={swirl.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "saturation", v)} isRTL={isRTL} />
+
+            {/* BAND COUNT */}
+            <ControlSlider label={t("bandCount")} value={swirl.bandCount} min={0} max={15} step={1} onValueChange={(v) => updateShaderConfig("swirl", "bandCount", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-bandCount" value={swirl.bandCount} min={0} max={15} step={1} onValueChange={(v) => updateShaderConfig("swirl", "bandCount", v)} isRTL={isRTL} />
+
+            {/* TWIST */}
+            <ControlSlider label={t("twist")} value={swirl.twist} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "twist", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-twist" value={swirl.twist} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "twist", v)} isRTL={isRTL} />
+
+            {/* CENTER */}
+            <ControlSlider label={t("center")} value={swirl.center} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "center", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-center" value={swirl.center} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "center", v)} isRTL={isRTL} />
+
+            {/* PROPORTION */}
+            <ControlSlider label={t("proportion")} value={swirl.proportion} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "proportion", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-proportion" value={swirl.proportion} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "proportion", v)} isRTL={isRTL} />
+
+            {/* SOFTNESS */}
+            <ControlSlider label={t("softness")} value={swirl.softness} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "softness", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-softness" value={swirl.softness} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "softness", v)} isRTL={isRTL} />
+
+            {/* NOISE */}
+            <ControlSlider label={t("noise")} value={swirl.noise} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "noise", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-noise" value={swirl.noise} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "noise", v)} isRTL={isRTL} />
+
+            {/* NOISE FREQUENCY */}
+            <ControlSlider label={t("noiseFrequency")} value={swirl.noiseFrequency} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "noiseFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-noiseFrequency" value={swirl.noiseFrequency} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("swirl", "noiseFrequency", v)} isRTL={isRTL} />
+
+            {/* COLOR COUNT */}
+            <ControlSlider label={t("colorCount")} value={swirl.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("swirl", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="swirl-colorCount" value={swirl.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("swirl", "colorCount", v)} isRTL={isRTL} />
+
+            {/* BACKGROUND COLOR PICKER */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">
+                {t("backgroundColor")}
+              </span>
+              <ColorPicker value={swirl.colorBack} onValueChange={(c) => {
+                updateShaderConfig("swirl", "colorBack", hsvaToHex(c));
+              }} hideAlpha hideContrastRatio />
+            </div>
+
+            {/* DYNAMIC GRADIENT PICKERS */}
+            {swirl.colors.slice(0, swirl.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">
+                  {t("color")} {index + 1}
+                </span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...swirl.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("swirl", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
           </>
         )}
 

@@ -2,7 +2,7 @@
 
 import { useLanguage } from "@/contexts/language-context";
 import { useTranslation } from "@/hooks/use-translation";
-import NamerUiBadge from "./namer-ui-badge";
+import PoweredByBadges from "./powered-by-badges";
 import useIsRTL from "@/hooks/use-is-rtl";
 import React, { useState, useEffect } from "react";
 
@@ -50,7 +50,6 @@ export function AppFooter() {
   const [twelveToolsLoaded, setTwelveToolsLoaded] = useState(false);
   const [auraPlusPlusLoaded, setAuraPlusPlusLoaded] = useState(false);
   const [launchItLoaded, setLaunchItLoaded] = useState(false);
-  const [justOpenSourceBadgeLoaded, setJustOpenSourceBadgeLoaded] = useState(false);
 
 
   const foundrListBadgeImg = "https://www.foundrlist.me/api/badge/merucav?style=featured";
@@ -73,15 +72,11 @@ export function AppFooter() {
   const launchItImg = "https://launchit.site/badges/featured-light-v2.svg";
   const launchItLink = "https://launchit.site/launches/merucav";
 
-  const justOpenSourceBadgeImg = "https://justopensource.xyz/logo.png";
-  const justOpenSourceBadgeLink = "https://justopensource.xyz/";
-
   const safeFoundrListBadgeLink = sanitizeUrl(foundrListBadgeLink);
   const safeProductHuntBadgeLink = sanitizeUrl(productHuntBadgeLink);
   const safeVerifiedToolsLink = sanitizeUrl(verifiedToolsLink);
   const safeTwelveToolsLink = sanitizeUrl(twelveToolsLink);
   const safeAuraPlusPlusLink = sanitizeUrl(auraPlusPlusLink);
-  const safeJustOpenSourceBadgeLink = sanitizeUrl(justOpenSourceBadgeLink);
   const safeLaunchItLink = sanitizeUrl(launchItLink);
 
   useEffect(() => {
@@ -182,11 +177,7 @@ export function AppFooter() {
       dir={isRTL ? "rtl" : "ltr"}
       className="text-center text-muted-foreground mt-12 py-10 border-t border-border flex flex-col items-center gap-6"
     >
-      <NamerUiBadge
-        isRTL={isRTL}
-        poweredByText={t("poweredBy")}
-        namerUIName={t("namerUi")}
-      />
+      <PoweredByBadges isRTL={isRTL} />
 
       {/* Foundr List Badge */}
       {foundrListBadgeVisible && safeFoundrListBadgeLink && (
@@ -407,76 +398,6 @@ export function AppFooter() {
               transition: "opacity 0.2s ease-out",
             }}
           />
-        </a>
-      )}
-
-      {/* JustOpenSource "Tool of the Week" Badge */}
-      {safeJustOpenSourceBadgeLink && (
-        <a
-          href={justOpenSourceBadgeLoaded ? safeJustOpenSourceBadgeLink : undefined}
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            alignItems: "center",
-            width: "240px",
-            padding: "10px",
-            border: "2px solid oklch(0.685 0.169 237.323)",
-            borderRadius: "8px",
-            boxShadow: "rgba(0, 0, 0, 0.1) 0px 1px 2px",
-            textDecoration: "none",
-            backgroundColor: "white",
-            transition: "background-color 0.3s",
-            pointerEvents: justOpenSourceBadgeLoaded ? "auto" : "none",
-          }}
-        >
-          <div style={{ display: "flex", flexDirection: "column" }}>
-            <img
-              src={justOpenSourceBadgeImg}
-              alt="JustOpenSource"
-              loading="lazy"
-              onLoad={() => setJustOpenSourceBadgeLoaded(true)}
-              onError={() => setJustOpenSourceBadgeLoaded(false)}
-              style={{
-                width: "80px",
-                borderRadius: "4px",
-                opacity: justOpenSourceBadgeLoaded ? 1 : 0.01,
-                height: justOpenSourceBadgeLoaded ? "auto" : "1px",
-                objectFit: "contain",
-                transition: "opacity 0.2s ease-out",
-              }}
-            />
-            <p
-              style={{
-                fontSize: "1.125rem",
-                color: "#4b5563",
-                margin: "4px 0 0",
-                fontWeight: "400",
-              }}
-            >
-              Tool Of The Week
-            </p>
-          </div>
-          <svg
-            xmlns="http://www.w3.org/2000/svg"
-            width="48"
-            height="48"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="#facc15"
-            strokeWidth="2"
-            strokeLinecap="round"
-            strokeLinejoin="round"
-            className="lucide lucide-trophy"
-          >
-            <path d="M10 14.66v1.626a2 2 0 0 1-.976 1.696A5 5 0 0 0 7 21.978" />
-            <path d="M14 14.66v1.626a2 2 0 0 0 .976 1.696A5 5 0 0 1 17 21.978" />
-            <path d="M18 9h1.5a1 1 0 0 0 0-5H18" />
-            <path d="M4 22h16" />
-            <path d="M6 9a6 6 0 0 0 12 0V3a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1z" />
-            <path d="M6 9H4.5a1 1 0 0 1 0-5H6" />
-          </svg>
         </a>
       )}
 
