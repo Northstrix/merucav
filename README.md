@@ -43,6 +43,10 @@ The app is fully localized into:
 
 ✅ Dutch
 
+## Adding New Shaders
+
+Provide the AI of your choice with the [Adding-new-shaders.md](https://github.com/Northstrix/merucav/blob/main/Adding-new-shaders.md)  file, and include the attribution/licensing for a shader in the `components/credits.tsx` and `README.md` files, as well as in the shader's dedicated subfolder within the `Third-Party Licenses` folder, if necessary.
+
 ## Credit
 [GradientGen](https://github.com/noegarsoux/GradientGen) by [noegarsoux](https://github.com/noegarsoux)
 
