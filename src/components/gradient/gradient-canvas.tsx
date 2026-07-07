@@ -357,7 +357,32 @@ export interface GradientConfig {
       noise: number;
       noiseFrequency: number;
     };
-
+    spiral: ShaderSetting & {
+      scale: number;
+      colorBack: string;
+      colorFront: string;
+      density: number;
+      distortion: number;
+      strokeWidth: number;
+      strokeTaper: number;
+      noise: number;
+      noiseFrequency: number;
+      softness: number;
+      speed: number;
+    };
+    neuralNoise: ShaderSetting & {
+      speed: number;
+      hue: number;
+      saturation: number;
+      iterations: number;
+      complexity: number;
+      distance: number;
+      brightness: number;
+      contrast: number;
+      color: string;
+      colorShiftSpeed: number;
+      vignette: number;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -655,6 +680,38 @@ export function getDefaultGradientConfig(): GradientConfig {
           softness: 0.5,
           noise: 0.2,
           noiseFrequency: 0.4,
+        },
+        spiral: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          scale: 1,
+          colorBack: '#0A98F0',
+          colorFront: '#EEF9FF',
+          density: 3.5,
+          distortion: 0,
+          strokeWidth: 0.9,
+          strokeTaper: 0,
+          noise: 0.5,
+          noiseFrequency: 1.5,
+          softness: 0,
+          speed: 0.25,
+        },
+        neuralNoise: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform }, // scale is contained inside this shared object
+          speed: 1.0,
+          hue: 0,
+          saturation: 1.0,
+          iterations: 15,
+          complexity: 2.4,
+          distance: 1.2,
+          brightness: 1.2,
+          contrast: 0.5,
+          color: '#00E5FF',
+          colorShiftSpeed: 1.0,
+          vignette: 1.0,
         },
 
     },
@@ -4605,6 +4662,434 @@ export function SwirlShader({ config, globalConfig }: { config: GradientConfig['
     return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
 
+export const spiralFragmentShader = `#version 300 es
+precision highp float;
+
+uniform float uTime;
+uniform vec2 uResolution;
+
+// Own Uniforms
+uniform vec4 u_colorBack;
+uniform vec4 u_colorFront;
+uniform float u_density;
+uniform float u_distortion;
+uniform float u_strokeWidth;
+uniform float u_strokeTaper;
+uniform float u_noiseFrequency;
+uniform float u_noise;
+uniform float u_softness;
+
+// Sizing Uniforms
+uniform int u_fit;
+uniform float u_scale;
+uniform float u_rotation;
+uniform float u_offsetX;
+uniform float u_offsetY;
+uniform float u_originX;
+uniform float u_originY;
+uniform float u_worldWidth;
+uniform float u_worldHeight;
+
+out vec4 fragColor;
+
+vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
+
+float snoise(vec2 v) {
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+    vec2 i  = floor(v + dot(v, C.yy));
+    vec2 x0 = v -   i + dot(i, C.xx);
+    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod(i, 289.0);
+    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+    vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+    m = m * m; m = m * m;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+    vec3 g;
+    g.x  = a0.x * x0.x  + h.x * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+}
+
+void main() {
+    vec2 st = gl_FragCoord.xy / uResolution.xy;
+    float aspect = uResolution.x / uResolution.y;
+    
+    vec2 uv = st - vec2(u_originX, u_originY);
+    uv.x *= aspect;
+
+    float cosR = cos(u_rotation);
+    float sinR = sin(u_rotation);
+    uv = vec2(uv.x * cosR - uv.y * sinR, uv.x * sinR + uv.y * cosR);
+    
+    uv /= max(0.001, u_scale);
+    uv -= vec2(u_offsetX, u_offsetY);
+
+    float radius = length(uv);
+    float angle = atan(uv.y, uv.x);
+    
+    if (u_noise > 0.0) {
+        vec2 noiseUV = uv * u_noiseFrequency + vec2(0.0, uTime * 0.2);
+        float n = snoise(noiseUV);
+        radius += n * u_noise * 0.15;
+        angle += n * u_noise * 0.25;
+    }
+    
+    float spiralValue = angle / 6.28318530718 + (radius * u_density) - uTime;
+    
+    if (u_distortion > 0.0) {
+        spiralValue += sin(radius * 8.0 - uTime) * u_distortion * 0.1;
+    }
+    
+    float pattern = fract(spiralValue);
+    float currentStrokeWidth = u_strokeWidth;
+    if (u_strokeTaper > 0.0) {
+        currentStrokeWidth *= mix(1.0, clamp(radius, 0.0, 1.0), u_strokeTaper);
+    }
+    
+    float halfWidth = currentStrokeWidth * 0.5;
+    float edgeDist = abs(pattern - 0.5);
+    
+    // Stroke Cap logic entirely omitted since it's hardcoded to 0.0
+    
+    float aaRange = fwidth(edgeDist) + u_softness * 0.1;
+    float mask = smoothstep(halfWidth + aaRange, halfWidth - aaRange, edgeDist);
+    
+    vec4 backColor = u_colorBack;
+    vec4 frontColor = u_colorFront;
+    backColor.rgb *= backColor.a;
+    frontColor.rgb *= frontColor.a;
+    
+    fragColor = mix(backColor, frontColor, mask);
+}`;
+
+export function SpiralShader({ config, globalConfig }: { config: any, globalConfig: any }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl2');
+    if (!gl) return;
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+    gl.shaderSource(vertexShader, `#version 300 es
+      in vec4 a_position;
+      void main() {
+        gl_Position = a_position;
+      }`);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fragmentShader, spiralFragmentShader);
+    gl.compileShader(fragmentShader);
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const posAttr = gl.getAttribLocation(program, "a_position");
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    const uniforms = {
+      uTime: gl.getUniformLocation(program, 'uTime'),
+      uResolution: gl.getUniformLocation(program, 'uResolution'),
+      u_colorBack: gl.getUniformLocation(program, 'u_colorBack'),
+      u_colorFront: gl.getUniformLocation(program, 'u_colorFront'),
+      u_density: gl.getUniformLocation(program, 'u_density'),
+      u_distortion: gl.getUniformLocation(program, 'u_distortion'),
+      u_strokeWidth: gl.getUniformLocation(program, 'u_strokeWidth'),
+      u_strokeTaper: gl.getUniformLocation(program, 'u_strokeTaper'),
+      u_noise: gl.getUniformLocation(program, 'u_noise'),
+      u_noiseFrequency: gl.getUniformLocation(program, 'u_noiseFrequency'),
+      u_softness: gl.getUniformLocation(program, 'u_softness'),
+      // Sizing Uniforms
+      u_fit: gl.getUniformLocation(program, 'u_fit'),
+      u_scale: gl.getUniformLocation(program, 'u_scale'),
+      u_rotation: gl.getUniformLocation(program, 'u_rotation'),
+      u_offsetX: gl.getUniformLocation(program, 'u_offsetX'),
+      u_offsetY: gl.getUniformLocation(program, 'u_offsetY'),
+      u_originX: gl.getUniformLocation(program, 'u_originX'),
+      u_originY: gl.getUniformLocation(program, 'u_originY'),
+      u_worldWidth: gl.getUniformLocation(program, 'u_worldWidth'),
+      u_worldHeight: gl.getUniformLocation(program, 'u_worldHeight'),
+    };
+
+    let startTime = Date.now();
+    let animationFrameId: number;
+
+    const render = (time: number) => {
+      const rect = canvas.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      gl.uniform2f(uniforms.uResolution, gl.canvas.width, gl.canvas.height);
+      
+      const currentSpeed = config.speed ?? 1.0;
+      gl.uniform1f(uniforms.uTime, time * currentSpeed);
+
+      const bgRgba = hexToRgbaVec(config.colorBack || '#001429');
+      gl.uniform4f(uniforms.u_colorBack, bgRgba[0], bgRgba[1], bgRgba[2], bgRgba[3]);
+
+      const fgRgba = hexToRgbaVec(config.colorFront || '#79D1FF');
+      gl.uniform4f(uniforms.u_colorFront, fgRgba[0], fgRgba[1], fgRgba[2], fgRgba[3]);
+
+      gl.uniform1f(uniforms.u_density, config.density ?? 1.0);
+      gl.uniform1f(uniforms.u_distortion, config.distortion ?? 0.0);
+      gl.uniform1f(uniforms.u_strokeWidth, config.strokeWidth ?? 0.5);
+      gl.uniform1f(uniforms.u_strokeTaper, config.strokeTaper ?? 0.0);
+      gl.uniform1f(uniforms.u_noise, config.noise ?? 0.0);
+      gl.uniform1f(uniforms.u_noiseFrequency, config.noiseFrequency ?? 0.0);
+      gl.uniform1f(uniforms.u_softness, config.softness ?? 0.0);
+
+      gl.uniform1i(uniforms.u_fit, 0);
+      gl.uniform1f(uniforms.u_scale, config.scale ?? 1.0);
+      gl.uniform1f(uniforms.u_rotation, config.rotation ?? 0.0);
+      gl.uniform1f(uniforms.u_offsetX, config.offsetX ?? 0.0);
+      gl.uniform1f(uniforms.u_offsetY, config.offsetY ?? 0.0);
+      gl.uniform1f(uniforms.u_originX, config.originX ?? 0.5);
+      gl.uniform1f(uniforms.u_originY, config.originY ?? 0.5);
+      gl.uniform1f(uniforms.u_worldWidth, gl.canvas.width);
+      gl.uniform1f(uniforms.u_worldHeight, gl.canvas.height);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+
+    const renderLoop = () => {
+      const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+      render(time);
+      if (!globalConfig.paused) {
+        animationFrameId = requestAnimationFrame(renderLoop);
+      }
+    };
+
+    renderLoop();
+    
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      gl.deleteBuffer(positionBuffer);
+    };
+  }, [config, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+export const neuralNoiseFragmentShader = `#version 300 es
+precision mediump float;
+
+uniform float u_time;
+uniform float u_ratio;
+
+// Global App Transform Scale used directly instead of custom internal shader scale
+uniform float u_scale; 
+
+// Customizable Parameters
+uniform vec4 u_baseColor;
+uniform float u_hue;
+uniform float u_saturation;
+uniform int u_iterations;
+uniform float u_complexity;
+uniform float u_distance;
+uniform float u_brightness;
+uniform float u_contrast;
+uniform float u_colorShiftSpeed;
+uniform float u_vignette;
+
+in vec2 vUv;
+out vec4 fragColor;
+
+// Shared Hue Saturation Color Utilities
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+vec2 rotate(vec2 uv, float th) {
+    return mat2(cos(th), sin(th), -sin(th), cos(th)) * uv;
+}
+
+float neuro_shape(vec2 uv, float t, float initialScale) {
+    vec2 sine_acc = vec2(0.);
+    vec2 res = vec2(0.);
+    float currentScale = initialScale;
+    
+    for (int j = 0; j < 32; j++) {
+        if (j >= u_iterations) break;
+        uv = rotate(uv, 1.);
+        sine_acc = rotate(sine_acc, 1.);
+        vec2 layer = uv * currentScale + float(j) + sine_acc - t;
+        sine_acc += sin(layer) + u_complexity;
+        res += (.5 + .5 * cos(layer)) / currentScale;
+        currentScale *= u_distance;
+    }
+    return res.x + res.y;
+}
+
+void main() {
+    vec2 uv = .5 * vUv;
+    uv.x *= u_ratio;
+    
+    float t = .001 * u_time;
+    
+    // Scale tracking mapped straight out of app defaults layout rules
+    float initialScale = 8.0 / max(0.001, u_scale);
+    
+    float noise = neuro_shape(uv, t, initialScale);
+    noise = u_brightness * pow(noise, 3.);
+    noise += pow(noise, 10.);
+    noise = max(.0, noise - u_contrast);
+    noise *= (1. - u_vignette * length(vUv - .5));
+    
+    // Process color shift using base color input as origin point
+    vec3 baseHsv = rgb2hsv(u_baseColor.rgb);
+    
+    // Metamorphose the hue dynamically over time from the baseline origin index
+    float dynamicHue = baseHsv.x + (u_hue / 360.0) + (t * u_colorShiftSpeed * 0.1);
+    float targetSat = baseHsv.y * u_saturation;
+    
+    vec3 finalColor = hsv2rgb(vec3(fract(dynamicHue), targetSat, baseHsv.z));
+    finalColor = finalColor * noise * u_baseColor.a;
+    
+    fragColor = vec4(finalColor, noise * u_baseColor.a);
+}`;
+
+export function NeuralNoiseShader({ config, globalConfig }: { config: any, globalConfig: any }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl2');
+    if (!gl) return;
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+    gl.shaderSource(vertexShader, `#version 300 es
+      precision mediump float;
+      in vec4 a_position;
+      out vec2 vUv;
+      void main() {
+        vUv = .5 * (a_position.xy + 1.);
+        gl_Position = vec4(a_position.xy, 0.0, 1.0);
+      }`);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fragmentShader, neuralNoiseFragmentShader);
+    gl.compileShader(fragmentShader);
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+    const posAttr = gl.getAttribLocation(program, "a_position");
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    const uniforms = {
+      u_time: gl.getUniformLocation(program, 'u_time'),
+      u_ratio: gl.getUniformLocation(program, 'u_ratio'),
+      u_scale: gl.getUniformLocation(program, 'u_scale'),
+      u_baseColor: gl.getUniformLocation(program, 'u_baseColor'),
+      u_hue: gl.getUniformLocation(program, 'u_hue'),
+      u_saturation: gl.getUniformLocation(program, 'u_saturation'),
+      u_iterations: gl.getUniformLocation(program, 'u_iterations'),
+      u_complexity: gl.getUniformLocation(program, 'u_complexity'),
+      u_distance: gl.getUniformLocation(program, 'u_distance'),
+      u_brightness: gl.getUniformLocation(program, 'u_brightness'),
+      u_contrast: gl.getUniformLocation(program, 'u_contrast'),
+      u_colorShiftSpeed: gl.getUniformLocation(program, 'u_colorShiftSpeed'),
+      u_vignette: gl.getUniformLocation(program, 'u_vignette'),
+    };
+
+    let startTime = Date.now();
+    let animationFrameId: number;
+
+    const render = (time: number) => {
+      const rect = canvas.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+      gl.uniform1f(uniforms.u_ratio, gl.canvas.width / gl.canvas.height);
+      gl.uniform1f(uniforms.u_time, time);
+
+      // Map global uniform transforms
+      gl.uniform1f(uniforms.u_scale, config.transform?.scale ?? 1.0);
+
+      const parsedColor = hexToRgbaVec(config.color || '#00E5FF');
+      gl.uniform4f(uniforms.u_baseColor, parsedColor[0], parsedColor[1], parsedColor[2], parsedColor[3]);
+
+      gl.uniform1f(uniforms.u_hue, config.hue ?? 0.0);
+      gl.uniform1f(uniforms.u_saturation, config.saturation ?? 1.0);
+      gl.uniform1i(uniforms.u_iterations, config.iterations ?? 15);
+      gl.uniform1f(uniforms.u_complexity, config.complexity ?? 2.4);
+      gl.uniform1f(uniforms.u_distance, config.distance ?? 1.2);
+      gl.uniform1f(uniforms.u_brightness, config.brightness ?? 1.2);
+      gl.uniform1f(uniforms.u_contrast, config.contrast ?? 0.5);
+      gl.uniform1f(uniforms.u_colorShiftSpeed, config.colorShiftSpeed ?? 1.0);
+      gl.uniform1f(uniforms.u_vignette, config.vignette ?? 1.0);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+
+    const renderLoop = () => {
+      const speedModifier = config.speed ?? 1.0;
+      const time = globalConfig.paused 
+        ? (globalConfig.motion / 100) * 10000 
+        : (Date.now() - startTime) * speedModifier;
+        
+      render(time);
+      if (!globalConfig.paused) {
+        animationFrameId = requestAnimationFrame(renderLoop);
+      }
+    };
+
+    renderLoop();
+    
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      gl.deleteProgram(program);
+      gl.deleteShader(vertexShader);
+      gl.deleteShader(fragmentShader);
+      gl.deleteBuffer(positionBuffer);
+    };
+  }, [config, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
 // Helper dependency assumption
 function hexToRgbaVec(hex: string): [number, number, number, number] {
     let c = hex.substring(1);
@@ -4666,55 +5151,46 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
                 <FlowShader config={shaders.flow} globalConfig={config} />
             </ShaderWrapper>
         )}
-
         {shaders.tranquiluxe.enabled && (
             <ShaderWrapper config={shaders.tranquiluxe} globalConfig={config}>
                 <TranquiluxeShader config={shaders.tranquiluxe} globalConfig={config} />
             </ShaderWrapper>
         )}
-        
         {shaders.kaleidoscope.enabled && (
             <ShaderWrapper config={shaders.kaleidoscope} globalConfig={config}>
                 <KaleidoscopeShader config={shaders.kaleidoscope} globalConfig={config} />
             </ShaderWrapper>
         )}
-
         {shaders.fate.enabled && (
             <ShaderWrapper config={shaders.fate} globalConfig={config}>
                 <FateShader config={shaders.fate} globalConfig={config} />
             </ShaderWrapper>
         )}
-        
         {shaders.structuredNoise.enabled && (
             <ShaderWrapper config={shaders.structuredNoise} globalConfig={config}>
                 <StructuredNoiseShader config={shaders.structuredNoise} globalConfig={config} />
             </ShaderWrapper>
         )}
-
         {shaders.balatro.enabled && (
             <ShaderWrapper config={shaders.balatro} globalConfig={config}>
                 <BalatroShader config={shaders.balatro} globalConfig={config} />
             </ShaderWrapper>
         )}
-
         {shaders.electricPulse.enabled && (
             <ShaderWrapper config={shaders.electricPulse} globalConfig={config}>
                 <ElectricPulseShader config={shaders.electricPulse} globalConfig={config} />
             </ShaderWrapper>
         )}
-
         {shaders.laserBlast.enabled && (
             <ShaderWrapper config={shaders.laserBlast} globalConfig={config}>
                 <LaserBlastShader config={shaders.laserBlast} globalConfig={config} />
             </ShaderWrapper>
         )}
-        
         {shaders.novatrix.enabled && (
             <ShaderWrapper config={shaders.novatrix} globalConfig={config}>
                 <NovatrixShader config={shaders.novatrix} globalConfig={config} />
             </ShaderWrapper>
         )}
-        
         {shaders.voronoi.enabled && (
             <ShaderWrapper config={shaders.voronoi} globalConfig={config}>
                 <VoronoiShader config={shaders.voronoi} globalConfig={config} />
@@ -4781,6 +5257,16 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.swirl?.enabled && (
           <ShaderWrapper config={shaders.swirl} globalConfig={config}>
             <SwirlShader config={shaders.swirl} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.spiral?.enabled && (
+          <ShaderWrapper config={shaders.spiral} globalConfig={config}>
+            <SpiralShader config={shaders.spiral} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.neuralNoise?.enabled && (
+          <ShaderWrapper config={shaders.neuralNoise} globalConfig={config}>
+            <NeuralNoiseShader config={shaders.neuralNoise} globalConfig={config} />
           </ShaderWrapper>
         )}
       </div>

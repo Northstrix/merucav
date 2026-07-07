@@ -47,7 +47,11 @@ export const Credits = () => {
 
 [swirl](https://shaders.paper.design/swirl) by [Paper Shaders](https://shaders.paper.design/)
 
+[spiral](https://shaders.paper.design/spiral) by [Paper Shaders](https://shaders.paper.design/)
+
 [shaders](https://github.com/paper-design/shaders) by [paper design](https://github.com/paper-design)
+
+[Neuro Noise (GLSL Shader)](https://codepen.io/ksenia-k/pen/vYwgrWv) by [Ksenia Kondrashova](https://codepen.io/ksenia-k)
 
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 

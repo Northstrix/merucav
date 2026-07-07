@@ -70,8 +70,9 @@ export function GradientPropertiesEditor({
     solarWhirls,
     chargedCells,
     refractedWave,
-    warp,
     swirl,
+    spiral,
+    neuralNoise,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -3566,6 +3567,120 @@ export function GradientPropertiesEditor({
                 }} hideAlpha hideContrastRatio />
               </div>
             ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "spiral",
+          spiral,
+          <>
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={spiral.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="spiral-speed" value={spiral.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "speed", v)} isRTL={isRTL} />
+
+            {/* DENSITY */}
+            <ControlSlider label={t("density")} value={spiral.density} min={0} max={64} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "density", v)} isRTL={isRTL} />
+            <CustomSlider id="spiral-density" value={spiral.density} min={0} max={64} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "density", v)} isRTL={isRTL} />
+
+            {/* DISTORTION */}
+            <ControlSlider label={t("distortion")} value={spiral.distortion} min={0} max={25} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "distortion", v)} isRTL={isRTL} />
+            <CustomSlider id="spiral-distortion" value={spiral.distortion} min={0} max={25} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "distortion", v)} isRTL={isRTL} />
+
+            {/* STROKE WIDTH */}
+            <ControlSlider label={t("strokeWidth")} value={spiral.strokeWidth} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "strokeWidth", v)} isRTL={isRTL} />
+            <CustomSlider id="spiral-strokeWidth" value={spiral.strokeWidth} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "strokeWidth", v)} isRTL={isRTL} />
+
+            {/* STROKE TAPER */}
+            <ControlSlider label={t("strokeTaper")} value={spiral.strokeTaper} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "strokeTaper", v)} isRTL={isRTL} />
+            <CustomSlider id="spiral-strokeTaper" value={spiral.strokeTaper} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "strokeTaper", v)} isRTL={isRTL} />
+
+            {/* NOISE */}
+            <ControlSlider label={t("noise")} value={spiral.noise} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "noise", v)} isRTL={isRTL} />
+            <CustomSlider id="spiral-noise" value={spiral.noise} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "noise", v)} isRTL={isRTL} />
+
+            {/* NOISE FREQUENCY */}
+            <ControlSlider label={t("noiseFrequency")} value={spiral.noiseFrequency} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "noiseFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="spiral-noiseFrequency" value={spiral.noiseFrequency} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "noiseFrequency", v)} isRTL={isRTL} />
+
+            {/* SOFTNESS */}
+            <ControlSlider label={t("softness")} value={spiral.softness} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "softness", v)} isRTL={isRTL} />
+            <CustomSlider id="spiral-softness" value={spiral.softness} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spiral", "softness", v)} isRTL={isRTL} />
+
+            {/* COLOR FRONT */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">
+                {t("frontColor")}
+              </span>
+              <ColorPicker value={spiral.colorFront} onValueChange={(c) => {
+                updateShaderConfig("spiral", "colorFront", hsvaToHex(c));
+              }} hideAlpha hideContrastRatio />
+            </div>
+
+            {/* COLOR BACK */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">
+                {t("backgroundColor")}
+              </span>
+              <ColorPicker value={spiral.colorBack} onValueChange={(c) => {
+                updateShaderConfig("spiral", "colorBack", hsvaToHex(c));
+              }} hideAlpha hideContrastRatio />
+            </div>
+          </>
+        )}
+
+        {renderShaderControls(
+          "neuralNoise",
+          neuralNoise,
+          <>
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={neuralNoise.speed} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("neuralNoise", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-speed" value={neuralNoise.speed} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("neuralNoise", "speed", v)} isRTL={isRTL} />
+
+            {/* HUE OFFSET CONTROL */}
+            <ControlSlider label={t("hue")} value={neuralNoise.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("neuralNoise", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-hue" value={neuralNoise.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("neuralNoise", "hue", v)} isRTL={isRTL} />
+
+            {/* SATURATION MULTIPLIER */}
+            <ControlSlider label={t("saturation")} value={neuralNoise.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralNoise", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-saturation" value={neuralNoise.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralNoise", "saturation", v)} isRTL={isRTL} />
+
+            {/* BASE COLOR ORIGIN SELECTION */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">
+                {t("baseColor")}
+              </span>
+              <ColorPicker value={neuralNoise.color} onValueChange={(c) => {
+                updateShaderConfig("neuralNoise", "color", hsvaToHex(c));
+              }} hideAlpha hideContrastRatio />
+            </div>
+
+            {/* COLOR METAMORPHOSIS SPEED */}
+            <ControlSlider label={t("colorShiftSpeed")} value={neuralNoise.colorShiftSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "colorShiftSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-colorShiftSpeed" value={neuralNoise.colorShiftSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "colorShiftSpeed", v)} isRTL={isRTL} />
+
+            {/* ITERATIONS */}
+            <ControlSlider label={t("iterations")} value={neuralNoise.iterations} min={1} max={32} step={1} onValueChange={(v) => updateShaderConfig("neuralNoise", "iterations", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-iterations" value={neuralNoise.iterations} min={1} max={32} step={1} onValueChange={(v) => updateShaderConfig("neuralNoise", "iterations", v)} isRTL={isRTL} />
+
+            {/* COMPLEXITY */}
+            <ControlSlider label={t("complexity")} value={neuralNoise.complexity} min={0} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "complexity", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-complexity" value={neuralNoise.complexity} min={0} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "complexity", v)} isRTL={isRTL} />
+            
+            {/* SCALE MULTIPLIER STEP */}
+            <ControlSlider label={t("distance")} value={neuralNoise.distance} min={1.0} max={1.5} step={0.01} onValueChange={(v) => updateShaderConfig("neuralNoise", "distance", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-distance" value={neuralNoise.distance} min={1.0} max={1.5} step={0.01} onValueChange={(v) => updateShaderConfig("neuralNoise", "distance", v)} isRTL={isRTL} />
+
+            {/* BRIGHTNESS */}
+            <ControlSlider label={t("brightness")} value={neuralNoise.brightness} min={0.1} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "brightness", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-brightness" value={neuralNoise.brightness} min={0.1} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "brightness", v)} isRTL={isRTL} />
+
+            {/* CONTRAST */}
+            <ControlSlider label={t("contrast")} value={neuralNoise.contrast} min={0.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("neuralNoise", "contrast", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-contrast" value={neuralNoise.contrast} min={0.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("neuralNoise", "contrast", v)} isRTL={isRTL} />
+
+            {/* VIGNETTE */}
+            <ControlSlider label={t("vignette")} value={neuralNoise.vignette} min={0.0} max={2.0} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "vignette", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralNoise-vignette" value={neuralNoise.vignette} min={0.0} max={2.0} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "vignette", v)} isRTL={isRTL} />
           </>
         )}
 
