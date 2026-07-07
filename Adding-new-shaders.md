@@ -1,4 +1,4 @@
-# Mercav Shader Integration & Localization Guide
+# Merucav Shader Integration & Localization Guide
 
 - generate the exact integration snippets for the app and provide them to human, or  
 - edit the repo files directly if possible to access the complete files present in the repo.
