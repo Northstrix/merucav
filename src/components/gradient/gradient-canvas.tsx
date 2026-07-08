@@ -383,6 +383,21 @@ export interface GradientConfig {
       colorShiftSpeed: number;
       vignette: number;
     };
+    interstellar: ShaderSetting & {
+      passes: number;
+      speed: number;
+      grain: number;
+      luminance: number;
+      precision: number;
+      iterations: number;
+      solidity: number;
+      camX: number;
+      camY: number;
+      camPitch: number;
+      camFov: number;
+      camShiftX: number;
+      camShiftY: number;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -712,6 +727,24 @@ export function getDefaultGradientConfig(): GradientConfig {
           color: '#00E5FF',
           colorShiftSpeed: 1.0,
           vignette: 1.0,
+        },
+        interstellar: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          passes: 1,
+          speed: 1.0,
+          grain: 0.04,
+          luminance: 5.1,
+          precision: 0.5,
+          iterations: 28.6,
+          solidity: 1.1,
+          camX: 2.8,
+          camY: -1.0,
+          camPitch: -0.38,
+          camFov: 2.5,
+          camShiftX: 1.0,
+          camShiftY: 1.0,
         },
 
     },
@@ -5090,6 +5123,213 @@ export function NeuralNoiseShader({ config, globalConfig }: { config: any, globa
   return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
 
+const interstellarVertShader = `#version 300 es
+in vec3 position;
+void main() {
+    gl_Position = vec4(position, 1.0);
+}`;
+
+const interstellarFragShader = `#version 300 es
+precision highp float;
+uniform vec3 iResolution;
+uniform float iTime;
+uniform int u_renderPasses;
+uniform float u_sceneTimeScale;
+uniform float u_grainIntensity;
+uniform float u_globalLuminance;
+uniform float u_stepPrecision;
+uniform float u_rayIterations;
+uniform float u_surfaceSolidity;
+uniform float u_camPosX;
+uniform float u_camPosY;
+uniform float u_camPitch;
+uniform float u_camFov;
+uniform float u_camShiftX;
+uniform float u_camShiftY;
+out vec4 outColor;
+
+mat2 calcRotation(float theta) {
+    float sine = sin(theta);
+    float cosine = cos(theta);
+    return mat2(cosine, -sine, sine, cosine);
+}
+
+vec3 applyCinematicGrade(vec3 rawColor) {
+    mat3 colorSpaceA = mat3(
+        0.59719, 0.07600, 0.02840,
+        0.35458, 0.90834, 0.13383,
+        0.04823, 0.01566, 0.83777
+    );
+    mat3 colorSpaceB = mat3(
+        1.60475, -0.10208, -0.00327,
+        -0.53108, 1.10813, -0.07276,
+        -0.07367, -0.00605, 1.07602
+    );
+    vec3 graded = colorSpaceA * rawColor;
+    vec3 numerator = graded * (graded + 0.0945786) - 0.000090537;
+    vec3 denominator = graded * (0.783729 * graded + 0.4329510) + 0.238081;
+    return colorSpaceB * (numerator / denominator);
+}
+
+float computeStructuralDensity(vec3 pos) {
+    const float phaseShift = 0.228033988;
+    const mat3 structuralBasis = mat3(
+        0.388535087,  0.054921382, -0.743402928,
+        0.441955127,  4.336973341,  0.258518454,
+        0.272087367,  0.174042493, -0.021246185
+    );
+    return dot(cos(structuralBasis * pos), sin(phaseShift * pos * structuralBasis));
+}
+
+float getFilmGrain(vec3 seed3D) {
+    seed3D = fract(seed3D * 0.1031);
+    seed3D += dot(seed3D, seed3D.zyx + 31.32);
+    return fract((seed3D.x + seed3D.y) * seed3D.z);
+}
+
+void mainImage(out vec4 fragColor, in vec2 fragCoord) {
+    vec3 finalImage = vec3(0.0);
+    float globalTime = iTime * u_sceneTimeScale;
+    for(int passX = 0; passX < 4; passX++) {
+        if (passX >= u_renderPasses) break;
+        for(int passY = 0; passY < 4; passY++) {
+            if (passY >= u_renderPasses) break;
+            vec2 pixelOffset = (vec2(float(passX), float(passY)) + 0.5) / float(u_renderPasses) - 0.5;
+            vec2 uv = fragCoord + pixelOffset;
+            vec3 rayOrigin = vec3(u_camPosX, u_camPosY, globalTime);
+            vec3 lightAccumulator = vec3(0.0);
+            vec3 viewDir = normalize(vec3(u_camFov * uv - iResolution.xy * vec2(u_camShiftX, u_camShiftY), iResolution.y));
+            viewDir.yz = calcRotation(u_camPitch) * viewDir.yz;
+            float stepDistance;
+            for(float iter = 0.0; iter < 100.0; iter += 1.0) {
+                if (iter >= u_rayIterations) break;
+                vec3 samplePos = rayOrigin;
+                float detailNoise = computeStructuralDensity(samplePos * 20.0) / 20.0;
+                float baseNoise = computeStructuralDensity(samplePos);
+                stepDistance = 0.005 + abs(detailNoise - baseNoise) * 0.7;
+                float heightMod = sin(samplePos.z * 2.0 + abs(samplePos.x) * 0.5) * 0.5;
+                stepDistance += abs(rayOrigin.y + heightMod) * 0.4;
+                float safeStep = stepDistance * u_stepPrecision;
+                rayOrigin += viewDir * safeStep;
+                float colorPhase = (iter * u_stepPrecision) - 0.4;
+                float wavePhase = colorPhase + length(rayOrigin.xz * 0.1) + 2.0;
+                vec3 spectrumShift = vec3(3.0, 1.5, 0.5);
+                vec3 spectralGlow = 1.0 + 1.5 * sin(wavePhase + spectrumShift);
+                float rawDensity = 1.0 / stepDistance;
+                float sharpDensity = pow(rawDensity, u_surfaceSolidity) * 0.15;
+                lightAccumulator += (spectralGlow * sharpDensity) * u_stepPrecision;
+            }
+            lightAccumulator *= u_globalLuminance;
+            finalImage += applyCinematicGrade(lightAccumulator * lightAccumulator / 1000.0);
+        }
+    }
+    finalImage *= (4.0 / float(u_renderPasses * u_renderPasses));
+    finalImage = (finalImage - 0.5) * 0.5 + 0.5;
+    finalImage *= 0.3;
+    float grainValue = getFilmGrain(vec3(fragCoord, iTime));
+    finalImage += (grainValue - 0.5) * u_grainIntensity;
+    fragColor = vec4(finalImage, 1.0);
+}
+
+void main() {
+    mainImage(outColor, gl_FragCoord.xy);
+}`;
+
+export function InterstellarShader({ config, globalConfig }: { config: GradientConfig['shaders']['interstellar'], globalConfig: GradientConfig }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl2');
+        if (!gl) return;
+
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        gl.shaderSource(vertexShader, interstellarVertShader);
+        gl.compileShader(vertexShader);
+
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(fragmentShader, interstellarFragShader);
+        gl.compileShader(fragmentShader);
+
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        const posAttr = gl.getAttribLocation(program, "position");
+        gl.enableVertexAttribArray(posAttr);
+        gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+        const uniforms = {
+            iResolution: gl.getUniformLocation(program, 'iResolution'),
+            iTime: gl.getUniformLocation(program, 'iTime'),
+            u_renderPasses: gl.getUniformLocation(program, 'u_renderPasses'),
+            u_sceneTimeScale: gl.getUniformLocation(program, 'u_sceneTimeScale'),
+            u_grainIntensity: gl.getUniformLocation(program, 'u_grainIntensity'),
+            u_globalLuminance: gl.getUniformLocation(program, 'u_globalLuminance'),
+            u_stepPrecision: gl.getUniformLocation(program, 'u_stepPrecision'),
+            u_rayIterations: gl.getUniformLocation(program, 'u_rayIterations'),
+            u_surfaceSolidity: gl.getUniformLocation(program, 'u_surfaceSolidity'),
+            u_camPosX: gl.getUniformLocation(program, 'u_camPosX'),
+            u_camPosY: gl.getUniformLocation(program, 'u_camPosY'),
+            u_camPitch: gl.getUniformLocation(program, 'u_camPitch'),
+            u_camFov: gl.getUniformLocation(program, 'u_camFov'),
+            u_camShiftX: gl.getUniformLocation(program, 'u_camShiftX'),
+            u_camShiftY: gl.getUniformLocation(program, 'u_camShiftY'),
+        };
+
+        let startTime = Date.now();
+        let animationFrameId: number;
+
+        const render = (time: number) => {
+            const rect = canvas.getBoundingClientRect();
+            // Handle high-density rendering directly using a 0.7 ratio layout mapping
+            const dpr = 0.7;
+            const w = rect.width * dpr;
+            const h = rect.height * dpr;
+            if (canvas.width !== w || canvas.height !== h) {
+                canvas.width = w;
+                canvas.height = h;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            
+            gl.uniform3f(uniforms.iResolution, gl.canvas.width, gl.canvas.height, 1.0);
+            gl.uniform1f(uniforms.iTime, time);
+            gl.uniform1i(uniforms.u_renderPasses, Math.round(config.passes));
+            gl.uniform1f(uniforms.u_sceneTimeScale, config.speed);
+            gl.uniform1f(uniforms.u_grainIntensity, config.grain);
+            gl.uniform1f(uniforms.u_globalLuminance, config.luminance);
+            gl.uniform1f(uniforms.u_stepPrecision, config.precision);
+            gl.uniform1f(uniforms.u_rayIterations, config.iterations);
+            gl.uniform1f(uniforms.u_surfaceSolidity, config.solidity);
+            gl.uniform1f(uniforms.u_camPosX, config.camX);
+            gl.uniform1f(uniforms.u_camPosY, config.camY);
+            gl.uniform1f(uniforms.u_camPitch, config.camPitch);
+            gl.uniform1f(uniforms.u_camFov, config.camFov);
+            gl.uniform1f(uniforms.u_camShiftX, config.camShiftX);
+            gl.uniform1f(uniforms.u_camShiftY, config.camShiftY);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+
+        const renderLoop = () => {
+            const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+        };
+
+        renderLoop();
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [config, globalConfig.paused, globalConfig.motion]);
+
+    return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
 // Helper dependency assumption
 function hexToRgbaVec(hex: string): [number, number, number, number] {
     let c = hex.substring(1);
@@ -5267,6 +5507,11 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.neuralNoise?.enabled && (
           <ShaderWrapper config={shaders.neuralNoise} globalConfig={config}>
             <NeuralNoiseShader config={shaders.neuralNoise} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.interstellar?.enabled && (
+          <ShaderWrapper config={shaders.interstellar} globalConfig={config}>
+            <InterstellarShader config={shaders.interstellar} globalConfig={config} />
           </ShaderWrapper>
         )}
       </div>

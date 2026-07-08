@@ -73,6 +73,7 @@ export function GradientPropertiesEditor({
     swirl,
     spiral,
     neuralNoise,
+    interstellar,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -3683,7 +3684,64 @@ export function GradientPropertiesEditor({
             <CustomSlider id="neuralNoise-vignette" value={neuralNoise.vignette} min={0.0} max={2.0} step={0.05} onValueChange={(v) => updateShaderConfig("neuralNoise", "vignette", v)} isRTL={isRTL} />
           </>
         )}
+        
+        {renderShaderControls(
+          "interstellar",
+          interstellar,
+          <>
+            {/* LUMINANCE */}
+            <ControlSlider label={t("brightness")} value={interstellar.luminance} min={0.1} max={15.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "luminance", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-luminance" value={interstellar.luminance} min={0.1} max={15.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "luminance", v)} isRTL={isRTL} />
 
+            {/* GRAIN */}
+            <ControlSlider label={t("grainNoise")} value={interstellar.grain} min={0.0} max={0.2} step={0.01} onValueChange={(v) => updateShaderConfig("interstellar", "grain", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-grain" value={interstellar.grain} min={0.0} max={0.2} step={0.01} onValueChange={(v) => updateShaderConfig("interstellar", "grain", v)} isRTL={isRTL} />
+
+            {/* SOLIDITY */}
+            <ControlSlider label={t("solidity")} value={interstellar.solidity} min={0.5} max={3.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "solidity", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-solidity" value={interstellar.solidity} min={0.5} max={3.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "solidity", v)} isRTL={isRTL} />
+
+            {/* PRECISION */}
+            <ControlSlider label={t("precision")} value={interstellar.precision} min={0.1} max={1.0} step={0.01} onValueChange={(v) => updateShaderConfig("interstellar", "precision", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-precision" value={interstellar.precision} min={0.1} max={1.0} step={0.01} onValueChange={(v) => updateShaderConfig("interstellar", "precision", v)} isRTL={isRTL} />
+
+            {/* ITERATIONS */}
+            <ControlSlider label={t("iterations")} value={interstellar.iterations} min={10} max={80} step={1} onValueChange={(v) => updateShaderConfig("interstellar", "iterations", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-iterations" value={interstellar.iterations} min={10} max={80} step={1} onValueChange={(v) => updateShaderConfig("interstellar", "iterations", v)} isRTL={isRTL} />
+
+            {/* PASSES */}
+            <ControlSlider label={t("passes")} value={interstellar.passes} min={1} max={4} step={1} onValueChange={(v) => updateShaderConfig("interstellar", "passes", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-passes" value={interstellar.passes} min={1} max={4} step={1} onValueChange={(v) => updateShaderConfig("interstellar", "passes", v)} isRTL={isRTL} />
+
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={interstellar.speed} min={0.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-speed" value={interstellar.speed} min={0.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "speed", v)} isRTL={isRTL} />
+
+            {/* CAM X */}
+            <ControlSlider label={t("camX")} value={interstellar.camX} min={-5.0} max={10.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camX", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-camX" value={interstellar.camX} min={-5.0} max={10.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camX", v)} isRTL={isRTL} />
+
+            {/* CAM Y */}
+            <ControlSlider label={t("camY")} value={interstellar.camY} min={-5.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camY", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-camY" value={interstellar.camY} min={-5.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camY", v)} isRTL={isRTL} />
+
+            {/* PITCH */}
+            <ControlSlider label={t("camPitch")} value={interstellar.camPitch} min={-1.5} max={1.5} step={0.01} onValueChange={(v) => updateShaderConfig("interstellar", "camPitch", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-camPitch" value={interstellar.camPitch} min={-1.5} max={1.5} step={0.01} onValueChange={(v) => updateShaderConfig("interstellar", "camPitch", v)} isRTL={isRTL} />
+
+            {/* FOV */}
+            <ControlSlider label={t("proximityScale")} value={interstellar.camFov} min={0.5} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camFov", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-camFov" value={interstellar.camFov} min={0.5} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camFov", v)} isRTL={isRTL} />
+
+            {/* SHIFT X */}
+            <ControlSlider label={t("camShiftX")} value={interstellar.camShiftX} min={-2.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camShiftX", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-camShiftX" value={interstellar.camShiftX} min={-2.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camShiftX", v)} isRTL={isRTL} />
+
+            {/* SHIFT Y */}
+            <ControlSlider label={t("camShiftY")} value={interstellar.camShiftY} min={-2.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camShiftY", v)} isRTL={isRTL} />
+            <CustomSlider id="interstellar-camShiftY" value={interstellar.camShiftY} min={-2.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camShiftY", v)} isRTL={isRTL} />
+          </>
+        )}
       </Accordion>
     </div>
   );
