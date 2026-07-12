@@ -398,6 +398,54 @@ export interface GradientConfig {
       camShiftX: number;
       camShiftY: number;
     };
+    corrodedSpiral: ShaderSetting & {
+      hue: number;
+      saturation: number;
+      speed: number;
+      corrosionZoom: number;
+      octaves: number;
+      persistence: number;
+      lacunarity: number;
+      spiralDensity: number;
+      intensity: number;
+    };
+    spiralTunnel: ShaderSetting & {
+      enabled: boolean;
+      opacity: number;
+      flightSpeed: number;
+      fieldOfView: number;
+      luminosity: number;
+      openingSize: number;
+      ribbonCount: number;
+      ribbonWidth: number;
+      spiralDensity: number;
+      spiralCount: number;
+      lightIntensity: number;
+      distortion: number;
+      lineColor1: string;
+      lineColor2: string;
+      lineColor3: string;
+      lineColor4: string;
+      hue: number;
+      saturation: number;
+    };
+    fractalVortex: ShaderSetting & {
+      renderScale: number;
+      traceSteps: number;
+      cameraSpeed: number;
+      fractalSpeed: number;
+      fov: number;
+      fractalScale: number;
+      turbulence: number;
+      boxSize: number;
+      glowStrength: number;
+      glowWidth: number;
+      mirrorTileSize: number;
+      wallNormalScale: number;
+      exposure: number;
+      hue: number;
+      saturation: number;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -746,7 +794,61 @@ export function getDefaultGradientConfig(): GradientConfig {
           camShiftX: 1.0,
           camShiftY: 1.0,
         },
-
+        corrodedSpiral: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          hue: 180,
+          saturation: 0.8,
+          speed: 0.5,
+          corrosionZoom: 3.0,
+          octaves: 6,
+          persistence: 0.5,
+          lacunarity: 2.0,
+          spiralDensity: 6.0,
+          intensity: 1.5,
+        },
+        spiralTunnel: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          flightSpeed: 3.0,
+          fieldOfView: 100.0,
+          luminosity: 10.0,
+          openingSize: 42.0,
+          ribbonCount: 140,
+          ribbonWidth: 0.09,
+          spiralDensity: 19.0,
+          spiralCount: 4,
+          lightIntensity: 1.70,
+          distortion: 63,
+          lineColor1: "#00a2fa",
+          lineColor2: "#a020f0",
+          lineColor3: "#f97316",
+          lineColor4: "#22c55e",
+          hue: 0,
+          saturation: 1.0,
+        },
+        fractalVortex: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          renderScale: 0.2,
+          traceSteps: 380,
+          cameraSpeed: 2.6,
+          fractalSpeed: 1.0,
+          fov: 1.5,
+          fractalScale: 1.0,
+          turbulence: 1.0,
+          boxSize: 3.2,
+          glowStrength: 0.06,
+          glowWidth: 0.05,
+          mirrorTileSize: 4.0,
+          wallNormalScale: 4.0,
+          exposure: 2.0,
+          hue: 0,
+          saturation: 1.0,
+        },
     },
     grainAmount: 0,
     grainSize: 1.5,
@@ -4368,7 +4470,7 @@ void main() {
 }
 `;
 
-export function RefractedWaveShader({ config, globalConfig }: { config: GradientConfig['shaders']['refractedWave'], globalConfig: GradientConfig }) {
+function RefractedWaveShader({ config, globalConfig }: { config: GradientConfig['shaders']['refractedWave'], globalConfig: GradientConfig }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -4593,7 +4695,7 @@ void main() {
 }
 `;
 
-export function SwirlShader({ config, globalConfig }: { config: GradientConfig['shaders']['swirl'], globalConfig: GradientConfig }) {
+function SwirlShader({ config, globalConfig }: { config: GradientConfig['shaders']['swirl'], globalConfig: GradientConfig }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -4801,7 +4903,7 @@ void main() {
     fragColor = mix(backColor, frontColor, mask);
 }`;
 
-export function SpiralShader({ config, globalConfig }: { config: any, globalConfig: any }) {
+function SpiralShader({ config, globalConfig }: { config: any, globalConfig: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -5012,7 +5114,7 @@ void main() {
     fragColor = vec4(finalColor, noise * u_baseColor.a);
 }`;
 
-export function NeuralNoiseShader({ config, globalConfig }: { config: any, globalConfig: any }) {
+function NeuralNoiseShader({ config, globalConfig }: { config: any, globalConfig: any }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
   useEffect(() => {
@@ -5235,7 +5337,7 @@ void main() {
     mainImage(outColor, gl_FragCoord.xy);
 }`;
 
-export function InterstellarShader({ config, globalConfig }: { config: GradientConfig['shaders']['interstellar'], globalConfig: GradientConfig }) {
+function InterstellarShader({ config, globalConfig }: { config: GradientConfig['shaders']['interstellar'], globalConfig: GradientConfig }) {
     const canvasRef = useRef<HTMLCanvasElement>(null);
 
     useEffect(() => {
@@ -5329,8 +5431,852 @@ export function InterstellarShader({ config, globalConfig }: { config: GradientC
 
     return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
+// === CORRODED SPIRAL SHADER ===
+const corrodedSpiralVert = `#version 300 es
+precision highp float;
+in vec2 position;
+out vec2 vUv;
+void main() {
+  vUv = position * 0.5 + 0.5;
+  gl_Position = vec4(position, 0.0, 1.0);
+}`;
 
-// Helper dependency assumption
+const corrodedSpiralFrag = `#version 300 es
+precision highp float;
+uniform float uTime;
+uniform float uSpeed;
+uniform float uCorrosionZoom;
+uniform float uOctaves;
+uniform float uPersistence;
+uniform float uLacunarity;
+uniform float uSpiralDensity;
+uniform float uColorShift;
+uniform float uIntensity;
+uniform float uHue;
+uniform float uSaturation;
+uniform vec2 uResolution;
+in vec2 vUv;
+out vec4 fragColor;
+
+${hueSatHelpers}
+
+float rand(vec2 n) {
+  return fract(sin(dot(n, vec2(12.9898, 4.1414))) * 43758.5453);
+}
+
+float noise(vec2 p) {
+  vec2 ip = floor(p);
+  vec2 u = fract(p);
+  u = u * u * (3.0 - 2.0 * u);
+  float res = mix(
+    mix(rand(ip), rand(ip + vec2(1.0, 0.0)), u.x),
+    mix(rand(ip + vec2(0.0, 1.0)), rand(ip + vec2(1.0, 1.0)), u.x),
+    u.y
+  );
+  return res * res;
+}
+
+const mat2 mtx = mat2(0.80, 0.60, -0.60, 0.80);
+
+float fbm(vec2 p) {
+  float f = 0.0;
+  float amp = 1.0;
+  float freq = 1.0;
+  float time = uTime * uSpeed; // Integrated speed directly into noise time tracking
+  
+  for (float i = 0.0; i < 8.0; i++) {
+    if (i >= uOctaves) break;
+    f += amp * noise(p * freq + time);
+    freq *= uLacunarity;
+    amp *= uPersistence;
+  }
+  return f;
+}
+
+void main() {
+  vec2 uv = vUv;
+  vec2 centered = uv * 2.0 - 1.0;
+  float angle = atan(centered.y, centered.x);
+  float radius = length(centered);
+  
+  float time = uTime * uSpeed;
+  
+  vec2 vortexUV = centered;
+  vortexUV.x += sin(angle * 3.0 + time * 0.5) * 0.1;
+  vortexUV.y += cos(angle * 2.0 + time * 0.3) * 0.1;
+  
+  float pattern = fbm(vortexUV * uCorrosionZoom);
+  pattern = pow(pattern, uIntensity);
+  
+  // Customisable Spiral Density dictates the line frequency pattern dynamically
+  float spiral = sin(angle * uSpiralDensity + radius * (uSpiralDensity * 1.25) - time);
+  pattern = mix(pattern, spiral * 0.5 + 0.5, 0.3);
+  
+  vec3 color = vec3(pattern);
+  // uColorShift is treated as 0 here, simplifying the time term out of the sine/cosine inputs
+  color.r += sin(pattern * 6.28) * 0.2;
+  color.g += cos(pattern * 6.28) * 0.2;
+  color.b += sin(pattern * 6.28 + 2.0) * 0.2;
+  
+  vec3 hsv = rgb2hsv(color);
+  hsv.x += uHue / 360.0;
+  hsv.y *= uSaturation;
+  color = hsv2rgb(hsv);
+  
+  float vignette = 1.0 - radius * 0.5;
+  color *= vignette;
+  
+  fragColor = vec4(color, 1.0);
+}`;
+
+function CorrodedSpiralShader({ config, globalConfig }: { config: GradientConfig['shaders']['corrodedSpiral'], globalConfig: GradientConfig }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl2');
+    if (!gl) return;
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+    gl.shaderSource(vertexShader, corrodedSpiralVert);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fragmentShader, corrodedSpiralFrag);
+    gl.compileShader(fragmentShader);
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+    const posAttr = gl.getAttribLocation(program, "position");
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    const uniforms = {
+      uTime: gl.getUniformLocation(program, 'uTime'),
+      uResolution: gl.getUniformLocation(program, 'uResolution'),
+      uSpeed: gl.getUniformLocation(program, 'uSpeed'),
+      uCorrosionZoom: gl.getUniformLocation(program, 'uCorrosionZoom'),
+      uOctaves: gl.getUniformLocation(program, 'uOctaves'),
+      uPersistence: gl.getUniformLocation(program, 'uPersistence'),
+      uLacunarity: gl.getUniformLocation(program, 'uLacunarity'),
+      uSpiralDensity: gl.getUniformLocation(program, 'uSpiralDensity'),
+      uColorShift: gl.getUniformLocation(program, 'uColorShift'),
+      uIntensity: gl.getUniformLocation(program, 'uIntensity'),
+      uHue: gl.getUniformLocation(program, 'uHue'),
+      uSaturation: gl.getUniformLocation(program, 'uSaturation'),
+    };
+
+    let startTime = Date.now();
+    let animationFrameId: number;
+
+    const render = (time: number) => {
+      const rect = canvas.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+      gl.uniform1f(uniforms.uTime, time);
+      gl.uniform2f(uniforms.uResolution, gl.canvas.width, gl.canvas.height);
+      gl.uniform1f(uniforms.uSpeed, config.speed);
+      gl.uniform1f(uniforms.uCorrosionZoom, config.corrosionZoom);
+      gl.uniform1f(uniforms.uOctaves, config.octaves);
+      gl.uniform1f(uniforms.uPersistence, config.persistence);
+      gl.uniform1f(uniforms.uLacunarity, config.lacunarity);
+      gl.uniform1f(uniforms.uSpiralDensity, config.spiralDensity);
+      gl.uniform1f(uniforms.uColorShift, config.colorShift);
+      gl.uniform1f(uniforms.uIntensity, config.intensity);
+      gl.uniform1f(uniforms.uHue, config.hue ?? 0.0);
+      gl.uniform1f(uniforms.uSaturation, config.saturation ?? 1.0);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+
+    const renderLoop = () => {
+      const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+      render(time);
+      if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+    };
+
+    renderLoop();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [config, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+const spiralTunnelVertShader = `#version 300 es
+in vec2 position;
+void main() {
+    gl_Position = vec4(position, 0.0, 1.0);
+}`;
+
+const spiralTunnelFragShader = `#version 300 es
+precision highp float;
+uniform vec2 uResolution;
+uniform float uTime;
+uniform float uFlightSpeed;
+uniform float uFieldOfView;
+uniform float uLuminosity;
+uniform float uOpeningSize;
+uniform float uRibbonCount;
+uniform float uRibbonWidth;
+uniform float uSpiralDensity;
+uniform float uSpiralCount;
+uniform float uLightIntensity;
+uniform float uDistortion;
+uniform vec4 uLineColors[4];
+uniform float uHue;
+uniform float uSaturation;
+
+out vec4 fragColor;
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+void main() {
+    // 1. Map Field of View (Fov Alters base UV Scale)
+    float fovFactor = tan(radians(uFieldOfView * 0.5));
+    vec2 uv = ((gl_FragCoord.xy * 2.0 - uResolution.xy) / uResolution.y) * fovFactor;
+    float r = length(uv);
+    float angle = atan(uv.y, uv.x);
+
+    // 2. Adjust central opening size mask
+    float openingMask = smoothstep(uOpeningSize * 0.002, uOpeningSize * 0.005, r);
+    if(openingMask <= 0.0) {
+        fragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        return;
+    }
+
+    float depth = 1.0 / max(r, 0.001) + uTime * (uFlightSpeed * 0.1);
+    vec3 outColor = vec3(0.0);
+
+    // 3. Dynamic Spiral & Ribbon rendering engine loops
+    float ribbons = uRibbonCount / 10.0;
+    for(int i = 0; i < 4; i++) {
+        if(float(i) >= uSpiralCount) break;
+        float offset = float(i) * (6.28318 / max(uSpiralCount, 1.0));
+        
+        // Ribbon widths and count pattern calculations with distortion variables
+        float stripPattern = sin(angle * ribbons + depth * uSpiralDensity + offset) * cos(depth * uDistortion + float(i));
+        
+        // Use ribbon width dynamic parameters
+        float edgeWidth = uRibbonWidth * 2.0;
+        vec3 segmentColor = uLineColors[i].rgb * smoothstep(0.5 - edgeWidth, 0.5 + edgeWidth, stripPattern);
+        outColor += segmentColor;
+    }
+
+    // 4. Reversed Luminosity application: Higher value = less bloom-stretch radius range
+    // Max slider limit protection handled via clamping the 19.0 upper bounds scale
+    outColor *= uLightIntensity * (1.0 / (r * (19.0 - uLuminosity) * 0.1)) * openingMask;
+
+    // 5. Highpass Emissive Shader Bloom Filter Processor (Hardcoded values)
+    float brightness = dot(outColor, vec3(0.2126, 0.7152, 0.0722));
+    if (brightness > 0.3) {
+        outColor += outColor * 0.3 * (1.0 + 0.15);
+    }
+
+    // Hue/Saturation shift passes
+    vec3 hsv = rgb2hsv(outColor);
+    hsv.x += uHue / 360.0;
+    hsv.y *= uSaturation;
+    outColor = hsv2rgb(hsv);
+
+    fragColor = vec4(outColor, 1.0);
+}`;
+
+function SpiralTunnelShader({ config, globalConfig }: { config: any; globalConfig: any }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const configString = useMemo(() => JSON.stringify(config), [config]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        
+        const gl = canvas.getContext('webgl2');
+        if (!gl) return;
+
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        gl.shaderSource(vertexShader, spiralTunnelVertShader);
+        gl.compileShader(vertexShader);
+
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(fragmentShader, spiralTunnelFragShader);
+        gl.compileShader(fragmentShader);
+
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        gl.useProgram(program);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+
+        const posAttr = gl.getAttribLocation(program, "position");
+        gl.enableVertexAttribArray(posAttr);
+        gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+        const uniforms = {
+            uTime: gl.getUniformLocation(program, 'uTime'),
+            uResolution: gl.getUniformLocation(program, 'uResolution'),
+            uFlightSpeed: gl.getUniformLocation(program, 'uFlightSpeed'),
+            uFieldOfView: gl.getUniformLocation(program, 'uFieldOfView'),
+            uLuminosity: gl.getUniformLocation(program, 'uLuminosity'),
+            uOpeningSize: gl.getUniformLocation(program, 'uOpeningSize'),
+            uRibbonCount: gl.getUniformLocation(program, 'uRibbonCount'),
+            uRibbonWidth: gl.getUniformLocation(program, 'uRibbonWidth'),
+            uSpiralDensity: gl.getUniformLocation(program, 'uSpiralDensity'),
+            uSpiralCount: gl.getUniformLocation(program, 'uSpiralCount'),
+            uLightIntensity: gl.getUniformLocation(program, 'uLightIntensity'),
+            uDistortion: gl.getUniformLocation(program, 'uDistortion'),
+            uHue: gl.getUniformLocation(program, 'uHue'),
+            uSaturation: gl.getUniformLocation(program, 'uSaturation'),
+        };
+
+        let startTime = Date.now();
+        let animationFrameId: number;
+
+        const render = (time: number) => {
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+            gl.uniform1f(uniforms.uTime, time);
+            gl.uniform2f(uniforms.uResolution, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uniforms.uFlightSpeed, config.flightSpeed);
+            gl.uniform1f(uniforms.uFieldOfView, config.fieldOfView ?? 90.0);
+            gl.uniform1f(uniforms.uLuminosity, config.luminosity);
+            gl.uniform1f(uniforms.uOpeningSize, config.openingSize);
+            gl.uniform1f(uniforms.uRibbonCount, config.ribbonCount);
+            gl.uniform1f(uniforms.uRibbonWidth, config.ribbonWidth);
+            gl.uniform1f(uniforms.uSpiralDensity, config.spiralDensity ?? 8.0);
+            gl.uniform1f(uniforms.uSpiralCount, config.spiralCount ?? 4.0);
+            gl.uniform1f(uniforms.uLightIntensity, config.lightIntensity);
+            gl.uniform1f(uniforms.uDistortion, config.distortion);
+            gl.uniform1f(uniforms.uHue, config.hue ?? 0.0);
+            gl.uniform1f(uniforms.uSaturation, config.saturation ?? 1.0);
+
+            const colors = [config.lineColor1, config.lineColor2, config.lineColor3, config.lineColor4];
+            colors.forEach((color, index) => {
+                const loc = gl.getUniformLocation(program, `uLineColors[${index}]`);
+                if (loc) {
+                    const rgba = hexToRgbaVec(color);
+                    gl.uniform4f(loc, rgba[0], rgba[1], rgba[2], rgba[3]);
+                }
+            });
+
+            gl.drawArrays(gl.TRIANGLES, 0, 3);
+        };
+
+        const renderLoop = () => {
+            const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+        };
+
+        renderLoop();
+
+        return () => cancelAnimationFrame(animationFrameId);
+    }, [configString, globalConfig.paused, globalConfig.motion]);
+
+    return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+const fractalVortexSceneVertShader = `#version 300 es
+layout(location = 0) in vec2 position;
+out vec2 vUV;
+void main() {
+  vUV = position * 0.5 + 0.5;
+  gl_Position = vec4(position, 0.0, 1.0);
+}
+`;
+
+const fractalVortexFragShader = `#version 300 es
+precision highp float;
+precision highp int;
+
+#define MAX_TRACE_STEPS 128
+
+uniform vec2 uResolution;      // internal render resolution
+uniform float uTime;
+uniform int uTraceSteps;
+uniform float uCameraSpeed;
+uniform float uFractalSpeed;
+uniform float uFov;
+uniform float uFractalScale;
+uniform float uTurbulence;
+uniform float uBoxSize;
+uniform float uGlowStrength;
+uniform float uGlowWidth;
+uniform float uMirrorTileSize;
+uniform float uWallNormalScale;
+uniform vec3 uSoftTint;
+uniform vec3 uCoreTint;
+uniform vec3 uBackgroundColor;
+uniform float uExposure;
+uniform float uHue;
+uniform float uSaturation;
+uniform float uContrast;
+uniform vec3 uColor1;
+uniform vec3 uColor2;
+uniform vec3 uColor3;
+
+out vec4 fragColor;
+
+${hueSatHelpers}
+
+const vec2 TUNNEL_HALF_SIZE = vec2(4.6, 2.15);
+const vec3 COLOR_OFFSET = vec3(-0.750, 0.409, 1.310);
+
+vec3 buildTransformAxis(float time) {
+  vec3 axisPhase = vec3(5.0, 0.0, 1.0) + time * 0.25;
+  return normalize(cos(axisPhase));
+}
+
+vec3 transformPoint(vec3 point, vec3 axis) {
+  return axis * dot(axis, point) - cross(axis, point);
+}
+
+float sampleLightField(vec3 point, vec3 axis, float time, out float animationPhase) {
+  vec3 basePoint = transformPoint(point, axis);
+  vec3 distortedPoint = basePoint;
+  float frequency = uFractalScale;
+  vec3 cells = floor(distortedPoint * frequency + 0.5);
+  distortedPoint -= sin(cells + time).zxy * (uTurbulence / max(frequency, 0.0001)) * 0.6;
+  animationPhase = distortedPoint.y + time;
+  vec3 boxPoint = abs(basePoint);
+  float boxField = max(boxPoint.x, max(boxPoint.y, boxPoint.z)) - uBoxSize;
+  float foldedField = max(boxField, -boxField * 0.2);
+  float animatedSurface = 0.2 * abs(cos(animationPhase));
+  return foldedField + animatedSurface;
+}
+
+float computeFieldGlow(float fieldValue) {
+  return uGlowStrength / (uGlowWidth + fieldValue * fieldValue + 0.0001);
+}
+
+float mirroredTileCoordinate(float coordinate, float tileSize) {
+  float safeTileSize = max(tileSize, 0.001);
+  float doubleTile = safeTileSize * 2.0;
+  float localCoordinate = mod(abs(coordinate), doubleTile);
+  return 1.0 - abs(localCoordinate - safeTileSize) / safeTileSize;
+}
+
+vec3 getTunnelSurfaceData(vec2 point) {
+  float signedVerticalWall = abs(point.x) - TUNNEL_HALF_SIZE.x;
+  float signedHorizontalWall = abs(point.y) - TUNNEL_HALF_SIZE.y;
+
+  float verticalDistance = abs(signedVerticalWall);
+  float horizontalDistance = abs(signedHorizontalWall);
+
+  float wallDistance;
+  float normalCoordinate;
+  float tangentCoordinate;
+
+  if (verticalDistance < horizontalDistance) {
+    wallDistance = verticalDistance;
+    normalCoordinate = signedVerticalWall * uWallNormalScale;
+    tangentCoordinate = point.y;
+  } else {
+    wallDistance = horizontalDistance;
+    normalCoordinate = signedHorizontalWall * uWallNormalScale;
+    tangentCoordinate = point.x;
+  }
+
+  float mirrorCoordinate = mirroredTileCoordinate(tangentCoordinate, uMirrorTileSize);
+  return vec3(wallDistance, normalCoordinate, mirrorCoordinate);
+}
+
+vec3 computeEmissionColor(float phase, float time, float fieldGlow) {
+  // uPaletteShift replaced with 0.0
+  float colorPhase = phase - time * 0.3 + 0.0;
+  vec3 originalPalette = cos(vec3(colorPhase) + COLOR_OFFSET) + 1.1;
+  float coreMix = clamp(fieldGlow * 0.22, 0.0, 1.0);
+  vec3 tint = mix(uSoftTint, uCoreTint, coreMix);
+  return originalPalette * tint;
+}
+
+float computeWallDensity(
+  float wallDistance,
+  float mirrorCoordinate,
+  float repeatedDepth,
+  float fieldGlow
+) {
+  float squaredDistance = wallDistance * wallDistance;
+  float softWall = 1.0 / (1.0 + squaredDistance * 120.0);
+  float sharpWall = 1.2 / (1.0 + squaredDistance * 1400.0);
+  float reflectionPattern = 0.55 + 0.45 * cos(mirrorCoordinate * 10.0 + repeatedDepth * 0.45);
+  float density = softWall * (0.08 + fieldGlow * 0.76);
+  density += sharpWall * (0.14 + fieldGlow * 3.4);
+  density *= 0.81 + reflectionPattern * 0.16;
+  return density;
+}
+
+float computeDepthAttenuation(float distanceFromCamera) {
+  return 1.0 / (1.0 + distanceFromCamera * 0.06 + distanceFromCamera * distanceFromCamera * 0.0025);
+}
+
+vec3 renderTunnel(vec3 rayOrigin, vec3 rayDirection, float animationTime) {
+  vec3 accumulatedLight = vec3(0.0);
+  vec3 transformAxis = buildTransformAxis(animationTime);
+
+  float travelDistance = 2.86;
+  int steps = min(uTraceSteps, MAX_TRACE_STEPS);
+
+  for (int stepIndex = 0; stepIndex < MAX_TRACE_STEPS; stepIndex++) {
+    if (stepIndex >= steps) break;
+
+    vec3 samplePoint = rayOrigin + rayDirection * travelDistance;
+    vec3 surfaceData = getTunnelSurfaceData(samplePoint.xy);
+
+    float wallDistance = surfaceData.x;
+    float normalCoordinate = surfaceData.y;
+    float mirrorCoordinate = surfaceData.z * 2.0 - 1.0;
+    float repeatedDepth = mod(samplePoint.z + 3.1, 10.0) - 5.0;
+
+    vec3 fieldPoint = vec3(
+      normalCoordinate,
+      mirrorCoordinate * 2.8,
+      repeatedDepth * 0.82
+    );
+
+    float animationPhase;
+    float fieldValue = sampleLightField(fieldPoint, transformAxis, animationTime, animationPhase);
+    float fieldGlow = computeFieldGlow(fieldValue);
+    vec3 emissionColor = computeEmissionColor(animationPhase, animationTime, fieldGlow);
+    float wallDensity = computeWallDensity(wallDistance, mirrorCoordinate, repeatedDepth, fieldGlow);
+    float depthAttenuation = computeDepthAttenuation(travelDistance);
+
+    accumulatedLight += emissionColor * wallDensity * depthAttenuation * 0.09;
+
+    if (dot(accumulatedLight, vec3(0.333)) > 4.5) break;
+    travelDistance += 0.15 - travelDistance * 0.0008;
+  }
+
+  return accumulatedLight;
+}
+
+vec3 renderScene(vec2 fragCoord, vec2 resolution) {
+  vec2 screenPosition = (fragCoord * 2.0 - resolution) / resolution.y;
+
+  float animationTime = uTime * uFractalSpeed;
+  vec3 cameraOrigin = vec3(0.0, 0.0, uTime * uCameraSpeed);
+  vec3 cameraDirection = normalize(vec3(screenPosition * vec2(1.0, 1.19), uFov));
+
+  vec3 color = renderTunnel(cameraOrigin, cameraDirection, animationTime);
+
+  float distanceFromCenter = length(screenPosition);
+  float blackOpening = smoothstep(-0.04, 0.1, distanceFromCenter);
+  color *= blackOpening;
+
+  color = 1.0 - exp(-color * uExposure);
+  color = pow(color, vec3(max(uContrast, 0.001)));
+
+  vec3 hsv = rgb2hsv(max(color, vec3(0.0)));
+  hsv.x += uHue / 360.0;
+  hsv.y *= uSaturation;
+  color = hsv2rgb(hsv);
+
+  color = mix(uBackgroundColor, color, blackOpening);
+
+  float tintMix = clamp(blackOpening, 0.0, 1.0);
+  vec3 balatroTint = uColor1 * (1.0 - tintMix) + uColor2 * (tintMix * 0.5) + uColor3 * (tintMix * 0.5);
+  color = mix(color, balatroTint, 0.15);
+
+  return color;
+}
+
+void main() {
+  vec3 color = renderScene(gl_FragCoord.xy, uResolution);
+  fragColor = vec4(color, 1.0);
+}
+`;
+
+const fractalVortexBlitFragShader = `#version 300 es
+precision highp float;
+
+uniform sampler2D uTexture;
+in vec2 vUV;
+out vec4 fragColor;
+
+void main() {
+  fragColor = texture(uTexture, vUV);
+}
+`;
+
+function FractalVortexShader({ config, globalConfig }: { config: any; globalConfig: any }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const configString = useMemo(() => JSON.stringify(config), [config]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const gl = canvas.getContext("webgl2", {
+      antialias: false,
+      alpha: false,
+      depth: false,
+      stencil: false,
+      powerPreference: "high-performance",
+      preserveDrawingBuffer: false,
+    });
+
+    if (!gl) return;
+
+    const createShader = (type: number, source: string) => {
+      const shader = gl.createShader(type)!;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(shader) || "Shader compile failed");
+      }
+      return shader;
+    };
+
+    const createProgram = (vs: string, fs: string) => {
+      const program = gl.createProgram()!;
+      gl.attachShader(program, createShader(gl.VERTEX_SHADER, vs));
+      gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(program) || "Program link failed");
+      }
+      return program;
+    };
+
+    const fullscreenVerts = new Float32Array([
+      -1, -1,
+       3, -1,
+      -1,  3,
+    ]);
+
+    const vao = gl.createVertexArray()!;
+    gl.bindVertexArray(vao);
+
+    const vbo = gl.createBuffer()!;
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, fullscreenVerts, gl.STATIC_DRAW);
+
+    const programs = {
+      scene: createProgram(fractalVortexSceneVertShader, fractalVortexFragShader), 
+      blit: createProgram(fractalVortexSceneVertShader, fractalVortexBlitFragShader),
+    };
+
+    gl.useProgram(programs.scene);
+    const pos0 = gl.getAttribLocation(programs.scene, "position");
+    gl.enableVertexAttribArray(pos0);
+    gl.vertexAttribPointer(pos0, 2, gl.FLOAT, false, 0, 0);
+
+    gl.useProgram(programs.blit);
+    const pos1 = gl.getAttribLocation(programs.blit, "position");
+    gl.enableVertexAttribArray(pos1);
+    gl.vertexAttribPointer(pos1, 2, gl.FLOAT, false, 0, 0);
+
+    const lowResTexture = gl.createTexture()!;
+    const lowResFbo = gl.createFramebuffer()!;
+
+    gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+
+    gl.bindFramebuffer(gl.FRAMEBUFFER, lowResFbo);
+    gl.framebufferTexture2D(
+      gl.FRAMEBUFFER,
+      gl.COLOR_ATTACHMENT0,
+      gl.TEXTURE_2D,
+      lowResTexture,
+      0
+    );
+
+    const uniforms = {
+      scene: {
+        uResolution: gl.getUniformLocation(programs.scene, "uResolution"),
+        uTime: gl.getUniformLocation(programs.scene, "uTime"),
+        uTraceSteps: gl.getUniformLocation(programs.scene, "uTraceSteps"),
+        uCameraSpeed: gl.getUniformLocation(programs.scene, "uCameraSpeed"),
+        uFractalSpeed: gl.getUniformLocation(programs.scene, "uFractalSpeed"),
+        uFov: gl.getUniformLocation(programs.scene, "uFov"),
+        uFractalScale: gl.getUniformLocation(programs.scene, "uFractalScale"),
+        uTurbulence: gl.getUniformLocation(programs.scene, "uTurbulence"),
+        uBoxSize: gl.getUniformLocation(programs.scene, "uBoxSize"),
+        uGlowStrength: gl.getUniformLocation(programs.scene, "uGlowStrength"),
+        uGlowWidth: gl.getUniformLocation(programs.scene, "uGlowWidth"),
+        uMirrorTileSize: gl.getUniformLocation(programs.scene, "uMirrorTileSize"),
+        uWallNormalScale: gl.getUniformLocation(programs.scene, "uWallNormalScale"),
+        uSoftTint: gl.getUniformLocation(programs.scene, "uSoftTint"),
+        uCoreTint: gl.getUniformLocation(programs.scene, "uCoreTint"),
+        uBackgroundColor: gl.getUniformLocation(programs.scene, "uBackgroundColor"),
+        uExposure: gl.getUniformLocation(programs.scene, "uExposure"),
+        uHue: gl.getUniformLocation(programs.scene, "uHue"),
+        uSaturation: gl.getUniformLocation(programs.scene, "uSaturation"),
+        uContrast: gl.getUniformLocation(programs.scene, "uContrast"),
+        uColor1: gl.getUniformLocation(programs.scene, "uColor1"),
+        uColor2: gl.getUniformLocation(programs.scene, "uColor2"),
+        uColor3: gl.getUniformLocation(programs.scene, "uColor3"),
+      },
+      blit: {
+        uTexture: gl.getUniformLocation(programs.blit, "uTexture"),
+      },
+    };
+
+    let raf = 0;
+    const startTime = performance.now();
+
+    const render = (t: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.0);
+      const fullWidth = Math.max(1, Math.floor(rect.width * dpr));
+      const fullHeight = Math.max(1, Math.floor(rect.height * dpr));
+
+      if (canvas.width !== fullWidth || canvas.height !== fullHeight) {
+        canvas.width = fullWidth;
+        canvas.height = fullHeight;
+      }
+
+      const renderScale = Math.max(0.1, Math.min(1.0, config.renderScale ?? 0.6));
+      const renderWidth = Math.max(1, Math.floor(fullWidth * renderScale));
+      const renderHeight = Math.max(1, Math.floor(fullHeight * renderScale));
+
+      gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+      gl.texImage2D(
+        gl.TEXTURE_2D,
+        0,
+        gl.RGBA,
+        renderWidth,
+        renderHeight,
+        0,
+        gl.RGBA,
+        gl.UNSIGNED_BYTE,
+        null
+      );
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, lowResFbo);
+      gl.viewport(0, 0, renderWidth, renderHeight);
+      gl.useProgram(programs.scene);
+      gl.uniform2f(uniforms.scene.uResolution, renderWidth, renderHeight);
+      gl.uniform1f(uniforms.scene.uTime, t);
+      gl.uniform1i(
+        uniforms.scene.uTraceSteps,
+        Math.max(1, Math.min(128, Math.round(config.traceSteps ?? 64)))
+      );
+      gl.uniform1f(uniforms.scene.uCameraSpeed, config.cameraSpeed);
+      gl.uniform1f(uniforms.scene.uFractalSpeed, config.fractalSpeed);
+      gl.uniform1f(uniforms.scene.uFov, config.fov);
+      gl.uniform1f(uniforms.scene.uFractalScale, config.fractalScale);
+      gl.uniform1f(uniforms.scene.uTurbulence, config.turbulence);
+      gl.uniform1f(uniforms.scene.uBoxSize, config.boxSize);
+      gl.uniform1f(uniforms.scene.uGlowStrength, config.glowStrength);
+      gl.uniform1f(uniforms.scene.uGlowWidth, config.glowWidth);
+      gl.uniform1f(uniforms.scene.uMirrorTileSize, config.mirrorTileSize);
+      gl.uniform1f(uniforms.scene.uWallNormalScale, config.wallNormalScale);
+      gl.uniform1f(uniforms.scene.uExposure, config.exposure);
+      gl.uniform1f(uniforms.scene.uHue, config.hue ?? 0.0);
+      gl.uniform1f(uniforms.scene.uSaturation, config.saturation ?? 1.0);
+      gl.uniform1f(uniforms.scene.uContrast, config.contrast ?? 1.0);
+      gl.uniform3f(
+        uniforms.scene.uColor1,
+        config.color1_r ?? 0.871,
+        config.color1_g ?? 0.267,
+        config.color1_b ?? 0.231
+      );
+      gl.uniform3f(
+        uniforms.scene.uColor2,
+        config.color2_r ?? 0.0,
+        config.color2_g ?? 0.42,
+        config.color2_b ?? 0.706
+      );
+      gl.uniform3f(
+        uniforms.scene.uColor3,
+        config.color3_r ?? 0.086,
+        config.color3_g ?? 0.137,
+        config.color3_b ?? 0.145
+      );
+
+      const softTint = hexToRgbaVec(config.softTint ?? "#ffffff");
+      const coreTint = hexToRgbaVec(config.coreTint ?? "#ffffff");
+      const background = hexToRgbaVec(config.backgroundColor ?? "#000000");
+
+      gl.uniform3f(uniforms.scene.uSoftTint, softTint[0], softTint[1], softTint[2]);
+      gl.uniform3f(uniforms.scene.uCoreTint, coreTint[0], coreTint[1], coreTint[2]);
+      gl.uniform3f(
+        uniforms.scene.uBackgroundColor,
+        background[0],
+        background[1],
+        background[2]
+      );
+
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, fullWidth, fullHeight);
+      gl.useProgram(programs.blit);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+      gl.uniform1i(uniforms.blit.uTexture, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+
+    const renderLoop = () => {
+      const t = globalConfig.paused
+        ? (globalConfig.motion / 100) * 10
+        : (performance.now() - startTime) * 0.001;
+
+      render(t);
+
+      if (!globalConfig.paused) {
+        raf = requestAnimationFrame(renderLoop);
+      }
+    };
+
+    renderLoop();
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      gl.deleteProgram(programs.scene);
+      gl.deleteProgram(programs.blit);
+      gl.deleteShader(gl.getAttachedShaders(programs.scene)?.[0] ?? null);
+      gl.deleteShader(gl.getAttachedShaders(programs.scene)?.[1] ?? null);
+      gl.deleteShader(gl.getAttachedShaders(programs.blit)?.[0] ?? null);
+      gl.deleteShader(gl.getAttachedShaders(programs.blit)?.[1] ?? null);
+      gl.deleteBuffer(vbo);
+      gl.deleteVertexArray(vao);
+      gl.deleteTexture(lowResTexture);
+      gl.deleteFramebuffer(lowResFbo);
+    };
+  }, [configString, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
 function hexToRgbaVec(hex: string): [number, number, number, number] {
     let c = hex.substring(1);
     if(c.length === 3) c = c.split('').map(x => x + x).join('');
@@ -5512,6 +6458,21 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.interstellar?.enabled && (
           <ShaderWrapper config={shaders.interstellar} globalConfig={config}>
             <InterstellarShader config={shaders.interstellar} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.corrodedSpiral?.enabled && (
+          <ShaderWrapper config={shaders.corrodedSpiral} globalConfig={config}>
+            <CorrodedSpiralShader config={shaders.corrodedSpiral} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.spiralTunnel?.enabled && (
+          <ShaderWrapper config={shaders.spiralTunnel} globalConfig={config}>
+            <SpiralTunnelShader config={shaders.spiralTunnel} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.fractalVortex?.enabled && (
+          <ShaderWrapper config={shaders.fractalVortex} globalConfig={config}>
+            <FractalVortexShader config={shaders.fractalVortex} globalConfig={config} />
           </ShaderWrapper>
         )}
       </div>

@@ -74,6 +74,9 @@ export function GradientPropertiesEditor({
     spiral,
     neuralNoise,
     interstellar,
+    corrodedSpiral,
+    spiralTunnel,
+    fractalVortex,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -3740,6 +3743,588 @@ export function GradientPropertiesEditor({
             {/* SHIFT Y */}
             <ControlSlider label={t("camShiftY")} value={interstellar.camShiftY} min={-2.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camShiftY", v)} isRTL={isRTL} />
             <CustomSlider id="interstellar-camShiftY" value={interstellar.camShiftY} min={-2.0} max={5.0} step={0.1} onValueChange={(v) => updateShaderConfig("interstellar", "camShiftY", v)} isRTL={isRTL} />
+          </>
+        )}
+
+        {renderShaderControls(
+          "corrodedSpiral",
+          corrodedSpiral,
+          <>
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={corrodedSpiral.speed} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-speed" value={corrodedSpiral.speed} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "speed", v)} isRTL={isRTL} />
+            
+            {/* HUE */}
+            <ControlSlider label={t("hue")} value={corrodedSpiral.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-hue" value={corrodedSpiral.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "hue", v)} isRTL={isRTL} />
+            
+            {/* SATURATION */}
+            <ControlSlider label={t("saturation")} value={corrodedSpiral.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-saturation" value={corrodedSpiral.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "saturation", v)} isRTL={isRTL} />
+
+            {/* CORROSION ZOOM */}
+            <ControlSlider label={t("corrosionZoom")} value={corrodedSpiral.corrosionZoom} min={0.5} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "corrosionZoom", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-corrosionZoom" value={corrodedSpiral.corrosionZoom} min={0.5} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "corrosionZoom", v)} isRTL={isRTL} />
+
+            {/* OCTAVES */}
+            <ControlSlider label={t("octaves")} value={corrodedSpiral.octaves} min={1} max={8} step={1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "octaves", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-octaves" value={corrodedSpiral.octaves} min={1} max={8} step={1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "octaves", v)} isRTL={isRTL} />
+
+            {/* PERSISTENCE */}
+            <ControlSlider label={t("persistence")} value={corrodedSpiral.persistence} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "persistence", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-persistence" value={corrodedSpiral.persistence} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "persistence", v)} isRTL={isRTL} />
+
+            {/* LACUNARITY */}
+            <ControlSlider label={t("lacunarity")} value={corrodedSpiral.lacunarity} min={1} max={5} step={0.1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "lacunarity", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-lacunarity" value={corrodedSpiral.lacunarity} min={1} max={5} step={0.1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "lacunarity", v)} isRTL={isRTL} />
+
+            {/* SPIRAL DENSITY */}
+            <ControlSlider label={t("spiralDensity")} value={corrodedSpiral.spiralDensity} min={1.0} max={40.0} step={1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "spiralDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-spiralDensity" value={corrodedSpiral.spiralDensity} min={1.0} max={40.0} step={1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "spiralDensity", v)} isRTL={isRTL} />
+
+            {/* INTENSITY */}
+            <ControlSlider label={t("intensity")} value={corrodedSpiral.intensity} min={0.1} max={5} step={0.1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "intensity", v)} isRTL={isRTL} />
+            <CustomSlider id="corrodedSpiral-intensity" value={corrodedSpiral.intensity} min={0.1} max={5} step={0.1} onValueChange={(v) => updateShaderConfig("corrodedSpiral", "intensity", v)} isRTL={isRTL} />
+          </>
+        )}
+
+        {renderShaderControls(
+          "spiralTunnel",
+          spiralTunnel,
+          <>
+            {/* Spiral Tunnel: Animation and Path Controls */}
+            <ControlSlider
+              label={t("speed")}
+              value={spiralTunnel.flightSpeed}
+              min={0.0}
+              max={60.0}
+              step={0.1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "flightSpeed", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-flightSpeed"
+              value={spiralTunnel.flightSpeed}
+              min={0.0}
+              max={60.0}
+              step={0.1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "flightSpeed", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("fieldOfView")}
+              value={spiralTunnel.fieldOfView}
+              min={6}
+              max={179}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "fieldOfView", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-fieldOfView"
+              value={spiralTunnel.fieldOfView}
+              min={6}
+              max={179}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "fieldOfView", v)}
+              isRTL={isRTL}
+            />
+
+            {/* Spiral Tunnel: Structural Parameters */}
+            <ControlSlider
+              label={t("luminosity")}
+              value={spiralTunnel.luminosity}
+              min={5.0}
+              max={18.0}
+              step={0.1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "luminosity", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-luminosity"
+              value={spiralTunnel.luminosity}
+              min={5.0}
+              max={18.0}
+              step={0.1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "luminosity", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("openingSize")}
+              value={spiralTunnel.openingSize}
+              min={0}
+              max={500}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "openingSize", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-openingSize"
+              value={spiralTunnel.openingSize}
+              min={0}
+              max={500}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "openingSize", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("ribbonCount")}
+              value={spiralTunnel.ribbonCount}
+              min={10}
+              max={500}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "ribbonCount", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-ribbonCount"
+              value={spiralTunnel.ribbonCount}
+              min={10}
+              max={500}
+              step={10}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "ribbonCount", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("ribbonWidth")}
+              value={spiralTunnel.ribbonWidth}
+              min={0.0}
+              max={0.5}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "ribbonWidth", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-ribbonWidth"
+              value={spiralTunnel.ribbonWidth}
+              min={0.0}
+              max={0.5}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "ribbonWidth", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("spiralDensity")}
+              value={spiralTunnel.spiralDensity}
+              min={1.0}
+              max={100.0}
+              step={0.1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "spiralDensity", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-spiralDensity"
+              value={spiralTunnel.spiralDensity}
+              min={1.0}
+              max={100.0}
+              step={0.1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "spiralDensity", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("spiralCount")}
+              value={spiralTunnel.spiralCount}
+              min={1}
+              max={12}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "spiralCount", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-spiralCount"
+              value={spiralTunnel.spiralCount}
+              min={1}
+              max={12}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "spiralCount", v)}
+              isRTL={isRTL}
+            />
+
+            {/* Spiral Tunnel: Light & Core Passes */}
+            <ControlSlider
+              label={t("lightIntensity")}
+              value={spiralTunnel.lightIntensity}
+              min={0.2}
+              max={5.0}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "lightIntensity", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-lightIntensity"
+              value={spiralTunnel.lightIntensity}
+              min={0.2}
+              max={5.0}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "lightIntensity", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("distortion")}
+              value={spiralTunnel.distortion}
+              min={0.0}
+              max={100.0}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "distortion", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-distortion"
+              value={spiralTunnel.distortion}
+              min={0.0}
+              max={100.0}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "distortion", v)}
+              isRTL={isRTL}
+            />
+
+            {/* Spiral Tunnel: Color Shifts */}
+            <ControlSlider
+              label={t("hue")}
+              value={spiralTunnel.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "hue", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-hue"
+              value={spiralTunnel.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "hue", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("saturation")}
+              value={spiralTunnel.saturation}
+              min={0.0}
+              max={2.0}
+              step={0.05}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "saturation", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="tunnel-saturation"
+              value={spiralTunnel.saturation}
+              min={0.0}
+              max={2.0}
+              step={0.05}
+              onValueChange={(v) => updateShaderConfig("spiralTunnel", "saturation", v)}
+              isRTL={isRTL}
+            />
+
+            {/* DYNAMIC GRADIENT PICKERS */}
+            {[spiralTunnel.lineColor1, spiralTunnel.lineColor2, spiralTunnel.lineColor3, spiralTunnel.lineColor4].map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">
+                  {t("color")} {index + 1}
+                </span>
+                <ColorPicker 
+                  value={color} 
+                  onValueChange={(c) => {
+                    updateShaderConfig("spiralTunnel", `lineColor${index + 1}`, hsvaToHex(c));
+                  }} 
+                  hideAlpha 
+                  hideContrastRatio 
+                />
+              </div>
+            ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "fractalVortex",
+          fractalVortex,
+          <>
+            {/* RENDER SCALE (Resolution Scale / Render Factor Pro) */}
+            <ControlSlider
+              label={t("renderScale")}
+              value={fractalVortex.renderScale ?? 0.6}
+              min={0.1}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "renderScale", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-renderScale"
+              value={fractalVortex.renderScale ?? 0.6}
+              min={0.1}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "renderScale", v)}
+              isRTL={isRTL}
+            />
+            {/* SPEED */}
+            <ControlSlider
+              label={t("cameraSpeed")}
+              value={fractalVortex.cameraSpeed}
+              min={0}
+              max={50}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "cameraSpeed", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-cameraSpeed"
+              value={fractalVortex.cameraSpeed}
+              min={0}
+              max={50}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "cameraSpeed", v)}
+              isRTL={isRTL}
+            />
+
+            {/* FRACTAL SPEED */}
+            <ControlSlider
+              label={t("fractalSpeed")}
+              value={fractalVortex.fractalSpeed}
+              min={0}
+              max={50}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "fractalSpeed", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-fractalSpeed"
+              value={fractalVortex.fractalSpeed}
+              min={0}
+              max={50}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "fractalSpeed", v)}
+              isRTL={isRTL}
+            />
+
+            {/* FIELD OF VIEW */}
+            <ControlSlider
+              label={t("fieldOfView")}
+              value={fractalVortex.fov}
+              min={0.1}
+              max={9}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "fov", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-fov"
+              value={fractalVortex.fov}
+              min={0.1}
+              max={9}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "fov", v)}
+              isRTL={isRTL}
+            />
+
+            {/* FRACTAL SCALE */}
+            <ControlSlider
+              label={t("fractalScale")}
+              value={fractalVortex.fractalScale}
+              min={0.1}
+              max={8}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "fractalScale", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-fractalScale"
+              value={fractalVortex.fractalScale}
+              min={0.1}
+              max={8}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "fractalScale", v)}
+              isRTL={isRTL}
+            />
+
+            {/* TURBULENCE */}
+            <ControlSlider
+              label={t("turbulence")}
+              value={fractalVortex.turbulence}
+              min={0}
+              max={60}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "turbulence", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-turbulence"
+              value={fractalVortex.turbulence}
+              min={0}
+              max={60}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "turbulence", v)}
+              isRTL={isRTL}
+            />
+
+            {/* BOX SIZE */}
+            <ControlSlider
+              label={t("boxSize")}
+              value={fractalVortex.boxSize}
+              min={0.1}
+              max={3}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "boxSize", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-boxSize"
+              value={fractalVortex.boxSize}
+              min={0.1}
+              max={3}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "boxSize", v)}
+              isRTL={isRTL}
+            />
+
+            {/* GLOW STRENGTH */}
+            <ControlSlider
+              label={t("glowStrength")}
+              value={fractalVortex.glowStrength}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "glowStrength", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-glowStrength"
+              value={fractalVortex.glowStrength}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "glowStrength", v)}
+              isRTL={isRTL}
+            />
+
+            {/* GLOW WIDTH */}
+            <ControlSlider
+              label={t("glowWidth")}
+              value={fractalVortex.glowWidth}
+              min={0.001}
+              max={1}
+              step={0.001}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "glowWidth", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-glowWidth"
+              value={fractalVortex.glowWidth}
+              min={0.001}
+              max={1}
+              step={0.001}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "glowWidth", v)}
+              isRTL={isRTL}
+            />
+
+            {/* MIRROR TILE SIZE */}
+            <ControlSlider
+              label={t("mirrorTileSize")}
+              value={fractalVortex.mirrorTileSize}
+              min={0.1}
+              max={10}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "mirrorTileSize", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-mirrorTileSize"
+              value={fractalVortex.mirrorTileSize}
+              min={0.1}
+              max={10}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "mirrorTileSize", v)}
+              isRTL={isRTL}
+            />
+
+            {/* WALL NORMAL SCALE */}
+            <ControlSlider
+              label={t("wallScale")}
+              value={fractalVortex.wallNormalScale}
+              min={0}
+              max={5}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "wallNormalScale", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-wallNormalScale"
+              value={fractalVortex.wallNormalScale}
+              min={0}
+              max={5}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "wallNormalScale", v)}
+              isRTL={isRTL}
+            />
+
+            {/* EXPOSURE */}
+            <ControlSlider
+              label={t("exposure")}
+              value={fractalVortex.exposure}
+              min={0.1}
+              max={10}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "exposure", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-exposure"
+              value={fractalVortex.exposure}
+              min={0.1}
+              max={10}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "exposure", v)}
+              isRTL={isRTL}
+            />
+
+            {/* HUE */}
+            <ControlSlider
+              label={t("hue")}
+              value={fractalVortex.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "hue", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-hue"
+              value={fractalVortex.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "hue", v)}
+              isRTL={isRTL}
+            />
+
+            {/* SATURATION */}
+            <ControlSlider
+              label={t("saturation")}
+              value={fractalVortex.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "saturation", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="fractalVortex-saturation"
+              value={fractalVortex.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("fractalVortex", "saturation", v)}
+              isRTL={isRTL}
+            />
           </>
         )}
       </Accordion>
