@@ -94,6 +94,10 @@ Provide the AI of your choice with the [Adding-new-shaders.md](https://github.co
 
 [Highway to Heaven](https://codepen.io/sabosugi/pen/azpqWKE) by [Sabo Sugi](https://codepen.io/sabosugi)
 
+[Hall of Fractals](https://codepen.io/sabosugi/pen/gbgeXja) by [Sabo Sugi](https://codepen.io/sabosugi)
+
+[Rails in Space](https://codepen.io/sabosugi/pen/xbgWXMP) by [Sabo Sugi](https://codepen.io/sabosugi)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)
