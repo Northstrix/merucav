@@ -11,6 +11,8 @@ export const Credits = () => {
     const creditsMarkdown = `
 [GradientGen](https://github.com/noegarsoux/GradientGen) by [noegarsoux](https://github.com/noegarsoux)
 
+[Velustro](https://uvcanvas.com/docs/components/velustro) by [UVCanvas](https://uvcanvas.com/)
+
 [Tranquiluxe](https://uvcanvas.com/docs/components/tranquiluxe) by [UVCanvas](https://uvcanvas.com/)
 
 [Shader Art Coding Introduction](https://www.shadertoy.com/view/mtyGWy) by [kishimisu](https://www.shadertoy.com/user/kishimisu)
@@ -58,6 +60,8 @@ export const Credits = () => {
 [Hall of Fractals](https://codepen.io/sabosugi/pen/gbgeXja) by [Sabo Sugi](https://codepen.io/sabosugi)
 
 [Rails in Space](https://codepen.io/sabosugi/pen/xbgWXMP) by [Sabo Sugi](https://codepen.io/sabosugi)
+
+[Inside UFO Spaceship](https://codepen.io/sabosugi/pen/XJpqjpo) by [Sabo Sugi](https://codepen.io/sabosugi)
 
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 

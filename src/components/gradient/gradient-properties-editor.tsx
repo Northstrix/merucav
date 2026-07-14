@@ -77,6 +77,7 @@ export function GradientPropertiesEditor({
     corrodedSpiral,
     spiralTunnel,
     fractalVortex,
+    infiniteCorridor,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -4325,6 +4326,136 @@ export function GradientPropertiesEditor({
               onValueChange={(v) => updateShaderConfig("fractalVortex", "saturation", v)}
               isRTL={isRTL}
             />
+          </>
+        )}
+{renderShaderControls(
+          "infiniteCorridor",
+          infiniteCorridor,
+          <>
+            {/* GLOBAL HUE / SATURATION OVERRIDES */}
+            <ControlSlider label={t("hue")} value={infiniteCorridor.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-hue" value={infiniteCorridor.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={infiniteCorridor.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-saturation" value={infiniteCorridor.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "saturation", v)} isRTL={isRTL} />
+
+            {/* --- CORRIDOR GEOMETRY MATRICES --- */}
+            <ControlSlider label={t("floorY")} value={infiniteCorridor.floorY} min={-2.0} max={0.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "floorY", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-floorY" value={infiniteCorridor.floorY} min={-2.0} max={0.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "floorY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("apexY")} value={infiniteCorridor.apexY} min={0.0} max={3.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "apexY", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-apexY" value={infiniteCorridor.apexY} min={0.0} max={3.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "apexY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("halfWidth")} value={infiniteCorridor.halfWidth} min={0.1} max={3.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "halfWidth", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-halfWidth" value={infiniteCorridor.halfWidth} min={0.1} max={3.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "halfWidth", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("focalLength")} value={infiniteCorridor.focalLength} min={0.1} max={24.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "focalLength", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-focalLength" value={infiniteCorridor.focalLength} min={0.1} max={24.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "focalLength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogDensity")} value={infiniteCorridor.fogDensity} min={0.0} max={0.5} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fogDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-fogDensity" value={infiniteCorridor.fogDensity} min={0.0} max={0.5} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fogDensity", v)} isRTL={isRTL} />
+
+            {/* --- ENGINE TIMING SYSTEMS --- */}
+            <ControlSlider label={t("fractalTimeScale")} value={infiniteCorridor.fractalTimeScale} min={0.0} max={3.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalTimeScale", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-fractalTimeScale" value={infiniteCorridor.fractalTimeScale} min={0.0} max={3.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalTimeScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("trailTimeScale")} value={infiniteCorridor.trailTimeScale} min={0.0} max={3.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "trailTimeScale", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-trailTimeScale" value={infiniteCorridor.trailTimeScale} min={0.0} max={3.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "trailTimeScale", v)} isRTL={isRTL} />
+
+            {/* --- FRACTAL PATTERN STRUCTURES --- */}
+            <ControlSlider label={t("fractalScaleX")} value={infiniteCorridor.fractalScaleX} min={0.05} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalScaleX", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-fractalScaleX" value={infiniteCorridor.fractalScaleX} min={0.05} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalScaleX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fractalScaleY")} value={infiniteCorridor.fractalScaleY} min={0.05} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalScaleY", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-fractalScaleY" value={infiniteCorridor.fractalScaleY} min={0.05} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalScaleY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fractalScroll")} value={infiniteCorridor.fractalScroll} min={-2.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalScroll", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-fractalScroll" value={infiniteCorridor.fractalScroll} min={-2.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalScroll", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fractalLevels")} value={infiniteCorridor.fractalLevels} min={1.0} max={6.0} step={1.0} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalLevels", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-fractalLevels" value={infiniteCorridor.fractalLevels} min={1.0} max={6.0} step={1.0} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fractalLevels", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("lineWidthNear")} value={infiniteCorridor.lineWidthNear} min={-0.05} max={0.05} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "lineWidthNear", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-lineWidthNear" value={infiniteCorridor.lineWidthNear} min={-0.05} max={0.05} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "lineWidthNear", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("lineWidthFar")} value={infiniteCorridor.lineWidthFar} min={0.0} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "lineWidthFar", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-lineWidthFar" value={infiniteCorridor.lineWidthFar} min={0.0} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "lineWidthFar", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("lineSoftness")} value={infiniteCorridor.lineSoftness} min={0.0} max={0.05} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "lineSoftness", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-lineSoftness" value={infiniteCorridor.lineSoftness} min={0.0} max={0.05} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "lineSoftness", v)} isRTL={isRTL} />
+
+            {/* --- CAMERA NAVIGATIONS --- */}
+            <ControlSlider label={t("cameraSpeed")} value={infiniteCorridor.cameraSpeed} min={0.0} max={5.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-cameraSpeed" value={infiniteCorridor.cameraSpeed} min={0.0} max={5.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraX")} value={infiniteCorridor.cameraX} min={-2.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraX", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-cameraX" value={infiniteCorridor.cameraX} min={-2.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraY")} value={infiniteCorridor.cameraY} min={-2.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraY", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-cameraY" value={infiniteCorridor.cameraY} min={-2.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraZ")} value={infiniteCorridor.cameraZ} min={-10.0} max={10.0} step={0.1} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraZ", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-cameraZ" value={infiniteCorridor.cameraZ} min={-10.0} max={10.0} step={0.1} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraZ", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSwayX")} value={infiniteCorridor.cameraSwayX} min={0.0} max={1.0} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraSwayX", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-cameraSwayX" value={infiniteCorridor.cameraSwayX} min={0.0} max={1.0} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraSwayX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSwayY")} value={infiniteCorridor.cameraSwayY} min={0.0} max={1.0} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraSwayY", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-cameraSwayY" value={infiniteCorridor.cameraSwayY} min={0.0} max={1.0} step={0.001} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "cameraSwayY", v)} isRTL={isRTL} />
+
+            {/* --- RENDER EFFECTS --- */}
+            <ControlSlider label={t("seamStrength")} value={infiniteCorridor.seamStrength} min={0.0} max={10.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "seamStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-seamStrength" value={infiniteCorridor.seamStrength} min={0.0} max={10.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "seamStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("trailBrightness")} value={infiniteCorridor.trailBrightness} min={0.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "trailBrightness", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-trailBrightness" value={infiniteCorridor.trailBrightness} min={0.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "trailBrightness", v)} isRTL={isRTL} />
+
+            {/* --- MODULATION SPECTRUMS --- */}
+            <ControlSlider label={t("oscillationSpeed")} value={infiniteCorridor.fateSpeed} min={0.0} max={5.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fateSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-fateSpeed" value={infiniteCorridor.fateSpeed} min={0.0} max={5.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "fateSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("mirrors")} value={infiniteCorridor.mirrors} min={0.0} max={2.5} step={0.5} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "mirrors", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-mirrors" value={infiniteCorridor.mirrors} min={0.0} max={2.5} step={0.5} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "mirrors", v)} isRTL={isRTL} />
+
+            {/* KALEIDOSCOPE SPEED: Hidden unless mirrors > 0 */}
+            {infiniteCorridor.mirrors > 0 && (
+              <>
+                <ControlSlider label={t("kaleidoscopeSpeed")} value={infiniteCorridor.kaleidoscopeSpeed} min={0.0} max={5.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "kaleidoscopeSpeed", v)} isRTL={isRTL} />
+                <CustomSlider id="infiniteCorridor-kaleidoscopeSpeed" value={infiniteCorridor.kaleidoscopeSpeed} min={0.0} max={5.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "kaleidoscopeSpeed", v)} isRTL={isRTL} />
+              </>
+            )}
+
+            <ControlSlider label={t("noiseStrength")} value={infiniteCorridor.noiseStrength} min={0.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "noiseStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-noiseStrength" value={infiniteCorridor.noiseStrength} min={0.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "noiseStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("distortionStrength")} value={infiniteCorridor.distortionStrength} min={0.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "distortionStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="infiniteCorridor-distortionStrength" value={infiniteCorridor.distortionStrength} min={0.0} max={2.0} step={0.01} onValueChange={(v) => updateShaderConfig("infiniteCorridor", "distortionStrength", v)} isRTL={isRTL} />
+
+            {/* --- MATERIAL COLOR PICKERS --- */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("lightColor")}</span>
+              <ColorPicker value={infiniteCorridor.lightColor} onValueChange={(c) => updateShaderConfig("infiniteCorridor", "lightColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("glowColor")}</span>
+              <ColorPicker value={infiniteCorridor.glowColor} onValueChange={(c) => updateShaderConfig("infiniteCorridor", "glowColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("substrateColor")}</span>
+              <ColorPicker value={infiniteCorridor.substrateColor} onValueChange={(c) => updateShaderConfig("infiniteCorridor", "substrateColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("backgroundColor")}</span>
+              <ColorPicker value={infiniteCorridor.backgroundColor} onValueChange={(c) => updateShaderConfig("infiniteCorridor", "backgroundColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("filterColor")}</span>
+              <ColorPicker value={infiniteCorridor.filterColor} onValueChange={(c) => updateShaderConfig("infiniteCorridor", "filterColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
           </>
         )}
       </Accordion>

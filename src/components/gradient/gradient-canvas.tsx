@@ -446,6 +446,46 @@ export interface GradientConfig {
       hue: number;
       saturation: number;
     };
+    infiniteCorridor: ShaderSetting & {
+      hue: number;
+      saturation: number;
+      floorY: number;
+      apexY: number;
+      halfWidth: number;
+      focalLength: number;
+      fogDensity: number;
+      fractalTimeScale: number;
+      trailTimeScale: number;
+      fractalScaleX: number;
+      fractalScaleY: number;
+      fractalScroll: number;
+      fractalLevels: number;
+      lineWidthNear: number;
+      lineWidthFar: number;
+      lineSoftness: number;
+      cameraSpeed: number;
+      cameraX: number;
+      cameraY: number;
+      cameraZ: number;
+      cameraSwayX: number;
+      cameraSwayY: number;
+      seamStrength: number;
+      lightColor: string;
+      glowColor: string;
+      substrateColor: string;
+      backgroundColor: string;
+      trailBrightness: number;
+      // Integrated Fate Parameters
+      fateSpeed: number;
+      // Integrated Kaleidoscope Parameters
+      kaleidoscopeSpeed: number;
+      // Integrated Structured Noise Parameters
+      mirrors: number;
+      noiseStrength: number;
+      distortionStrength: number;
+      useFilter: boolean;
+      filterColor: string;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -848,6 +888,49 @@ export function getDefaultGradientConfig(): GradientConfig {
           exposure: 2.0,
           hue: 0,
           saturation: 1.0,
+        },
+        infiniteCorridor: {
+          enabled: false,
+          opacity: 1.0,
+          transform: { ...defaultTransform },
+          hue: 0,
+          saturation: 1.0,
+          floorY: -1.22,
+          apexY: 1.65,
+          halfWidth: 1.19,
+          focalLength: 1.1,
+          fogDensity: 0.089,
+          fractalTimeScale: 1.0,
+          trailTimeScale: 0.92,
+          fractalScaleX: 0.54,
+          fractalScaleY: 0.30,
+          fractalScroll: 0.26,
+          fractalLevels: 6.0,
+          lineWidthNear: -0.009,
+          lineWidthFar: 0.038,
+          lineSoftness: 0.01,
+          cameraSpeed: 1.10,
+          cameraX: 0.0,
+          cameraY: -0.97,
+          cameraZ: 0.0,
+          cameraSwayX: 0.045,
+          cameraSwayY: 0.0,
+          seamStrength: 0,
+          lightColor: "#47b8ff",
+          glowColor: "#1fe0ff",
+          substrateColor: "#000000",
+          backgroundColor: "#1fe0ff",
+          trailBrightness: 0.19,
+          // Integrated Fate Parameters
+          fateSpeed: 0.8,
+          // Integrated Kaleidoscope Parameters (Controlled dynamically by mirrors conditional UI logic)
+          kaleidoscopeSpeed: 0.5,
+          // Integrated Structured Noise Parameters
+          mirrors: 0,
+          noiseStrength: 0.25,
+          distortionStrength: 0.35,
+          useFilter: true,
+          filterColor: "#ffffff",
         },
     },
     grainAmount: 0,
@@ -6276,14 +6359,528 @@ function FractalVortexShader({ config, globalConfig }: { config: any; globalConf
 
   return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
+const infiniteCorridorFragShader = `
+precision highp float;
 
-function hexToRgbaVec(hex: string): [number, number, number, number] {
-    let c = hex.substring(1);
-    if(c.length === 3) c = c.split('').map(x => x + x).join('');
-    const num = parseInt(c, 16);
-    return [((num >> 16) & 255) / 255, ((num >> 8) & 255) / 255, (num & 255) / 255, c.length === 8 ? ((num >> 24) & 255) / 255 : 1.0];
+// Output configuration required for WebGL2 ESSL 3.00
+out vec4 fragColor;
+
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uHue;
+uniform float uSaturation;
+
+// Corridor Matrices Uniforms
+uniform float uFloorY;
+uniform float uApexY;
+uniform float uHalfWidth;
+uniform float uFocalLength;
+uniform float uFogDensity;
+uniform float uFractalTimeScale;
+uniform float uTrailTimeScale;
+uniform vec2  uFractalScale;
+uniform float uFractalScroll;
+uniform float uFractalLevels;
+uniform float uLineWidthNear;
+uniform float uLineWidthFar;
+uniform float uLineSoftness;
+uniform float uCameraSpeed;
+uniform vec3  uCameraPosition;
+uniform vec2  uCameraSway;
+uniform float uSeamStrength;
+uniform float uTrailBrightness;
+uniform float uKaleidoscopeSpeed;
+uniform float uFateSpeed;
+uniform float uMirrors;
+uniform float uNoiseStrength;
+uniform float uDistortionStrength;
+
+// Color System Uniforms
+uniform bool  u_useFilter;
+uniform vec3  u_filterColor;
+uniform vec4  uLightColor;
+uniform vec4  uGlowColor;
+uniform vec4  uSubstrateColor;
+uniform vec4  uBackgroundColor;
+
+// Missing Math Constants Setup
+const float PI = 3.14159265359;
+const float TAU = 6.28318530718;
+const float FAR_DISTANCE = 1000.0;
+
+float hash21(vec2 p) {
+    p = fract(p * vec2(123.34, 345.44));
+    p += dot(p, p + 34.345);
+    return fract(p.x * p.y);
 }
 
+float hash13(vec3 p3){
+    p3 = fract(p3 * .1031);
+    p3 += dot(p3, p3.zyx + 31.32);
+    return fract((p3.x + p3.y) * p3.z);
+}
+
+vec3 randomGradient(vec3 p){
+    float the = hash13(p)*TAU;
+    float phi = hash13(p+vec3(3,2,1))*TAU;
+    return vec3(sin(the)*cos(phi), sin(the)*sin(phi), cos(the));
+}
+
+float noise(vec3 p){
+    vec3 i = floor(p);
+    vec3 f = fract(p);
+    vec3 g000 = randomGradient(i+vec3(0,0,0));
+    vec3 g100 = randomGradient(i+vec3(1,0,0));
+    vec3 g010 = randomGradient(i+vec3(0,1,0));
+    vec3 g001 = randomGradient(i+vec3(0,0,1));
+    vec3 g011 = randomGradient(i+vec3(0,1,1));
+    vec3 g101 = randomGradient(i+vec3(1,0,1));
+    vec3 g110 = randomGradient(i+vec3(1,1,0));
+    vec3 g111 = randomGradient(i+vec3(1,1,1));
+    
+    float v000 = dot(g000, f-vec3(0,0,0));
+    float v100 = dot(g100, f-vec3(1,0,0));
+    float v010 = dot(g010, f-vec3(0,1,0));
+    float v001 = dot(g001, f-vec3(0,0,1));
+    float v011 = dot(g011, f-vec3(0,1,1));
+    float v101 = dot(g101, f-vec3(1,0,1));
+    float v110 = dot(g110, f-vec3(1,1,0));
+    float v111 = dot(g111, f-vec3(1,1,1));
+    
+    vec3 u = f*f*f*(f*(f*6.0 - 15.0) + 10.0);
+    return mix(mix(mix(v000, v100, u.x), mix(v010, v110, u.x), u.y), mix(mix(v001, v101, u.x), mix(v011, v111, u.x), u.y), u.z);
+}
+
+float fbm(vec3 p){
+    float amp = 1.;
+    float fre = 1.;
+    float n = 0.;
+    for(float i = 0.; i < 4.; i++){
+        n += noise(fre*p)*amp;
+        amp *= .5;
+        fre *= 2.;
+    }
+    return n;
+}
+
+float fbmWrap(vec3 p){
+    vec3 q = vec3(fbm(p+vec3(13.24,42.74,44.32)), fbm(p+vec3(51.16,17.93,98.23)), fbm(p+vec3(43.46,85.43,64.91)));
+    return fbm(q);
+}
+
+float snoise(vec2 v) {
+    return fract(sin(dot(v, vec2(12.9898, 78.233))) * 43758.5453123);
+}
+
+// --- Geometries ---
+float sdBox2D(vec2 p, vec2 b) {
+    vec2 d = abs(p) - b;
+    return length(max(d, 0.0)) + min(max(d.x, d.y), 0.0);
+}
+
+float sdSegment2D(vec2 p, vec2 a, vec2 b) {
+    vec2 pa = p - a;
+    vec2 ba = b - a;
+    float h = clamp(dot(pa, ba) / dot(ba, ba), 0.0, 1.0);
+    return length(pa - ba * h);
+}
+
+float lineMask(float distanceToLine, float width) {
+    return 1.0 - smoothstep(width, width + uLineSoftness, distanceToLine);
+}
+
+float periodicDistance(float a, float b) {
+    float d = abs(a - b);
+    return min(d, 1.0 - d);
+}
+
+float movingTrailOnSegment(vec2 p, vec2 a, vec2 b, float width, float trailTime, float speed, float phase, float direction) {
+    vec2 ba = b - a;
+    float segmentLength = max(length(ba), 0.0001);
+    vec2 axis = ba / segmentLength;
+    vec2 pa = p - a;
+    float projection = clamp(dot(pa, axis), 0.1, segmentLength);
+    float distanceToSegment = length(pa - axis * projection);
+    float line = 1.0 - smoothstep(width, width + 0.008, distanceToSegment);
+    float u = projection / segmentLength;
+    float flow = fract(direction * u - trailTime * speed + phase);
+    float headDistance = periodicDistance(flow, 0.0);
+    float tailDistance = periodicDistance(flow, -0.325);
+    float sparkDistance = periodicDistance(flow, 0.53);
+    float head = exp(-190.0 * headDistance * headDistance);
+    float tail = 0.50 * exp(-72.0 * tailDistance * tailDistance);
+    float spark = 0.32 * exp(-260.0 * sparkDistance * sparkDistance);
+    return line * clamp(head + tail + spark, 0.0, 1.0);
+}
+
+float movingTrailOnBox(vec2 p, vec2 halfSize, float width, float trailTime, float speed, float phase, float direction) {
+    vec2 topLeft = vec2(-halfSize.x, halfSize.y);
+    vec2 topRight = vec2(halfSize.x, halfSize.y);
+    vec2 bottomRight = vec2(halfSize.x, -halfSize.y);
+    vec2 bottomLeft = vec2(-halfSize.x, -halfSize.y);
+    float trail = 0.0;
+    trail += movingTrailOnSegment(p, topLeft, topRight, width, trailTime, speed, phase + 0.00, direction);
+    trail += movingTrailOnSegment(p, topRight, bottomRight, width, trailTime, speed, phase + 0.07, direction);
+    trail += movingTrailOnSegment(p, bottomRight, bottomLeft, width, trailTime, speed, phase + 0.19, direction);
+    trail += movingTrailOnSegment(p, bottomLeft, topLeft, width, trailTime, speed, phase + 0.32, direction);
+    return clamp(trail, 0.0, 1.0);
+}
+
+vec3 cyberPalette(float position, float accent) {
+    float blendA = 1.1 + 0.1 * sin(position * 0.22);
+    float blendB = 0.5 + 0.5 * sin(position * 0.81 + 1.3);
+    vec3 dynamicBase = vec3(0.02, 0.02, 0.07);
+    vec3 neon = mix(dynamicBase, vec3(0.137, 0.373, 0.624), blendA);
+    neon = mix(neon, vec3(0.120, 0.880, 1.000), accent * 0.71 + blendB * 0.14);
+    return mix(vec3(0.0), mix(uSubstrateColor.rgb, neon, 0.29), 1.39);
+}
+
+// --- Combined Structural Map Matrix Generator ---
+vec3 renderInterestingFractal(vec2 surfacePosition, float geometryTime, float trailTime) {
+    float fateT = geometryTime * uFateSpeed;
+    float kFate = 0.8;
+    vec3 fateCoord = vec3(kFate * sin(surfacePosition.x), kFate * cos(surfacePosition.x), surfacePosition.y - fateT * 1.2);
+    float fateNoiseVal = fbmWrap(fateCoord);
+    surfacePosition.x += fateNoiseVal * uNoiseStrength;
+    surfacePosition.y += sin(fateNoiseVal * PI) * uDistortionStrength;
+    vec2 p = surfacePosition * uFractalScale;
+    p.y -= geometryTime * uFractalScroll;
+    vec2 recursiveP = p;
+    float core = 0.0;
+    float halo = 0.0;
+    float trailLight = 0.0;
+    float colorIndex = 0.0;
+    
+    for (int level = 0; level < 6; level++) {
+        if (float(level) >= uFractalLevels) break;
+        float levelF = float(level);
+        vec2 cellId = floor(recursiveP);
+        vec2 q = fract(recursiveP) - 0.5;
+        float randomValue = hash21(cellId + levelF * 18.94);
+        float randomB = hash21(cellId.yx + levelF * 37.11 + 4.7);
+        float randomD = hash21(cellId.yx + levelF * 7.43 + 17.6);
+        if (randomValue > 0.2) q = q.yx;
+        q.x *= randomB > 0.3 ? 1.0 : -1.0;
+        q.y *= fract(randomValue * 4.31) > 0.5 ? 1.0 : -1.0;
+        float levelWeight = exp(-0.17 * levelF);
+        float lineWidth = mix(uLineWidthNear, uLineWidthFar, levelF / 5.0);
+        float microWidth = lineWidth * 0.52;
+        float frameDistance = abs(sdBox2D(q, vec2(0.355)));
+        float frame = lineMask(frameDistance, lineWidth);
+        float innerFrameDistance = abs(sdBox2D(q, vec2(0.235)));
+        float innerFrame = lineMask(innerFrameDistance, microWidth * 0.85);
+        float horizontalGap = smoothstep(0.055, 0.105, abs(q.y));
+        float verticalGap = smoothstep(0.045, 0.095, abs(q.x));
+        frame *= (randomValue > 0.5 ? horizontalGap : verticalGap);
+        vec2 corner = vec2(0.355, 0.355);
+        vec2 bend = vec2(0.0, 0.355);
+        vec2 terminal = vec2(0.0, 0.045);
+        if (randomB > 0.5) {
+            bend = vec2(0.355, 0.0);
+            terminal = vec2(0.045, 0.0);
+        }
+        float traceA = lineMask(sdSegment2D(q, corner, bend), lineWidth * 0.72);
+        float traceB = lineMask(sdSegment2D(q, bend, terminal), lineWidth * 0.72);
+        float trace = max(traceA, traceB);
+        float terminalDistance = abs(sdBox2D(q - terminal, vec2(0.034)));
+        float terminalMask = lineMask(terminalDistance, lineWidth * 0.68);
+        float visibility = 1.0;
+        if (level == 3) visibility = step(0.34, randomValue);
+        if (level == 4) visibility = step(0.58, randomValue);
+        float structure = (frame * 0.80 + innerFrame * 0.34 + trace * 1.00 + terminalMask * 1.24) * levelWeight * visibility;
+        float directionMain = randomValue > 0.5 ? 1.0 : -1.0;
+        float directionFrame = randomD > 0.5 ? 1.0 : -1.0;
+        float frameTrail = movingTrailOnBox(q, vec2(0.425), lineWidth * 0.92, trailTime, 0.24 + levelF * 0.022, randomValue * 0.81, directionFrame);
+        float bigTrail = frameTrail * 0.60;
+        bigTrail += movingTrailOnSegment(q, corner, bend, lineWidth * 0.95, trailTime, 0.38 + levelF * 0.028, randomValue * 0.73, directionMain);
+        core += structure;
+        halo += structure * mix(0.72, 0.25, levelF / 4.0);
+        trailLight += bigTrail * levelWeight * visibility;
+        colorIndex += randomValue * structure;
+        vec2 offset = vec2(randomValue > 0.5 ? 0.37 : -0.37, randomB > 0.5 ? 0.29 : -0.29);
+        recursiveP = recursiveP * 2.02 + offset;
+    }
+    
+    core = clamp(core, 0.0, 0.9);
+    halo = clamp(halo, 0.0, 3.6);
+    trailLight = clamp(trailLight, 0.0, 1.6);
+    float normalizedColorIndex = colorIndex / max(core, 0.001);
+    float accent = clamp(trailLight * 0.95, 0.0, 1.0);
+    vec3 neon = cyberPalette(surfacePosition.y * 0.22 + normalizedColorIndex * 2.4, accent);
+    float beamSnoise = snoise(surfacePosition + geometryTime * 0.1) * uNoiseStrength;
+    float structuredBeam = abs(1.0 / (30.0 * (p.x - 0.5))) + beamSnoise;
+    vec3 color = uSubstrateColor.rgb * (1.0 - core) + neon * core * 0.86 + neon * halo * 0.16 + vec3(0.280, 0.720, 1.000) * trailLight * uTrailBrightness;
+    color += vec3(structuredBeam * 0.15);
+    
+    if (u_useFilter) {
+        color *= u_filterColor;
+    }
+    return color;
+}
+
+float intersectCorridorPlane(vec3 rayOrigin, vec3 rayDirection, vec3 inwardNormal, float planeOffset) {
+    float originDistance = dot(inwardNormal, rayOrigin) + planeOffset;
+    float denominator = dot(inwardNormal, rayDirection);
+    if (denominator >= -0.00001) return FAR_DISTANCE;
+    float distance = -originDistance / denominator;
+    return distance > 0.0 ? distance : FAR_DISTANCE;
+}
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+void main() {
+    float fovFactor = tan(radians(90.0 * 0.5));
+    vec2 uv = ((gl_FragCoord.xy * 2.0 - uResolution.xy) / uResolution.y) * fovFactor;
+    vec2 uv0 = uv;
+    
+    for (float i = 0.0; i < 4.0; i++) {
+        if (i >= uMirrors) break;
+        uv = fract(uv * 1.5) - 0.5;
+        float kDist = length(uv) * exp(-length(uv0));
+        kDist = sin(kDist * 8.0 + uTime * uKaleidoscopeSpeed) / 8.0;
+        uv += abs(kDist);
+    }
+    
+    float time = uTime;
+    vec3 rayOrigin = vec3(uCameraPosition.x + sin(time * 0.18) * uCameraSway.x, uCameraPosition.y, uCameraPosition.z + time * uCameraSpeed);
+    vec3 cameraTarget = rayOrigin + vec3(0.0, 0.028, 1.0);
+    vec3 forward = normalize(cameraTarget - rayOrigin);
+    vec3 right = normalize(cross(vec3(0.0, 1.0, 0.0), forward));
+    vec3 up = normalize(cross(forward, right));
+    vec3 rayDirection = normalize(forward * uFocalLength + right * uv.x + up * uv.y);
+    
+    float corridorHeight = uApexY - uFloorY;
+    float slope = uHalfWidth / corridorHeight;
+    vec3 leftNormalUnnormalized = vec3(1.0, -slope, 0.0);
+    vec3 rightNormalUnnormalized = vec3(-1.0, -slope, 0.0);
+    float sideOffset = uHalfWidth + slope * uFloorY;
+    
+    float floorDistance = intersectCorridorPlane(rayOrigin, rayDirection, vec3(0.0, 1.0, 0.0), -uFloorY);
+    float leftDistance = intersectCorridorPlane(rayOrigin, rayDirection, leftNormalUnnormalized, sideOffset);
+    float rightDistance = intersectCorridorPlane(rayOrigin, rayDirection, rightNormalUnnormalized, sideOffset);
+    
+    float hitDistance = floorDistance;
+    float surfaceID = 0.0;
+    vec3 surfaceNormal = vec3(0.0, 1.0, 0.0);
+    
+    if (leftDistance < hitDistance) {
+        hitDistance = leftDistance;
+        surfaceID = 1.0;
+        surfaceNormal = normalize(leftNormalUnnormalized);
+    }
+    if (rightDistance < hitDistance) {
+        hitDistance = rightDistance;
+        surfaceID = 2.0;
+        surfaceNormal = normalize(rightNormalUnnormalized);
+    }
+    
+    if (hitDistance >= FAR_DISTANCE) {
+        fragColor = uBackgroundColor;
+        return;
+    }
+    
+    vec3 hitPosition = rayOrigin + rayDirection * hitDistance;
+    float wallLength = length(vec2(uHalfWidth, corridorHeight));
+    float surfaceU = 0.0;
+    
+    if (surfaceID < 0.5) {
+        surfaceU = hitPosition.x;
+    } else if (surfaceID < 1.5) {
+        surfaceU = dot(hitPosition.xy - vec2(-uHalfWidth, uFloorY), normalize(vec2(uHalfWidth, corridorHeight))) - wallLength * 0.5;
+    } else {
+        surfaceU = dot(hitPosition.xy - vec2(uHalfWidth, uFloorY), normalize(vec2(-uHalfWidth, corridorHeight))) - wallLength * 0.7;
+    }
+    
+    vec3 fractalColor = renderInterestingFractal(vec2(surfaceU, hitPosition.z), time * uFractalTimeScale, time * uTrailTimeScale);
+    float facing = max(dot(surfaceNormal, normalize(rayOrigin - hitPosition)), 0.0);
+    vec3 color = fractalColor * (0.61 + -0.59 * facing) + vec3(-0.05, -0.02, 0.01) + fractalColor * pow(clamp(1.0 - facing, 0.0, 1.0), 3.5) * 0.08;
+    
+    float seamDistance = (surfaceID < 0.5) ? min((hitPosition.xy - vec2(-uHalfWidth, uFloorY)).x, (hitPosition.xy - vec2(uHalfWidth, uFloorY)).x) : hitPosition.y - uFloorY;
+    color += mix(vec3(0.180, 0.030, 0.260), vec3(0.020, 0.320, 0.520), 0.96) * exp(-max(seamDistance, -2.0) * 6.9) * uSeamStrength;
+    
+    vec3 farGlowColor = mix(uLightColor.rgb, uGlowColor.rgb, 0.14);
+    color = mix(farGlowColor, color, exp(-hitDistance * uFogDensity));
+    
+    vec3 hsv = rgb2hsv(color);
+    hsv.x += uHue / 360.0;
+    hsv.y *= uSaturation;
+    color = hsv2rgb(hsv);
+    
+    fragColor = vec4(color, uLightColor.a);
+}
+`;
+
+function InfiniteCorridorShader({ config, globalConfig }: { config: any; globalConfig: any }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const configString = useMemo(() => JSON.stringify(config), [config]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext('webgl2');
+    if (!gl) return;
+
+    const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+    gl.shaderSource(vertexShader, `#version 300 es
+      in vec2 position;
+      void main() {
+        gl_Position = vec4(position, 0.0, 1.0);
+      }
+    `);
+    gl.compileShader(vertexShader);
+
+    const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+    gl.shaderSource(fragmentShader, `#version 300 es\n` + infiniteCorridorFragShader);
+    gl.compileShader(fragmentShader);
+
+    if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+      console.error('Unified Shader compilation error:', gl.getShaderInfoLog(fragmentShader));
+      return;
+    }
+
+    const program = gl.createProgram()!;
+    gl.attachShader(program, vertexShader);
+    gl.attachShader(program, fragmentShader);
+    gl.linkProgram(program);
+    gl.useProgram(program);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 3, -1, -1, 3]), gl.STATIC_DRAW);
+
+    const posAttr = gl.getAttribLocation(program, "position");
+    gl.enableVertexAttribArray(posAttr);
+    gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+    const uniforms = {
+      uTime: gl.getUniformLocation(program, 'uTime'),
+      uResolution: gl.getUniformLocation(program, 'uResolution'),
+      uHue: gl.getUniformLocation(program, 'uHue'),
+      uSaturation: gl.getUniformLocation(program, 'uSaturation'),
+      uFloorY: gl.getUniformLocation(program, 'uFloorY'),
+      uApexY: gl.getUniformLocation(program, 'uApexY'),
+      uHalfWidth: gl.getUniformLocation(program, 'uHalfWidth'),
+      uFocalLength: gl.getUniformLocation(program, 'uFocalLength'),
+      uFogDensity: gl.getUniformLocation(program, 'uFogDensity'),
+      uFractalTimeScale: gl.getUniformLocation(program, 'uFractalTimeScale'),
+      uTrailTimeScale: gl.getUniformLocation(program, 'uTrailTimeScale'),
+      uFractalScale: gl.getUniformLocation(program, 'uFractalScale'),
+      uFractalScroll: gl.getUniformLocation(program, 'uFractalScroll'),
+      uFractalLevels: gl.getUniformLocation(program, 'uFractalLevels'),
+      uLineWidthNear: gl.getUniformLocation(program, 'uLineWidthNear'),
+      uLineWidthFar: gl.getUniformLocation(program, 'uLineWidthFar'),
+      uLineSoftness: gl.getUniformLocation(program, 'uLineSoftness'),
+      uCameraSpeed: gl.getUniformLocation(program, 'uCameraSpeed'),
+      uCameraPosition: gl.getUniformLocation(program, 'uCameraPosition'),
+      uCameraSway: gl.getUniformLocation(program, 'uCameraSway'),
+      uSeamStrength: gl.getUniformLocation(program, 'uSeamStrength'),
+      uLightColor: gl.getUniformLocation(program, 'uLightColor'),
+      uGlowColor: gl.getUniformLocation(program, 'uGlowColor'),
+      uSubstrateColor: gl.getUniformLocation(program, 'uSubstrateColor'),
+      uBackgroundColor: gl.getUniformLocation(program, 'uBackgroundColor'),
+      uTrailBrightness: gl.getUniformLocation(program, 'uTrailBrightness'),
+      uKaleidoscopeSpeed: gl.getUniformLocation(program, 'uKaleidoscopeSpeed'),
+      uFateSpeed: gl.getUniformLocation(program, 'uFateSpeed'),
+      uMirrors: gl.getUniformLocation(program, 'uMirrors'),
+      uNoiseStrength: gl.getUniformLocation(program, 'uNoiseStrength'),
+      uDistortionStrength: gl.getUniformLocation(program, 'uDistortionStrength'),
+      uUseFilter: gl.getUniformLocation(program, 'u_useFilter'),
+      uFilterColor: gl.getUniformLocation(program, 'u_filterColor'),
+    };
+
+    let startTime = Date.now();
+    let animationFrameId: number;
+
+    const render = (time: number) => {
+      const rect = canvas.getBoundingClientRect();
+      if (canvas.width !== rect.width || canvas.height !== rect.height) {
+        canvas.width = rect.width;
+        canvas.height = rect.height;
+      }
+      gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+
+      gl.uniform1f(uniforms.uTime, time);
+      gl.uniform2f(uniforms.uResolution, gl.canvas.width, gl.canvas.height);
+      gl.uniform1f(uniforms.uHue, config.hue ?? 0.0);
+      gl.uniform1f(uniforms.uSaturation, config.saturation ?? 1.0);
+      gl.uniform1f(uniforms.uFloorY, config.floorY ?? -1.22);
+      gl.uniform1f(uniforms.uApexY, config.apexY ?? 1.65);
+      gl.uniform1f(uniforms.uHalfWidth, config.halfWidth ?? 1.19);
+      gl.uniform1f(uniforms.uFocalLength, config.focalLength ?? 1.1);
+      gl.uniform1f(uniforms.uFogDensity, config.fogDensity ?? 0.089);
+      gl.uniform1f(uniforms.uFractalTimeScale, config.fractalTimeScale ?? 1.0);
+      gl.uniform1f(uniforms.uTrailTimeScale, config.trailTimeScale ?? 0.92);
+      gl.uniform2f(uniforms.uFractalScale, config.fractalScaleX ?? 0.54, config.fractalScaleY ?? 0.30);
+      gl.uniform1f(uniforms.uFractalScroll, config.fractalScroll ?? 0.26);
+      gl.uniform1f(uniforms.uFractalLevels, config.fractalLevels ?? 6.0);
+      gl.uniform1f(uniforms.uLineWidthNear, config.lineWidthNear ?? -0.009);
+      gl.uniform1f(uniforms.uLineWidthFar, config.lineWidthFar ?? 0.038);
+      gl.uniform1f(uniforms.uLineSoftness, config.lineSoftness ?? 0.010);
+      gl.uniform1f(uniforms.uCameraSpeed, config.cameraSpeed ?? 1.10);
+      gl.uniform3f(uniforms.uCameraPosition, config.cameraX ?? 0.0, config.cameraY ?? -0.97, config.cameraZ ?? 0.0);
+      gl.uniform2f(uniforms.uCameraSway, config.cameraSwayX ?? 0.045, config.cameraSwayY ?? 0.000);
+      gl.uniform1f(uniforms.uSeamStrength, config.seamStrength ?? 2.64);
+      gl.uniform1f(uniforms.uTrailBrightness, config.trailBrightness ?? 0.19);
+      gl.uniform1f(uniforms.uKaleidoscopeSpeed, config.kaleidoscopeSpeed ?? 0.50);
+      gl.uniform1f(uniforms.uFateSpeed, config.fateSpeed ?? 0.80);
+      gl.uniform1f(uniforms.uMirrors, config.mirrors ?? 0.0);
+      gl.uniform1f(uniforms.uNoiseStrength, config.noiseStrength ?? 0.25);
+      gl.uniform1f(uniforms.uDistortionStrength, config.distortionStrength ?? 0.35);
+      gl.uniform1i(uniforms.uUseFilter, config.useFilter ? 1 : 0);
+
+      const filterRgb = hexToRgbaVec(config.filterColor || "#ffffff");
+      gl.uniform3f(uniforms.uFilterColor, filterRgb[0], filterRgb[1], filterRgb[2]);
+
+      const lightRgba = hexToRgbaVec(config.lightColor || "#ffffff");
+      const glowRgba = hexToRgbaVec(config.glowColor || "#ffffff");
+      const substrateRgba = hexToRgbaVec(config.substrateColor || "#ffffff");
+      const backgroundRgba = hexToRgbaVec(config.backgroundColor || "#000000");
+
+      gl.uniform4f(uniforms.uLightColor, lightRgba[0], lightRgba[1], lightRgba[2], lightRgba[3]);
+      gl.uniform4f(uniforms.uGlowColor, glowRgba[0], glowRgba[1], glowRgba[2], glowRgba[3]);
+      gl.uniform4f(uniforms.uSubstrateColor, substrateRgba[0], substrateRgba[1], substrateRgba[2], substrateRgba[3]);
+      gl.uniform4f(uniforms.uBackgroundColor, backgroundRgba[0], backgroundRgba[1], backgroundRgba[2], backgroundRgba[3]);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+
+    const renderLoop = () => {
+      const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+      render(time);
+      if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+    };
+
+    renderLoop();
+    return () => cancelAnimationFrame(animationFrameId);
+  }, [configString, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+function hexToRgbaVec(hex: string): [number, number, number, number] {
+  let c = hex.substring(1);
+  if(c.length === 3) c = c.split('').map(x => x + x).join('');
+  const num = parseInt(c, 16);
+  return [
+    ((num >> 16) & 255) / 255, 
+    ((num >> 8) & 255) / 255, 
+    (num & 255) / 255, 
+    c.length === 8 ? ((num >> 24) & 255) / 255 : 1.0
+  ];
+}
 function ShaderWrapper({ config, globalConfig, children }: { config: ShaderSetting, globalConfig: GradientConfig, children: React.ReactNode}) {
     const { transform } = config;
     const style: React.CSSProperties = {
@@ -6473,6 +7070,11 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.fractalVortex?.enabled && (
           <ShaderWrapper config={shaders.fractalVortex} globalConfig={config}>
             <FractalVortexShader config={shaders.fractalVortex} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.infiniteCorridor?.enabled && (
+          <ShaderWrapper config={shaders.infiniteCorridor} globalConfig={config}>
+            <InfiniteCorridorShader config={shaders.infiniteCorridor} globalConfig={config} />
           </ShaderWrapper>
         )}
       </div>
