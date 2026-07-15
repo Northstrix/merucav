@@ -102,6 +102,10 @@ Provide the AI of your choice with the [Adding-new-shaders.md](https://github.co
 
 [Inside UFO Spaceship](https://codepen.io/sabosugi/pen/XJpqjpo) by [Sabo Sugi](https://codepen.io/sabosugi)
 
+[Fork B of - A space flower](https://www.shadertoy.com/view/tfBXzD) by [bennoH](https://www.shadertoy.com/user/bennoH)
+
+[Golden Electric Spiral](https://www.shadertoy.com/view/csj3zt) by [SnoopethDuckDuck](https://www.shadertoy.com/user/SnoopethDuckDuck)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)
