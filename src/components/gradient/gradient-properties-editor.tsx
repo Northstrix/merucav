@@ -78,6 +78,8 @@ export function GradientPropertiesEditor({
     spiralTunnel,
     fractalVortex,
     infiniteCorridor,
+    spaceFlower,
+    electricSpiral,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -4455,6 +4457,334 @@ export function GradientPropertiesEditor({
             <div className="flex flex-col gap-1 my-2">
               <span className="text-sm font-medium">{t("filterColor")}</span>
               <ColorPicker value={infiniteCorridor.filterColor} onValueChange={(c) => updateShaderConfig("infiniteCorridor", "filterColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+          </>
+        )}
+        {renderShaderControls(
+          "spaceFlower",
+          spaceFlower,
+          <>
+            <ControlSlider
+              label={t("speed")}
+              value={spaceFlower.speed}
+              min={0}
+              max={50}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "speed", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-speed"
+              value={spaceFlower.speed}
+              min={0}
+              max={6}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "speed", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("hue")}
+              value={spaceFlower.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "hue", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-hue"
+              value={spaceFlower.hue}
+              min={0}
+              max={360}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "hue", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("saturation")}
+              value={spaceFlower.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "saturation", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-saturation"
+              value={spaceFlower.saturation}
+              min={0}
+              max={2}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "saturation", v)}
+              isRTL={isRTL}
+            />
+
+            <CustomCheckbox
+              id="spaceFlower-symmetry"
+              direction={isRTL ? "rtl" : "ltr"}
+              checked={spaceFlower.symmetry === 1}
+              onChange={(checked) =>
+                updateShaderConfig("spaceFlower", "symmetry", checked ? 1 : 0)
+              }
+              label={t("symmetry")}
+            />
+            
+            <ControlSlider
+              label={t("bandCount")}
+              value={spaceFlower.bandCount}
+              min={1}
+              max={64}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "bandCount", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-bandCount"
+              value={spaceFlower.bandCount}
+              min={1}
+              max={64}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "bandCount", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("twist")}
+              value={spaceFlower.twist}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "twist", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-twist"
+              value={spaceFlower.twist}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "twist", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("center")}
+              value={spaceFlower.center}
+              min={0}
+              max={3}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "center", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-center"
+              value={spaceFlower.center}
+              min={0}
+              max={3}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "center", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("proportion")}
+              value={spaceFlower.proportion}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "proportion", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-proportion"
+              value={spaceFlower.proportion}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "proportion", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("softness")}
+              value={spaceFlower.softness}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "softness", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-softness"
+              value={spaceFlower.softness}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "softness", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("noise")}
+              value={spaceFlower.noise}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "noise", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-noise"
+              value={spaceFlower.noise}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "noise", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("noiseFrequency")}
+              value={spaceFlower.noiseFrequency}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "noiseFrequency", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-noiseFrequency"
+              value={spaceFlower.noiseFrequency}
+              min={0}
+              max={1}
+              step={0.01}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "noiseFrequency", v)}
+              isRTL={isRTL}
+            />
+
+            <ControlSlider
+              label={t("colorCount")}
+              value={spaceFlower.colorCount}
+              min={1}
+              max={10}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "colorCount", v)}
+              isRTL={isRTL}
+            />
+            <CustomSlider
+              id="spaceFlower-colorCount"
+              value={spaceFlower.colorCount}
+              min={1}
+              max={10}
+              step={1}
+              onValueChange={(v) => updateShaderConfig("spaceFlower", "colorCount", v)}
+              isRTL={isRTL}
+            />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("backgroundColor")}</span>
+              <ColorPicker
+                value={spaceFlower.colorBack}
+                onValueChange={(c) => {
+                  updateShaderConfig("spaceFlower", "colorBack", hsvaToHex(c));
+                }}
+                hideAlpha
+                hideContrastRatio
+              />
+            </div>
+
+            {spaceFlower.colors.slice(0, spaceFlower.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">
+                  {t("color")} {index + 1}
+                </span>
+                <ColorPicker
+                  value={color}
+                  onValueChange={(c) => {
+                    const updatedColors = [...spaceFlower.colors];
+                    updatedColors[index] = hsvaToHex(c);
+                    updateShaderConfig("spaceFlower", "colors", updatedColors);
+                  }}
+                  hideAlpha
+                  hideContrastRatio
+                />
+              </div>
+            ))}
+          </>
+        )}
+        {renderShaderControls(
+          "electricSpiral",
+          electricSpiral,
+          <>
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={electricSpiral.speed} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("electricSpiral", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-speed" value={electricSpiral.speed} min={0} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("electricSpiral", "speed", v)} isRTL={isRTL} />
+
+            {/* HUE */}
+            <ControlSlider label={t("hue")} value={electricSpiral.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("electricSpiral", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-hue" value={electricSpiral.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("electricSpiral", "hue", v)} isRTL={isRTL} />
+
+            {/* SATURATION */}
+            <ControlSlider label={t("saturation")} value={electricSpiral.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("electricSpiral", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-saturation" value={electricSpiral.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("electricSpiral", "saturation", v)} isRTL={isRTL} />
+
+            {/* GRID SCALE */}
+            <ControlSlider label={t("gridScale")} value={electricSpiral.gridScale} min={1} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("electricSpiral", "gridScale", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-gridScale" value={electricSpiral.gridScale} min={1} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("electricSpiral", "gridScale", v)} isRTL={isRTL} />
+
+            {/* GRID SOFTNESS */}
+            <ControlSlider label={t("gridSoftness")} value={electricSpiral.gridSoftness} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("electricSpiral", "gridSoftness", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-gridSoftness" value={electricSpiral.gridSoftness} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("electricSpiral", "gridSoftness", v)} isRTL={isRTL} />
+
+            {/* SPIRAL FREQUENCY */}
+            <ControlSlider label={t("spiralFrequency")} value={electricSpiral.spiralFrequency} min={1} max={30} step={0.1} onValueChange={(v) => updateShaderConfig("electricSpiral", "spiralFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-spiralFrequency" value={electricSpiral.spiralFrequency} min={1} max={30} step={0.1} onValueChange={(v) => updateShaderConfig("electricSpiral", "spiralFrequency", v)} isRTL={isRTL} />
+
+            {/* SPIRAL TIGHTNESS */}
+            <ControlSlider label={t("spiralTightness")} value={electricSpiral.spiralTightness} min={1} max={25} step={0.1} onValueChange={(v) => updateShaderConfig("electricSpiral", "spiralTightness", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-spiralTightness" value={electricSpiral.spiralTightness} min={1} max={25} step={0.1} onValueChange={(v) => updateShaderConfig("electricSpiral", "spiralTightness", v)} isRTL={isRTL} />
+
+            {/* GLOW INTENSITY */}
+            <ControlSlider label={t("glowIntensity")} value={electricSpiral.glowIntensity} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("electricSpiral", "glowIntensity", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-glowIntensity" value={electricSpiral.glowIntensity} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("electricSpiral", "glowIntensity", v)} isRTL={isRTL} />
+
+            {/* CORE BRIGHTNESS */}
+            <ControlSlider label={t("coreBrightness")} value={electricSpiral.coreBrightness} min={-10} max={-0.5} step={0.05} onValueChange={(v) => updateShaderConfig("electricSpiral", "coreBrightness", v)} isRTL={isRTL} />
+            <CustomSlider id="electricSpiral-coreBrightness" value={electricSpiral.coreBrightness} min={-10} max={-0.5} step={0.05} onValueChange={(v) => updateShaderConfig("electricSpiral", "coreBrightness", v)} isRTL={isRTL} />
+
+            {/* COLOR PICKER: GRID BACKGROUND */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("gridColor")}</span>
+              <ColorPicker
+                value={electricSpiral.colorGrid}
+                onValueChange={(c) => updateShaderConfig("electricSpiral", "colorGrid", hsvaToHex(c))}
+                hideAlpha
+                hideContrastRatio
+              />
+            </div>
+
+            {/* COLOR PICKER: CORE GLOW */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("glowColor")}</span>
+              <ColorPicker
+                value={electricSpiral.colorGlow}
+                onValueChange={(c) => updateShaderConfig("electricSpiral", "colorGlow", hsvaToHex(c))}
+                hideAlpha
+                hideContrastRatio
+              />
+            </div>
+
+            {/* COLOR PICKER: ELECTRIC ARCS */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("spiralColor")}</span>
+              <ColorPicker
+                value={electricSpiral.colorSpiral}
+                onValueChange={(c) => updateShaderConfig("electricSpiral", "colorSpiral", hsvaToHex(c))}
+                hideAlpha
+                hideContrastRatio
+              />
             </div>
           </>
         )}

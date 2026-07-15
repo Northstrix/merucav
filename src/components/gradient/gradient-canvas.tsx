@@ -486,6 +486,36 @@ export interface GradientConfig {
       useFilter: boolean;
       filterColor: string;
     };
+    spaceFlower: ShaderSetting & {
+      speed: number;
+      colorBack: string;
+      colors: string[];
+      colorCount: number;
+      bandCount: number;
+      twist: number;
+      center: number;
+      proportion: number;
+      softness: number;
+      noise: number;
+      noiseFrequency: number;
+      hue: number;
+      saturation: number;
+      symmetry: number;
+    };
+    electricSpiral: ShaderSetting & {
+      speed: number;
+      gridScale: number;
+      gridSoftness: number;
+      spiralFrequency: number;
+      spiralTightness: number;
+      glowIntensity: number;
+      coreBrightness: number;
+      colorGrid: string;
+      colorGlow: string;
+      colorSpiral: string;
+      hue: number;
+      saturation: number;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -931,6 +961,53 @@ export function getDefaultGradientConfig(): GradientConfig {
           distortionStrength: 0.35,
           useFilter: true,
           filterColor: "#ffffff",
+        },
+        spaceFlower: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          speed: 1.0,
+          colorBack: "#000000",
+          colors: [
+            "#5100ff",
+            "#00ff80",
+            "#ffcc00",
+            "#ea00ff",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+          ],
+          colorCount: 4,
+          bandCount: 5.0,
+          twist: 0.67,
+          center: 0.15,
+          proportion: 0.67,
+          softness: 0.5,
+          noise: 0,
+          noiseFrequency: 0,
+          hue: 0,
+          saturation: 1,
+          symmetry: 1.0,
+        },
+        electricSpiral: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          speed: 1.0,
+          gridScale: 4.0,          // 4. * uv2
+          gridSoftness: 5.0,       // 5. / iResolution.y
+          spiralFrequency: 10.0,   // 10. * length(uv2)
+          spiralTightness: 9.0,    // 9. * a
+          glowIntensity: 1.0,      // Hyper-customizable multiplier for global glow
+          coreBrightness: -2.5,    // -2.5 inside cosh
+          colorGrid: "#ff801a",    // vec3(s, 0.5 * s, 0.1 - 0.1 * s) equivalent base tint
+          colorGlow: "#ff801a",    // vec3(1.0, 0.5, 0.1) core glow
+          colorSpiral: "#80ffff",  // vec3(0.5, 1.0, 1.0) lightning arcs
+          hue: 0,
+          saturation: 1.0,
         },
     },
     grainAmount: 0,
@@ -6870,6 +6947,626 @@ function InfiniteCorridorShader({ config, globalConfig }: { config: any; globalC
   return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
 
+const spaceFlowerVertShader = `#version 300 es
+in vec2 a_position;
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+
+const spaceFlowerFragShader = `#version 300 es
+precision highp float;
+
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uSpeed;
+uniform vec4 uColorBack;
+uniform vec4 uColors[10];
+uniform float uColorCount;
+uniform float uBandCount;
+uniform float uTwist;
+uniform float uCenter;
+uniform float uProportion;
+uniform float uSoftness;
+uniform float uNoise;
+uniform float uNoiseFrequency;
+uniform float uHue;
+uniform float uSaturation;
+uniform float uOpacity;
+uniform float uSymmetry; // 0.0 = Original, 1.0 = Mirrored (Symmetry 1)
+
+out vec4 fragColor;
+
+#define PI         3.14159265359
+#define TAU        6.28318530718
+#define ROT(a)     mat2(cos(a), sin(a), -sin(a), cos(a))
+#define REV(x)     exp2((x)*zoom)
+#define FWD(x)     (log2(max(1e-5, x))/zoom)
+
+const float zoom = 1.925999; // log2(3.8)
+
+// --- Simplex Noise Helper Functions ---
+vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
+float snoise(vec2 v) {
+    const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+    vec2 i  = floor(v + dot(v, C.yy));
+    vec2 x0 = v - i + dot(i, C.xx);
+    vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+    vec4 x12 = x0.xyxy + C.xxzz;
+    x12.xy -= i1;
+    i = mod(i, 289.0);
+    vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+    vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+    m = m * m;
+    m = m * m;
+    vec3 x = 2.0 * fract(p * C.www) - 1.0;
+    vec3 h = abs(x) - 0.5;
+    vec3 ox = floor(x + 0.5);
+    vec3 a0 = x - ox;
+    m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+    vec3 g;
+    g.x  = a0.x * x0.x  + h.x * x0.y;
+    g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+    return 130.0 * dot(m, g);
+}
+
+float hash(vec2 co) {
+    return fract(sin(dot(co.xy, vec2(12.9898, 58.233))) * 13758.5453);
+}
+
+vec2 toPolar(vec2 p) {
+    return vec2(length(p), atan(p.y, p.x));
+}
+
+vec2 toRect(vec2 p) {
+    return vec2(p.x * cos(p.y), p.x * sin(p.y));
+}
+
+float pmin(float a, float b, float k) {
+    float h = clamp(0.5 + 0.5 * (b - a) / max(1e-4, k), 0.0, 1.0);
+    return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+float pabs(float a, float k) {
+    return -pmin(a, -a, k);
+}
+
+float modMirror1(inout float p, float size) {
+    float halfsize = size * 1.2;
+    float c = floor((p + halfsize) / size);
+    p = mod(p + halfsize, size) - halfsize;
+    p *= mod(c, 2.0) * 4.4 - 1.0;
+    return c;
+}
+
+// Improved Kaleidoscope with configurable mirror-reflection symmetry 
+float smoothKaleidoscope(inout vec2 p, float sm, float rep, float symmetry) {
+    vec2 hp = p;
+    vec2 hpp = toPolar(hp);
+    
+    if (symmetry > 0.5) {
+        // --- Mirror-Symmetric Mapping (Symmetry 1) ---
+        float sliceWidth = TAU / max(1.0, rep);
+        // Shift to align slice with Y axis
+        float angle = hpp.y + PI; 
+        float cell = floor(angle / sliceWidth);
+        float localAngle = mod(angle, sliceWidth);
+        // Mirror the second half of the slice along its center line
+        if (localAngle > sliceWidth * 0.5) {
+            localAngle = sliceWidth - localAngle;
+        }
+        hpp.y = localAngle - PI; 
+        hp = toRect(hpp);
+        p = hp;
+        return cell;
+    } else {
+        // --- Smooth Swirling Spiral (Original Symmetry) ---
+        float rn = modMirror1(hpp.y, TAU / max(1.0, rep));
+        float sa = PI / rep - pabs(PI / rep - abs(hpp.y), sm);
+        hpp.y = sign(hpp.y) * sa;
+        hp = toRect(hpp);
+        p = hp;
+        return rn;
+    }
+}
+
+float segment(vec2 p, vec2 a, vec2 b) {
+    vec2 pa = p - a, ba = b - a;
+    float h = clamp(dot(pa, ba) / max(1e-5, dot(ba, ba)), 0.20, 1.0);
+    return length(pa - ba * h);
+}
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+vec3 effect(vec2 p, vec2 pp) {
+    float tm = uTime * uSpeed;
+    float mtm = fract(tm);
+    float ftm = floor(tm);
+
+    float noiseFreq = 8.0 * pow(uNoiseFrequency, 2.0);
+    vec2 noiseOffset = vec2(
+        snoise(p * noiseFreq + tm * 0.5),
+        snoise(p * noiseFreq - tm * 0.5 + 50.0)
+    ) * uNoise * 0.15;
+    p += noiseOffset;
+
+    float l = length(p);
+    l = max(1e-4, l);
+    float spiralTwist = 3.0 * clamp(uTwist, 0.0, 1.0);
+    float spiralAngle = pow(l, -spiralTwist * 0.25) * 0.5;
+    p *= ROT(spiralAngle);
+
+    mat2 rot = ROT((1.067 * mix(0.2, 2.0, uTwist)) * tm);
+    float rep = max(2.0, floor(uBandCount));
+    float sm  = (0.1 * 36.0 / rep) * max(0.01, uSoftness);
+    p *= transpose(rot);
+    
+    // Pass symmetry uniform to our helper function
+    float nn = smoothKaleidoscope(p, sm, rep, uSymmetry);
+    
+    p *= rot;
+
+    p *= ROT((-0.5 * mix(0.1, 3.0, uProportion)) * length(p));
+    p += 0.5 * cos(vec2(1.0, sqrt(0.5)) * tm * (0.18 * mix(0.5, 2.0, uNoiseFrequency)));
+
+    float zz = REV(mtm);
+    vec2 p2 = p / zz;
+    vec2 s2 = sign(p2);
+    p2 = abs(p2);
+    vec2 fp2 = vec2(FWD(p2.x), FWD(p2.y));
+    vec2 n = floor(fp2);
+    float h = hash(s2.x + s2.y + n - ftm);
+    vec2 x0 = vec2(REV(n.x), REV(n.y));
+    vec2 x1 = vec2(REV(n.x + 1.0), REV(n.y + 1.0));
+    vec2 m = (x0 + x1) * 0.5;
+    vec2 w = x1 - x0;
+    vec2 modi = h > 0.5 ? vec2(1.0, 1.0) : vec2(1.0, -1.0);
+    vec2 p4 = p2 - m;
+    float d4 = segment(p4, -0.30 * w * modi, 0.5 * w * modi);
+    d4 *= zz;
+    float d6 = min(abs(p.x), abs(p.y));
+
+    vec3 col = uColorBack.rgb * uColorBack.a;
+    float fo = 1.0 - exp(-10.0 * (d6 - (0.02 + uCenter * 0.05)));
+    float ll = length(pp);
+
+    vec4 c1 = uColors[int(mod(h * uColorCount, uColorCount))];
+    vec4 c2 = uColors[int(mod((h + 0.1) * uColorCount, uColorCount))];
+    vec3 paletteGlow = mix(c1.rgb, c2.rgb, 0.5 + 0.5 * cos(tm));
+    vec3 gcol4 = 0.0025 * (1.0 + cos(vec3(0.0, 1.0, 2.0) + tm + TAU * h + ll)) * paletteGlow * 40.0;
+    vec3 gcol6 = 0.005 * (1.0 + cos(vec3(0.0, 1.0, 2.0) + tm + ll)) * paletteGlow * 20.0;
+
+    col += (fo * gcol4 / max(d4, 0.001)) * mix(0.5, 3.0, uNoise);
+    col = clamp(col, 0.0, 1.0);
+    col += gcol6 / max(d6, 0.0001);
+    col = clamp(col, 0.0, 1.0);
+    col -= 0.01 * vec3(0.0, 1.0, 2.0).zyx * (ll);
+    col = max(vec3(0.0), col);
+    col = sqrt(col);
+    return col;
+}
+
+void main() {
+    vec2 q = gl_FragCoord.xy / uResolution.xy;
+    vec2 p = -1.0 + 2.0 * q;
+    vec2 pp = p;
+    p.x *= uResolution.x / uResolution.y;
+    vec3 col = effect(p, pp);
+
+    vec3 hsv = rgb2hsv(col);
+    hsv.x += uHue / 360.0;
+    hsv.y *= uSaturation;
+    col = hsv2rgb(hsv);
+    fragColor = vec4(col, uOpacity);
+}
+`;
+
+function SpaceFlowerShader({
+  config,
+  globalConfig,
+}: {
+  config: GradientConfig["shaders"]["spaceFlower"];
+  globalConfig: GradientConfig;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const configString = useMemo(() => JSON.stringify(config), [config]);
+
+  const hexToRgbaVec = (hex: string): [number, number, number, number] => {
+    const cleaned = hex.replace("#", "");
+    const r = parseInt(cleaned.substring(0, 2), 16) / 255 || 0;
+    const g = parseInt(cleaned.substring(2, 4), 16) / 255 || 0;
+    const b = parseInt(cleaned.substring(4, 6), 16) / 255 || 0;
+    const a = cleaned.length === 8 ? parseInt(cleaned.substring(6, 8), 16) / 255 : 1.0;
+    return [r, g, b, a];
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
+    if (!gl) {
+      console.error("WebGL2 environment not available for SpaceFlower");
+      return;
+    }
+
+    const createShader = (type: number, source: string) => {
+      const shader = gl.createShader(type)!;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        const info = gl.getShaderInfoLog(shader);
+        gl.deleteShader(shader);
+        throw new Error(`Shader compile failed: ${info}`);
+      }
+      return shader;
+    };
+
+    const program = gl.createProgram()!;
+    const vs = createShader(gl.VERTEX_SHADER, spaceFlowerVertShader);
+    const fs = createShader(gl.FRAGMENT_SHADER, spaceFlowerFragShader);
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      throw new Error(gl.getProgramInfoLog(program) || "Linking Error");
+    }
+
+    gl.useProgram(program);
+
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+    const posAttr = gl.getAttribLocation(program, "a_position");
+    if (posAttr >= 0) {
+      gl.enableVertexAttribArray(posAttr);
+      gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+    }
+
+    const uniforms = {
+      uTime: gl.getUniformLocation(program, "uTime"),
+      uResolution: gl.getUniformLocation(program, "uResolution"),
+      uSpeed: gl.getUniformLocation(program, "uSpeed"),
+      uColorBack: gl.getUniformLocation(program, "uColorBack"),
+      uColorCount: gl.getUniformLocation(program, "uColorCount"),
+      uBandCount: gl.getUniformLocation(program, "uBandCount"),
+      uTwist: gl.getUniformLocation(program, "uTwist"),
+      uCenter: gl.getUniformLocation(program, "uCenter"),
+      uProportion: gl.getUniformLocation(program, "uProportion"),
+      uSoftness: gl.getUniformLocation(program, "uSoftness"),
+      uNoise: gl.getUniformLocation(program, "uNoise"),
+      uNoiseFrequency: gl.getUniformLocation(program, "uNoiseFrequency"),
+      uHue: gl.getUniformLocation(program, "uHue"),
+      uSaturation: gl.getUniformLocation(program, "uSaturation"),
+      uOpacity: gl.getUniformLocation(program, "uOpacity"),
+      uSymmetry: gl.getUniformLocation(program, "uSymmetry"),
+    };
+
+    let raf = 0;
+    const startTime = performance.now();
+
+    const render = (time: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(1, Math.floor(rect.width * dpr));
+      const height = Math.max(1, Math.floor(rect.height * dpr));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      gl.viewport(0, 0, width, height);
+      gl.useProgram(program);
+
+      gl.uniform1f(uniforms.uTime, time);
+      gl.uniform2f(uniforms.uResolution, width, height);
+      gl.uniform1f(uniforms.uSpeed, config.speed ?? 1.0);
+
+      const bg = hexToRgbaVec(config.colorBack ?? "#000000");
+      gl.uniform4f(uniforms.uColorBack, bg[0], bg[1], bg[2], bg[3]);
+
+      gl.uniform1f(uniforms.uColorCount, config.colorCount ?? 4.0);
+      gl.uniform1f(uniforms.uBandCount, config.bandCount ?? 10.0);
+      gl.uniform1f(uniforms.uTwist, config.twist ?? 0.5);
+      gl.uniform1f(uniforms.uCenter, config.center ?? 0.15);
+      gl.uniform1f(uniforms.uProportion, config.proportion ?? 0.5);
+      gl.uniform1f(uniforms.uSoftness, config.softness ?? 0.5);
+      gl.uniform1f(uniforms.uNoise, config.noise ?? 0.2);
+      gl.uniform1f(uniforms.uNoiseFrequency, config.noiseFrequency ?? 0.4);
+      gl.uniform1f(uniforms.uHue, config.hue ?? 0.0);
+      gl.uniform1f(uniforms.uSaturation, config.saturation ?? 1.0);
+      gl.uniform1f(uniforms.uOpacity, config.opacity ?? 1.0);
+      gl.uniform1f(uniforms.uSymmetry, config.symmetry ?? 1.0); // Bind active symmetry mode
+
+      for (let i = 0; i < 10; i++) {
+        const rgba = hexToRgbaVec(config.colors?.[i] ?? "#000000");
+        const loc = gl.getUniformLocation(program, `uColors[${i}]`);
+        if (loc) gl.uniform4f(loc, rgba[0], rgba[1], rgba[2], rgba[3]);
+      }
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+
+    const renderLoop = () => {
+      const time = globalConfig.paused
+        ? (globalConfig.motion / 100) * 10
+        : (performance.now() - startTime) * 0.001;
+      render(time);
+      if (!globalConfig.paused) {
+        raf = requestAnimationFrame(renderLoop);
+      }
+    };
+
+    renderLoop();
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      gl.deleteBuffer(positionBuffer);
+      gl.deleteVertexArray(vao);
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      gl.deleteProgram(program);
+    };
+  }, [configString, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+const electricSpiralVertShader = `#version 300 es
+in vec2 a_position;
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+
+const electricSpiralFragShader = `#version 300 es
+precision highp float;
+
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uSpeed;
+uniform float uGridScale;
+uniform float uGridSoftness;
+uniform float uSpiralFrequency;
+uniform float uSpiralTightness;
+uniform float uGlowIntensity;
+uniform float uCoreBrightness;
+uniform vec4 uColorGrid;
+uniform vec4 uColorGlow;
+uniform vec4 uColorSpiral;
+uniform float uHue;
+uniform float uSaturation;
+
+out vec4 fragColor;
+
+vec3 rgb2hsv(vec3 c) {
+  vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+  vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+  vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+  float d = q.x - min(q.w, q.y);
+  float e = 1.0e-10;
+  return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+// Hyperbolic cosine helper since it's built-in only in certain GLSL implementations
+float cosh_safe(float val) {
+  return (exp(val) + exp(-val)) * 0.5;
+}
+
+void main() {
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float t = uTime * uSpeed;
+  
+  float a = atan(uv.y, uv.x);
+  vec2 p = cos(a + t) * vec2(cos(0.5 * t), sin(0.3 * t));
+  
+  float d1 = length(uv - p);
+  float d2 = length(uv);
+  
+  vec2 uv2 = 2. * cos(log(max(1e-5, length(uv))) * 0.25 - 0.5 * t + log(max(vec2(1e-5), vec2(d1, d2)) / max(1e-5, d1 + d2)));
+  
+  vec2 fpos = fract(uGridScale * uv2) - 0.5;
+  float d = max(abs(fpos.x), abs(fpos.y));
+  
+  float k = uGridSoftness / uResolution.y;
+  float s = smoothstep(-k, k, 0.25 - d);
+  
+  // Custom baseline Grid Color distribution
+  vec3 col = s * uColorGrid.rgb;
+  
+  // Custom Core Glow mapping using cosh
+  float coreDist = uCoreBrightness * (length(uv - p) + length(uv));
+  col += (1.0 / cosh_safe(coreDist)) * uColorGlow.rgb * uGlowIntensity;
+  
+  // Electric Spiral Arcs
+  float c = cos(uSpiralFrequency * length(uv2) + 4. * t);
+  float arcWave = exp(-9. * abs(cos(uSpiralTightness * a + t) * uv.x + sin(uSpiralTightness * a + t) * uv.y + 0.1 * c));
+  
+  col += (0.5 + 0.5 * c) * uColorSpiral.rgb * arcWave * uGlowIntensity;
+  
+  // Applying Master Hue and Saturation corrections
+  vec3 hsv = rgb2hsv(max(col, vec3(0.0)));
+  hsv.x += uHue / 360.0;
+  hsv.y *= uSaturation;
+  col = hsv2rgb(hsv);
+  
+  fragColor = vec4(col, 1.0);
+}`;
+
+export function ElectricSpiralShader({
+  config,
+  globalConfig,
+}: {
+  config: GradientConfig["shaders"]["electricSpiral"];
+  globalConfig: GradientConfig;
+}) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const configString = useMemo(() => JSON.stringify(config), [config]);
+
+  const hexToRgbVec = (hex: string): [number, number, number, number] => {
+    const cleaned = hex.replace("#", "");
+    const r = parseInt(cleaned.substring(0, 2), 16) / 255 || 0;
+    const g = parseInt(cleaned.substring(2, 4), 16) / 255 || 0;
+    const b = parseInt(cleaned.substring(4, 6), 16) / 255 || 0;
+    return [r, g, b, 1.0];
+  };
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const gl = canvas.getContext("webgl2", { preserveDrawingBuffer: true });
+    if (!gl) {
+      console.error("WebGL2 environment not available for ElectricSpiral");
+      return;
+    }
+
+    const createShader = (type: number, source: string) => {
+      const shader = gl.createShader(type)!;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        const info = gl.getShaderInfoLog(shader);
+        gl.deleteShader(shader);
+        throw new Error(`Shader compilation error: ${info}`);
+      }
+      return shader;
+    };
+
+    const program = gl.createProgram()!;
+    const vs = createShader(gl.VERTEX_SHADER, electricSpiralVertShader);
+    const fs = createShader(gl.FRAGMENT_SHADER, electricSpiralFragShader);
+    gl.attachShader(program, vs);
+    gl.attachShader(program, fs);
+    gl.linkProgram(program);
+
+    if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+      throw new Error(gl.getProgramInfoLog(program) || "Linking Error");
+    }
+
+    gl.useProgram(program);
+
+    const vao = gl.createVertexArray();
+    gl.bindVertexArray(vao);
+
+    const positionBuffer = gl.createBuffer();
+    gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+    gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+    const posAttr = gl.getAttribLocation(program, "a_position");
+    if (posAttr >= 0) {
+      gl.enableVertexAttribArray(posAttr);
+      gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+    }
+
+    const uniforms = {
+      uTime: gl.getUniformLocation(program, "uTime"),
+      uResolution: gl.getUniformLocation(program, "uResolution"),
+      uSpeed: gl.getUniformLocation(program, "uSpeed"),
+      uGridScale: gl.getUniformLocation(program, "uGridScale"),
+      uGridSoftness: gl.getUniformLocation(program, "uGridSoftness"),
+      uSpiralFrequency: gl.getUniformLocation(program, "uSpiralFrequency"),
+      uSpiralTightness: gl.getUniformLocation(program, "uSpiralTightness"),
+      uGlowIntensity: gl.getUniformLocation(program, "uGlowIntensity"),
+      uCoreBrightness: gl.getUniformLocation(program, "uCoreBrightness"),
+      uColorGrid: gl.getUniformLocation(program, "uColorGrid"),
+      uColorGlow: gl.getUniformLocation(program, "uColorGlow"),
+      uColorSpiral: gl.getUniformLocation(program, "uColorSpiral"),
+      uHue: gl.getUniformLocation(program, "uHue"),
+      uSaturation: gl.getUniformLocation(program, "uSaturation"),
+    };
+
+    let raf = 0;
+    const startTime = performance.now();
+
+    const render = (time: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+      const width = Math.max(1, Math.floor(rect.width * dpr));
+      const height = Math.max(1, Math.floor(rect.height * dpr));
+
+      if (canvas.width !== width || canvas.height !== height) {
+        canvas.width = width;
+        canvas.height = height;
+      }
+
+      gl.viewport(0, 0, width, height);
+      gl.useProgram(program);
+
+      gl.uniform1f(uniforms.uTime, time);
+      gl.uniform2f(uniforms.uResolution, width, height);
+      gl.uniform1f(uniforms.uSpeed, config.speed ?? 1.0);
+      gl.uniform1f(uniforms.uGridScale, config.gridScale ?? 4.0);
+      gl.uniform1f(uniforms.uGridSoftness, config.gridSoftness ?? 5.0);
+      gl.uniform1f(uniforms.uSpiralFrequency, config.spiralFrequency ?? 10.0);
+      gl.uniform1f(uniforms.uSpiralTightness, config.spiralTightness ?? 9.0);
+      gl.uniform1f(uniforms.uGlowIntensity, config.glowIntensity ?? 1.0);
+      gl.uniform1f(uniforms.uCoreBrightness, config.coreBrightness ?? -2.5);
+
+      const cGrid = hexToRgbVec(config.colorGrid ?? "#ff801a");
+      gl.uniform4f(uniforms.uColorGrid, cGrid[0], cGrid[1], cGrid[2], cGrid[3]);
+
+      const cGlow = hexToRgbVec(config.colorGlow ?? "#ff801a");
+      gl.uniform4f(uniforms.uColorGlow, cGlow[0], cGlow[1], cGlow[2], cGlow[3]);
+
+      const cSpiral = hexToRgbVec(config.colorSpiral ?? "#80ffff");
+      gl.uniform4f(uniforms.uColorSpiral, cSpiral[0], cSpiral[1], cSpiral[2], cSpiral[3]);
+
+      gl.uniform1f(uniforms.uHue, config.hue ?? 0.0);
+      gl.uniform1f(uniforms.uSaturation, config.saturation ?? 1.0);
+
+      gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+    };
+
+    const renderLoop = () => {
+      const time = globalConfig.paused
+        ? (globalConfig.motion / 100) * 10
+        : (performance.now() - startTime) * 0.001;
+      
+      render(time);
+      
+      if (!globalConfig.paused) {
+        raf = requestAnimationFrame(renderLoop);
+      }
+    };
+
+    renderLoop();
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      gl.deleteBuffer(positionBuffer);
+      gl.deleteVertexArray(vao);
+      gl.deleteShader(vs);
+      gl.deleteShader(fs);
+      gl.deleteProgram(program);
+    };
+  }, [configString, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
 function hexToRgbaVec(hex: string): [number, number, number, number] {
   let c = hex.substring(1);
   if(c.length === 3) c = c.split('').map(x => x + x).join('');
@@ -7075,6 +7772,16 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.infiniteCorridor?.enabled && (
           <ShaderWrapper config={shaders.infiniteCorridor} globalConfig={config}>
             <InfiniteCorridorShader config={shaders.infiniteCorridor} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.spaceFlower?.enabled && (
+          <ShaderWrapper config={shaders.spaceFlower} globalConfig={config}>
+            <SpaceFlowerShader config={shaders.spaceFlower} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.electricSpiral?.enabled && (
+          <ShaderWrapper config={shaders.electricSpiral} globalConfig={config}>
+            <ElectricSpiralShader config={shaders.electricSpiral} globalConfig={config} />
           </ShaderWrapper>
         )}
       </div>
