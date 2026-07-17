@@ -106,6 +106,10 @@ Provide the AI of your choice with the [Adding-new-shaders.md](https://github.co
 
 [Golden Electric Spiral](https://www.shadertoy.com/view/csj3zt) by [SnoopethDuckDuck](https://www.shadertoy.com/user/SnoopethDuckDuck)
 
+[yee1212](https://www.shadertoy.com/view/sldGRS) by [dspindler](https://www.shadertoy.com/user/dspindler)
+
+[Starry planes](https://www.shadertoy.com/view/MfjyWK) by [mrange](https://www.shadertoy.com/user/mrange)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)

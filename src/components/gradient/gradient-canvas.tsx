@@ -516,6 +516,44 @@ export interface GradientConfig {
       hue: number;
       saturation: number;
     };
+    twistedKaleidoscope: ShaderSetting & {
+      hue: number;
+      saturation: number;
+      speed: number;
+      colorBack: string;
+      colors: string[];
+      colorCount: number;
+      bandCount: number;
+      twist: number;
+      center: number;
+      proportion: number;
+      softness: number;
+      noise: number;
+      noiseFrequency: number;
+      symmetry: number;
+    };
+    trickyShapes: ShaderSetting & {
+      renderScale: number;
+      hue: number;
+      saturation: number;
+      speed: number;
+      colorBack: string;
+      colors: string[];
+      colorCount: number;
+      bandCount: number;
+      twist: number;
+      proportion: number;
+      softness: number;
+      noise: number;
+      distortion: number;
+      symmetry: number;
+      kaleidoscopeEnabled: number;
+      shapeMode: number;
+      darken: number;
+      rayMix: number;
+      rayShape: number;
+      raySpeed: number;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -1008,6 +1046,64 @@ export function getDefaultGradientConfig(): GradientConfig {
           colorSpiral: "#80ffff",  // vec3(0.5, 1.0, 1.0) lightning arcs
           hue: 0,
           saturation: 1.0,
+        },
+        twistedKaleidoscope: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          hue: 0,
+          saturation: 1,
+          speed: 0.9,
+          colorBack: "#07070f",
+          colors: [
+            "#7a00ff",
+            "#00f5ff",
+            "#ff4fd8",
+            "#ffd84d",
+            "#2a1a5e",
+            "#0c1026",
+            "#000000",
+            "#000000",
+            "#000000",
+            "#000000",
+          ],
+          colorCount: 8,
+          bandCount: 7,
+          twist: 0.65,
+          center: 0.25,
+          proportion: 0.55,
+          softness: 0.45,
+          noise: 0.22,
+          noiseFrequency: 0.45,
+          symmetry: 1,
+        },
+        trickyShapes: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          renderScale: 0.4,
+          hue: 0,
+          saturation: 1,
+          speed: 0.9,
+          colorBack: "#07070f",
+          colors: [
+            "#1486ef", "#14efea", "#7d14ef", "#efea14", "#2a1a5e",
+            "#0c1026", "#000000", "#000000", "#000000", "#000000",
+          ],
+          colorCount: 8,
+          bandCount: 7,
+          twist: 0.65,
+          proportion: 0.55,
+          softness: 0.45,
+          noise: 0,
+          distortion: 0,
+          symmetry: 1,
+          kaleidoscopeEnabled: 1,
+          shapeMode: 0, // 0-3 (2D Shapes), 4 (Volumetric Raymarched Shape), 5 (Starry Planes Matrix)
+          darken: 0,
+          rayMix: 0.25,
+          rayShape: 0.65,
+          raySpeed: 1.0,
         },
     },
     grainAmount: 0,
@@ -6436,6 +6532,7 @@ function FractalVortexShader({ config, globalConfig }: { config: any; globalConf
 
   return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
+
 const infiniteCorridorFragShader = `
 precision highp float;
 
@@ -7567,6 +7664,986 @@ export function ElectricSpiralShader({
   return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
 
+const twistedKaleidoscopeVertShader = `#version 300 es
+precision highp float;
+in vec2 a_position;
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`;
+
+const twistedKaleidoscopeFragShader = `#version 300 es
+precision highp float;
+
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uSpeed;
+uniform vec4 uColorBack;
+uniform vec4 uColors[10];
+uniform float uColorCount;
+uniform float uBandCount;
+uniform float uTwist;
+uniform float uCenter;
+uniform float uProportion;
+uniform float uSoftness;
+uniform float uNoise;
+uniform float uNoiseFrequency;
+uniform float uHue;
+uniform float uSaturation;
+uniform float uSymmetry;
+out vec4 fragColor;
+
+#define PI 3.14159265359
+#define TAU 6.28318530718
+#define ROT(a) mat2(cos(a), sin(a), -sin(a), cos(a))
+
+vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
+
+float snoise(vec2 v) {
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+  vec2 i  = floor(v + dot(v, C.yy));
+  vec2 x0 = v - i + dot(i, C.xx);
+  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod(i, 289.0);
+  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+  m = m * m;
+  m = m * m;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+  vec3 g;
+  g.x  = a0.x * x0.x  + h.x * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+float hash(vec2 co) {
+  return fract(sin(dot(co.xy, vec2(12.9898, 58.233))) * 13758.5453);
+}
+
+vec2 toPolar(vec2 p) { return vec2(length(p), atan(p.y, p.x)); }
+vec2 toRect(vec2 p) { return vec2(p.x * cos(p.y), p.x * sin(p.y)); }
+
+float pmin(float a, float b, float k) {
+  float h = clamp(0.5 + 0.5 * (b - a) / max(1e-4, k), 0.0, 1.0);
+  return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+float pabs(float a, float k) { return -pmin(a, -a, k); }
+
+float modMirror1(inout float p, float size) {
+  float halfsize = size * 1.2;
+  float c = floor((p + halfsize) / size);
+  p = mod(p + halfsize, size) - halfsize;
+  p *= mod(c, 2.0) * 4.4 - 1.0;
+  return c;
+}
+
+float smoothKaleidoscope(inout vec2 p, float sm, float rep, float symmetry) {
+  vec2 hp = p;
+  vec2 hpp = toPolar(hp);
+
+  if (symmetry > 0.5) {
+    float sliceWidth = TAU / max(1.0, rep);
+    float angle = hpp.y + PI;
+    float cell = floor(angle / sliceWidth);
+    float localAngle = mod(angle, sliceWidth);
+    if (localAngle > sliceWidth * 0.5) {
+      localAngle = sliceWidth - localAngle;
+    }
+    hpp.y = localAngle - PI;
+    hp = toRect(hpp);
+    p = hp;
+    return cell;
+  } else {
+    float rn = modMirror1(hpp.y, TAU / max(1.0, rep));
+    float sa = PI / rep - pabs(PI / rep - abs(hpp.y), sm);
+    hpp.y = sign(hpp.y) * sa;
+    hp = toRect(hpp);
+    p = hp;
+    return rn;
+  }
+}
+
+float segment(vec2 p, vec2 a, vec2 b) {
+  vec2 pa = p - a, ba = b - a;
+  float h = clamp(dot(pa, ba) / max(1e-5, dot(ba, ba)), 0.20, 1.0);
+  return length(pa - ba * h);
+}
+
+vec3 rgb2hsv(vec3 c) {
+  vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+  vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+  vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+  float d = q.x - min(q.w, q.y);
+  float e = 1.0e-10;
+  return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+void main() {
+  vec2 q = gl_FragCoord.xy / uResolution.xy;
+  vec2 p = -1.0 + 2.0 * q;
+  vec2 pp = p;
+  p.x *= uResolution.x / uResolution.y;
+
+  float tm = uTime * uSpeed;
+  float mtm = fract(tm);
+  float ftm = floor(tm);
+
+  float noiseFreq = 8.0 * pow(uNoiseFrequency, 2.0);
+  vec2 noiseOffset = vec2(
+    snoise(p * noiseFreq + tm * 0.5),
+    snoise(p * noiseFreq - tm * 0.5 + 50.0)
+  ) * uNoise * 0.15;
+  p += noiseOffset;
+
+  float l = max(1e-4, length(p));
+  float spiralTwist = 3.0 * clamp(uTwist, 0.0, 1.0);
+  float spiralAngle = pow(l, -spiralTwist * 0.25) * 0.5;
+  p *= ROT(spiralAngle);
+
+  mat2 rot = ROT((1.067 * mix(0.2, 2.0, uTwist)) * tm);
+  float rep = max(2.0, floor(uBandCount));
+  float sm = (0.1 * 36.0 / rep) * max(0.01, uSoftness);
+
+  p *= transpose(rot);
+  float nn = smoothKaleidoscope(p, sm, rep, uSymmetry);
+  p *= rot;
+
+  p *= ROT((-0.5 * mix(0.1, 3.0, uProportion)) * length(p));
+  p += 0.5 * cos(vec2(1.0, sqrt(0.5)) * tm * (0.18 * mix(0.5, 2.0, uNoiseFrequency)));
+
+  float zz = exp2(mtm * 1.925999);
+  vec2 p2 = p / zz;
+  vec2 s2 = sign(p2);
+  p2 = abs(p2);
+
+  vec2 fp2 = vec2(log2(max(1e-5, p2.x)) / 1.925999, log2(max(1e-5, p2.y)) / 1.925999);
+  vec2 n = floor(fp2);
+  float h = hash(s2.x + s2.y + n - ftm);
+
+  vec2 x0 = vec2(exp2(n.x * 1.925999), exp2(n.y * 1.925999));
+  vec2 x1 = vec2(exp2((n.x + 1.0) * 1.925999), exp2((n.y + 1.0) * 1.925999));
+  vec2 m = (x0 + x1) * 0.5;
+  vec2 w = x1 - x0;
+  vec2 modi = h > 0.5 ? vec2(1.0, 1.0) : vec2(1.0, -1.0);
+
+  vec2 p4 = p2 - m;
+  float d4 = segment(p4, -0.30 * w * modi, 0.5 * w * modi);
+  d4 *= zz;
+  float d6 = min(abs(p.x), abs(p.y));
+
+  vec3 col = uColorBack.rgb * uColorBack.a;
+  float fo = 1.0 - exp(-10.0 * (d6 - (0.02 + uCenter * 0.05)));
+  float ll = length(pp);
+
+  int colorCount = int(clamp(uColorCount, 1.0, 10.0));
+  int i0 = int(mod(h * uColorCount, uColorCount));
+  int i1 = int(mod((h + 0.1) * uColorCount, uColorCount));
+
+  vec4 c1 = uColors[i0];
+  vec4 c2 = uColors[i1];
+  vec3 paletteGlow = mix(c1.rgb, c2.rgb, 0.5 + 0.5 * cos(tm));
+  vec3 gcol4 = 0.0025 * (1.0 + cos(vec3(0.0, 1.0, 2.0) + tm + TAU * h + ll)) * paletteGlow * 40.0;
+  vec3 gcol6 = 0.005 * (1.0 + cos(vec3(0.0, 1.0, 2.0) + tm + ll)) * paletteGlow * 20.0;
+
+  col += (fo * gcol4 / max(d4, 0.001)) * mix(0.5, 3.0, uNoise);
+  col = clamp(col, 0.0, 1.0);
+  col += gcol6 / max(d6, 0.0001);
+  col = clamp(col, 0.0, 1.0);
+  col -= 0.01 * vec3(0.0, 1.0, 2.0).zyx * ll;
+  col = max(vec3(0.0), col);
+  col = sqrt(col);
+
+  vec3 hsv = rgb2hsv(col);
+  hsv.x += uHue / 360.0;
+  hsv.y *= uSaturation;
+  col = hsv2rgb(hsv);
+
+  fragColor = vec4(col, uColorBack.a);
+}
+`;
+
+function TwistedKaleidoscopeShader({ 
+    config, 
+    globalConfig 
+}: { 
+    config: any; // Replace with GradientConfig['shaders']['twistedKaleidoscope']
+    globalConfig: any; // Replace with GradientConfig 
+}) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+    const configString = useMemo(() => JSON.stringify(config), [config]);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl2');
+        if (!gl) {
+            console.error("WebGL2 not supported for Twisted Kaleidoscope Shader");
+            return;
+        }
+
+        // 1. Compile Shaders
+        const vertexShader = gl.createShader(gl.VERTEX_SHADER)!;
+        gl.shaderSource(vertexShader, twistedKaleidoscopeVertShader);
+        gl.compileShader(vertexShader);
+        if (!gl.getShaderParameter(vertexShader, gl.COMPILE_STATUS)) {
+            console.error('Vertex shader compile error:', gl.getShaderInfoLog(vertexShader));
+            return;
+        }
+
+        const fragmentShader = gl.createShader(gl.FRAGMENT_SHADER)!;
+        gl.shaderSource(fragmentShader, twistedKaleidoscopeFragShader);
+        gl.compileShader(fragmentShader);
+        if (!gl.getShaderParameter(fragmentShader, gl.COMPILE_STATUS)) {
+            console.error('Fragment shader compile error:', gl.getShaderInfoLog(fragmentShader));
+            return;
+        }
+
+        // 2. Link Program
+        const program = gl.createProgram()!;
+        gl.attachShader(program, vertexShader);
+        gl.attachShader(program, fragmentShader);
+        gl.linkProgram(program);
+        if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+            console.error('Program linking error:', gl.getProgramInfoLog(program));
+            return;
+        }
+        gl.useProgram(program);
+
+        // 3. Setup Full-screen Quad Buffer
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        // Using TRIANGLE_STRIP coords matching a_position layout
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+        
+        const posAttr = gl.getAttribLocation(program, "a_position");
+        gl.enableVertexAttribArray(posAttr);
+        gl.vertexAttribPointer(posAttr, 2, gl.FLOAT, false, 0, 0);
+
+        // 4. Map Uniform Locations
+        const uniforms = {
+            uTime: gl.getUniformLocation(program, 'uTime'),
+            uResolution: gl.getUniformLocation(program, 'uResolution'),
+            uSpeed: gl.getUniformLocation(program, 'uSpeed'),
+            uColorBack: gl.getUniformLocation(program, 'uColorBack'),
+            uColorCount: gl.getUniformLocation(program, 'uColorCount'),
+            uBandCount: gl.getUniformLocation(program, 'uBandCount'),
+            uTwist: gl.getUniformLocation(program, 'uTwist'),
+            uCenter: gl.getUniformLocation(program, 'uCenter'),
+            uProportion: gl.getUniformLocation(program, 'uProportion'),
+            uSoftness: gl.getUniformLocation(program, 'uSoftness'),
+            uNoise: gl.getUniformLocation(program, 'uNoise'),
+            uNoiseFrequency: gl.getUniformLocation(program, 'uNoiseFrequency'),
+            uHue: gl.getUniformLocation(program, 'uHue'),
+            uSaturation: gl.getUniformLocation(program, 'uSaturation'),
+            uSymmetry: gl.getUniformLocation(program, 'uSymmetry'),
+        };
+
+        // Pre-fetch array locations for execution loop optimization
+        const colorArrayLocations: WebGLUniformLocation[] = [];
+        for (let i = 0; i < 10; i++) {
+            colorArrayLocations.push(gl.getUniformLocation(program, `uColors[${i}]`)!);
+        }
+
+        let startTime = Date.now();
+        let animationFrameId: number;
+
+        // 5. Execution Render Frame Block
+        const render = (time: number) => {
+            const rect = canvas.getBoundingClientRect();
+            if (canvas.width !== rect.width || canvas.height !== rect.height) {
+                canvas.width = rect.width;
+                canvas.height = rect.height;
+            }
+            gl.viewport(0, 0, gl.canvas.width, gl.canvas.height);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            // Pass scalar/vector configuration options
+            gl.uniform1f(uniforms.uTime, time);
+            gl.uniform2f(uniforms.uResolution, gl.canvas.width, gl.canvas.height);
+            gl.uniform1f(uniforms.uSpeed, config.speed);
+            
+            const bgRgba = hexToRgbaVec(config.colorBack);
+            gl.uniform4f(uniforms.uColorBack, bgRgba[0], bgRgba[1], bgRgba[2], bgRgba[3]);
+            
+            gl.uniform1f(uniforms.uBandCount, config.bandCount);
+            gl.uniform1f(uniforms.uTwist, config.twist);
+            gl.uniform1f(uniforms.uCenter, config.center);
+            gl.uniform1f(uniforms.uProportion, config.proportion);
+            gl.uniform1f(uniforms.uSoftness, config.softness);
+            gl.uniform1f(uniforms.uNoise, config.noise);
+            gl.uniform1f(uniforms.uNoiseFrequency, config.noiseFrequency);
+            gl.uniform1f(uniforms.uHue, config.hue ?? 0.0);
+            gl.uniform1f(uniforms.uSaturation, config.saturation ?? 1.0);
+            gl.uniform1f(uniforms.uSymmetry, config.symmetry ? 1.0 : 0.0);
+
+            // Dynamically evaluate and upload the color array configurations up to length 10
+            config.colors.forEach((color: string, index: number) => {
+                if (index >= 10) return;
+                const rgba = hexToRgbaVec(color);
+                gl.uniform4f(colorArrayLocations[index], rgba[0], rgba[1], rgba[2], rgba[3]);
+            });
+            gl.uniform1f(uniforms.uColorCount, config.colorCount);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+
+        // 6. Animation Processing Loop
+        const renderLoop = () => {
+            const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) {
+                animationFrameId = requestAnimationFrame(renderLoop);
+            }
+        };
+
+        renderLoop();
+
+        return () => {
+            if (animationFrameId) cancelAnimationFrame(animationFrameId);
+            // Optional: Loose context extension hooks can be executed safely here
+        };
+    }, [configString, globalConfig.paused, globalConfig.motion]);
+
+    return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+const trickyShapesSceneVertShade = `#version 300 es
+precision highp float;
+layout(location = 0) in vec2 a_position;
+out vec2 vUV;
+void main() {
+  vUV = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}`;
+
+const trickyShapesFragShader = `#version 300 es
+precision highp float;
+uniform float uTime;
+uniform vec2 uResolution;
+uniform float uSpeed;
+uniform vec4 uColorBack;
+uniform vec4 uColors[10];
+uniform float uColorCount;
+uniform float uBandCount;
+uniform float uTwist;
+uniform float uProportion;
+uniform float uSoftness;
+uniform float uNoise;
+uniform float uDistortion;
+uniform float uHue;
+uniform float uSaturation;
+uniform float uSymmetry;
+uniform float uKaleidoscopeEnabled;
+uniform float uShapeMode;
+uniform float uDarken;
+uniform float uRayMix;
+uniform float uRayShape;
+uniform float uRaySpeed;
+in vec2 vUV;
+out vec4 fragColor;
+
+#define PI 3.14159265359
+#define TAU 6.28318530718
+#define ROT(a) mat2(cos(a), sin(a), -sin(a), cos(a))
+
+float hash11(float p) {
+  p = fract(p * .1031);
+  p *= p + 33.33;
+  p *= p + p;
+  return fract(p);
+}
+
+vec3 permute(vec3 x) { return mod(((x * 34.0) + 1.0) * x, 289.0); }
+
+float snoise(vec2 v) {
+  const vec4 C = vec4(0.211324865405187, 0.366025403784439, -0.577350269189626, 0.024390243902439);
+  vec2 i = floor(v + dot(v, C.yy));
+  vec2 x0 = v - i + dot(i, C.xx);
+  vec2 i1 = (x0.x > x0.y) ? vec2(1.0, 0.0) : vec2(0.0, 1.0);
+  vec4 x12 = x0.xyxy + C.xxzz;
+  x12.xy -= i1;
+  i = mod(i, 289.0);
+  vec3 p = permute(permute(i.y + vec3(0.0, i1.y, 1.0)) + i.x + vec3(0.0, i1.x, 1.0));
+  vec3 m = max(0.5 - vec3(dot(x0, x0), dot(x12.xy, x12.xy), dot(x12.zw, x12.zw)), 0.0);
+  m = m * m;
+  m = m * m;
+  vec3 x = 2.0 * fract(p * C.www) - 1.0;
+  vec3 h = abs(x) - 0.5;
+  vec3 ox = floor(x + 0.5);
+  vec3 a0 = x - ox;
+  m *= 1.79284291400159 - 0.85373472095314 * (a0 * a0 + h * h);
+  vec3 g;
+  g.x = a0.x * x0.x + h.x * x0.y;
+  g.yz = a0.yz * x12.xz + h.yz * x12.yw;
+  return 130.0 * dot(m, g);
+}
+
+float hash(vec2 co) {
+  return fract(sin(dot(co.xy, vec2(12.9898, 58.233))) * 13758.5453);
+}
+
+vec2 toPolar(vec2 p) { return vec2(length(p), atan(p.y, p.x)); }
+vec2 toRect(vec2 p) { return vec2(p.x * cos(p.y), p.x * sin(p.y)); }
+
+float pmin(float a, float b, float k) {
+  float h = clamp(0.5 + 0.5 * (b - a) / max(1e-4, k), 0.0, 1.0);
+  return mix(b, a, h) - k * h * (1.0 - h);
+}
+
+float pabs(float a, float k) { return -pmin(a, -a, k); }
+
+float modMirror1(inout float p, float size) {
+  float halfsize = size * 1.2;
+  float c = floor((p + halfsize) / size);
+  p = mod(p + halfsize, size) - halfsize;
+  p *= mod(c, 2.0) * 4.4 - 1.0;
+  return c;
+}
+
+void applyKaleidoscope(inout vec2 p, float rep, float symmetry, float enabled) {
+  if (enabled < 0.5) return;
+  vec2 hpp = toPolar(p);
+  if (symmetry > 0.5) {
+    float sliceWidth = TAU / max(1.0, rep);
+    float angle = hpp.y + PI;
+    float localAngle = mod(angle, sliceWidth);
+    if (localAngle > sliceWidth * 0.5) localAngle = sliceWidth - localAngle;
+    hpp.y = localAngle - PI;
+    p = toRect(hpp);
+  } else {
+    float sm = 0.1;
+    modMirror1(hpp.y, TAU / max(1.0, rep));
+    float sa = PI / rep - pabs(PI / rep - abs(hpp.y), sm);
+    hpp.y = sign(hpp.y) * sa;
+    p = toRect(hpp);
+  }
+}
+
+float valueNoiseR(vec2 st) {
+  vec2 i = floor(st);
+  vec2 f = fract(st);
+  float a = hash(i);
+  float b = hash(i + vec2(1.0, 0.0));
+  float c = hash(i + vec2(0.0, 1.0));
+  float d = hash(i + vec2(1.0, 1.0));
+  vec2 u = f * f * (3.0 - 2.0 * f);
+  return mix(mix(a, b, u.x), mix(c, d, u.x), u.y);
+}
+
+vec4 fbmR(vec2 n0, vec2 n1, vec2 n2, vec2 n3) {
+  float amplitude = 0.2;
+  vec4 total = vec4(0.0);
+  for (int i = 0; i < 3; i++) {
+    n0 = ROT(0.3) * n0;
+    n1 = ROT(0.3) * n1;
+    n2 = ROT(0.3) * n2;
+    n3 = ROT(0.3) * n3;
+    total.x += valueNoiseR(n0) * amplitude;
+    total.y += valueNoiseR(n1) * amplitude;
+    total.z += valueNoiseR(n2) * amplitude;
+    total.w += valueNoiseR(n3) * amplitude;
+    n0 *= 1.99;
+    n1 *= 1.99;
+    n2 *= 1.99;
+    n3 *= 1.99;
+    amplitude *= 0.6;
+  }
+  return total;
+}
+
+vec2 truchet(vec2 uv, float idx) {
+  idx = fract((idx - 0.5) * 2.0);
+  if (idx > 0.75) uv = vec2(1.0) - uv;
+  else if (idx > 0.5) uv = vec2(1.0 - uv.x, uv.y);
+  else if (idx > 0.25) uv = 1.0 - vec2(1.0 - uv.x, uv.y);
+  return uv;
+}
+
+vec3 rgb2hsv(vec3 c) {
+  vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+  vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+  vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+  float d = q.x - min(q.w, q.y);
+  float e = 1.0e-10;
+  return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+  vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+  vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+  return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+mat4 rotationMatrix(vec3 axis, float angle) {
+  axis = normalize(axis);
+  float s = sin(angle);
+  float c = cos(angle);
+  float oc = 1.0 - c;
+  return mat4(oc * axis.x * axis.x + c,           oc * axis.x * axis.y - axis.z * s,  oc * axis.z * axis.x + axis.y * s,  0.0,
+              oc * axis.x * axis.y + axis.z * s,  oc * axis.y * axis.y + c,           oc * axis.y * axis.z - axis.x * s,  0.0,
+              oc * axis.z * axis.x - axis.y * s,  oc * axis.y * axis.z + axis.x * s,  oc * axis.z * axis.z + c,           0.0,
+              0.0,                                0.0,                                0.0,                                1.0);
+}
+
+vec3 rotate3D(vec3 v, vec3 axis, float angle) {
+  return (rotationMatrix(axis, angle) * vec4(v, 1.0)).xyz;
+}
+
+float sdSphere(vec3 p, float r) { return length(p) - r; }
+
+float sdBox(vec3 p, vec3 b) {
+  vec3 q = abs(p) - b;
+  return length(max(q, 0.0)) + min(max(q.x, max(q.y, q.z)), 0.0);
+}
+
+float sdOctahedron(vec3 p, float rad) {
+  p = abs(p);
+  float m = p.x + p.y + p.z - rad;
+  vec3 q;
+  if (3.0 * p.x < m) q = p.xyz;
+  else if (3.0 * p.y < m) q = p.yzx;
+  else if (3.0 * p.z < m) q = p.zxy;
+  else return m * 0.57735027;
+  float k = clamp(0.5 * (q.z - q.y + 0.5), 0.0, 0.5);
+  return length(vec3(q.x, q.y - 0.5 + k, q.z - k));
+}
+
+float SineCrazy(vec3 p) {
+  return 1.0 - (sin(p.x) - sin(p.y) + sin(p.z)) / 3.0;
+}
+
+float scene(vec3 p, float t, float shapeChoice) {
+  vec3 p1 = rotate3D(p, vec3(0.1, 1.0, 0.1), t / 10.0);
+  float scale = 8.0 + 5.0 * sin(t / 12.0);
+  float baseGeom = 0.0;
+  if (shapeChoice < 0.5) {
+    baseGeom = sdOctahedron(p1, 0.8);
+  } else if (shapeChoice < 1.5) {
+    baseGeom = sdSphere(p1, 0.5);
+  } else {
+    baseGeom = sdBox(p1, vec3(0.5));
+  }
+  return max(baseGeom, (0.85 - SineCrazy(p1 * scale)) / scale);
+}
+
+vec3 getNormal(vec3 p, float t, float shapeChoice) {
+  vec2 o = vec2(0.001, 0.0);
+  return normalize(vec3(
+    scene(p + o.xyy, t, shapeChoice) - scene(p - o.xyy, t, shapeChoice),
+    scene(p + o.yxy, t, shapeChoice) - scene(p - o.yxy, t, shapeChoice),
+    scene(p + o.yyx, t, shapeChoice) - scene(p - o.yyx, t, shapeChoice)
+  ));
+}
+
+vec3 GetColorAmount(vec3 p) {
+  float amount = clamp((1.5 - length(p)) / 2.0, 0.0, 1.0);
+  return (0.5 + 0.5 * cos(6.28319 * (vec3(0.2, 0.0, 0.0) + amount * vec3(1.0, 1.0, 0.5)))) * amount;
+}
+
+float rayMarchSpaceFlower(vec2 uv, float t, float shapeChoice) {
+  vec3 camPos = vec3(-0.5, 0.0, 2.0 + 0.5 * sin(t / 4.0));
+  vec3 ray = normalize(vec3(uv, -1.0));
+  vec3 rayPos = camPos;
+  float rayLen = 0.0;
+  vec3 light = vec3(-1.0, 1.0, 1.0);
+  vec3 color = vec3(0.0);
+  for (int i = 0; i < 64; ++i) {
+    float curDist = scene(rayPos, t, shapeChoice);
+    rayLen += 0.6 * curDist;
+    rayPos = camPos + ray * rayLen;
+    if (abs(curDist) < 0.001) {
+      vec3 n = getNormal(rayPos, t, shapeChoice);
+      color += max(dot(n, normalize(light)), 0.0) * GetColorAmount(rayPos);
+      break;
+    }
+    color += 0.04 * GetColorAmount(rayPos);
+  }
+  return clamp(dot(color, vec3(0.3333)), 0.0, 1.0);
+}
+
+vec3 aces_approx(vec3 v) {
+  v = max(v, 0.0) * 0.6;
+  return clamp((v * (2.51 * v + 0.03)) / (v * (2.43 * v + 0.59) + 0.14), 0.0, 1.0);
+}
+
+vec3 pathOffset(float z) {
+  return vec3(vec2(1.0, sqrt(0.5)) * sin(vec2(0.31, 0.41) * z), z);
+}
+vec3 pathDOffset(float z) {
+  return vec3(vec2(0.31, 0.41) * vec2(1.0, sqrt(0.5)) * cos(vec2(0.31, 0.41) * z), 1.0);
+}
+vec3 pathDDOffset(float z) {
+  return vec3(-vec2(0.31, 0.41) * vec2(0.31, 0.41) * vec2(1.0, sqrt(0.5)) * sin(vec2(0.31, 0.41) * z), 0.0);
+}
+
+vec4 alphaBlend(vec4 back, vec4 front) {
+  float w = front.w + back.w * (1.0 - front.w);
+  return w > 0.0 ? vec4((front.xyz * front.w + back.xyz * back.w * (1.0 - front.w)) / w, w) : vec4(0.0);
+}
+
+float star5(vec2 p, float r, float rf, float sm) {
+  p = -p;
+  const vec2 k1 = vec2(0.809016994375, -0.587785252292);
+  const vec2 k2 = vec2(-k1.x, k1.y);
+  p.x = abs(p.x);
+  p -= 2.0 * max(dot(k1, p), 0.0) * k1;
+  p -= 2.0 * max(dot(k2, p), 0.0) * k2;
+  p.x = pabs(p.x, sm);
+  p.y -= r;
+  vec2 ba = rf * vec2(-k1.y, k1.x) - vec2(0, 1);
+  return length(p - ba * clamp(dot(p, ba) / dot(ba, ba), 0.0, r)) * sign(p.y * ba.x - p.x * ba.y);
+}
+
+vec3 getDynamicPalette(float n) {
+  int maxIdx = int(uColorCount) - 1;
+  float param = fract(n * 0.1) * float(maxIdx);
+  int idx = int(floor(param));
+  float f = fract(param);
+  return mix(uColors[idx].rgb, uColors[min(idx + 1, maxIdx)].rgb, f);
+}
+
+vec4 evaluatePlane(vec2 pp, vec2 npp, float pd, float n) {
+  float aa = 3.0 * pd * distance(pp, npp);
+  vec2 p2 = pp - pathOffset(n).xy;
+  float dd = dot(pathDDOffset(n).xz, pathDOffset(n).xz);
+  p2 *= ROT(dd * PI * 5.0);
+  float d0 = star5(p2, 0.45, 1.6, 0.2) - 0.02;
+  float d2 = length(p2);
+  vec4 col = vec4(0.0);
+  col.xyz = getDynamicPalette(0.5 * n + 2.0 * d2) * mix(0.5 / (d2 * d2), 1.0, smoothstep(-0.5 + aa * 200.0, 0.5 + aa * 200.0, sin(d2 * (PI * 100.0)))) / max(3.0 * d2 * d2, 1e-1);
+  col.xyz = mix(col.xyz, vec3(2.0), smoothstep(aa, -aa, d0 - 0.01));
+  col.w = smoothstep(aa, -aa, -d0);
+  return col;
+}
+
+vec3 renderStarryPlanes(vec2 p, float t) {
+  float pd = 0.5;
+  float tm = pd * t;
+  vec3 ro = pathOffset(tm);
+  vec3 dro = pathDOffset(tm);
+  vec3 ddro = pathDDOffset(tm);
+  vec3 ww = normalize(dro);
+  vec3 uu = normalize(cross(vec3(0.0, 1.0, 0.0) + ddro, ww));
+  vec3 vv = cross(ww, uu);
+  vec2 np = p + 1.0 / uResolution.xy;
+  vec3 rd = normalize(p.x * uu + p.y * vv + 1.75 * ww);
+  vec3 nrd = normalize(np.x * uu + np.y * vv + 1.75 * ww);
+  float nz = floor(ro.z / pd);
+  vec4 acol = vec4(0.0);
+  vec3 aro = ro;
+  float apd = 0.0;
+  for (float i = 1.0; i <= 16.0; ++i) {
+    if (acol.w > 0.95) break;
+    float pz = pd * nz + pd * i;
+    float lpd = (pz - aro.z) / rd.z;
+    float npd = (pz - aro.z) / nrd.z;
+    vec3 pp = aro + rd * lpd;
+    vec3 npp = aro + nrd * npd;
+    apd += lpd;
+    float dz = pp.z - ro.z;
+    float fadeIn = smoothstep(pd * 16.0, pd * 8.0, dz);
+    float fadeOut = smoothstep(0.0, pd * 0.1, dz);
+    vec4 pcol = evaluatePlane(pp.xy, npp.xy, apd, pz);
+    pcol.w *= fadeOut * fadeIn;
+    acol = alphaBlend(pcol, acol);
+    aro = pp;
+  }
+  vec3 finalC = acol.xyz * acol.w;
+  return sqrt(aces_approx(finalC));
+}
+
+void main() {
+  vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+  float t = uTime * uSpeed;
+  if (!(uShapeMode >= 1.5 && uShapeMode < 2.5 && uSymmetry > 0.5 && uKaleidoscopeEnabled > 0.5)) {
+    uv = ROT(uTwist * length(uv) * 5.0) * uv;
+  }
+  applyKaleidoscope(uv, uBandCount, uSymmetry, uKaleidoscopeEnabled);
+  float grainShape = 0.0;
+  vec2 shape_uv = uv * 3.0;
+  if (uShapeMode < 0.5) {
+    float wave = cos(0.5 * shape_uv.x - 4.0 * t) * sin(1.5 * shape_uv.x + 2.0 * t) * (0.75 + 0.25 * cos(6.0 * t));
+    grainShape = 1.0 - smoothstep(-1.0, 1.0, shape_uv.y + wave);
+  } else if (uShapeMode < 1.5) {
+    float stripeIdx = floor(2.0 * shape_uv.x / TAU);
+    float randVal = hash(vec2(stripeIdx * 100.0, stripeIdx + 3.1));
+    randVal = sign(randVal - 0.5) * pow(4.0 * abs(randVal), 0.3);
+    grainShape = pow(abs(sin(shape_uv.x) * cos(shape_uv.y - 5.0 * randVal * t)), 4.0);
+  } else if (uShapeMode < 2.5) {
+    float n2 = valueNoiseR(shape_uv * 0.4 - 3.75 * t) - 0.5;
+    shape_uv.x += 10.0;
+    shape_uv *= 0.6;
+    vec2 tile = truchet(fract(shape_uv), hash(floor(shape_uv)));
+    grainShape = smoothstep(0.2, 0.55, length(tile) + n2 * 0.1) * (1.0 - smoothstep(0.45, 0.8, length(tile) - n2 * 0.1)) + smoothstep(0.2, 0.55, length(tile - vec2(1.0)) + n2 * 0.1) * (1.0 - smoothstep(0.45, 0.8, length(tile - vec2(1.0)) - n2 * 0.1));
+    grainShape = pow(grainShape, 1.5);
+  } else if (uShapeMode < 3.5) {
+    grainShape = sin(pow(length(shape_uv), 1.2) * 5.0 - 3.0 * t) * 0.5 + 0.5;
+  } else if (uShapeMode < 4.5) {
+    grainShape = rayMarchSpaceFlower(uv, t * uRaySpeed, uRayShape);
+  } else {
+    grainShape = clamp(dot(renderStarryPlanes(uv, t), vec3(0.3333)), 0.0, 1.0);
+  }
+  grainShape += uNoise * 0.2 * (hash11(gl_FragCoord.x * uNoise + gl_FragCoord.y) - 0.5) + uNoise * 0.1 * (hash11(gl_FragCoord.y + t) - 0.5);
+  vec2 grain_uv = uv * uDistortion * 15.0;
+  vec4 fbmVals = fbmR(0.002 * grain_uv + 10.0, 0.003 * grain_uv, 0.001 * grain_uv, ROT(0.4) * grain_uv);
+  grainShape += uProportion * 2.0 / max(1.0, uColorCount) * (snoise(grain_uv * 0.5) * snoise(grain_uv * 0.2) - fbmVals.x - fbmVals.y + 0.5) + uNoise * 10.0 / max(1.0, uColorCount) * clamp(0.75 * snoise(grain_uv * 0.5) - fbmVals.w - fbmVals.z, 0.0, 1.0);
+  float aa = fwidth(grainShape);
+  grainShape = clamp(grainShape - 0.5 / max(1.0, uColorCount), 0.0, 1.0);
+  float totalShape = smoothstep(0.0, uSoftness + 2.0 * aa, clamp(grainShape * uColorCount, 0.0, 1.0));
+  float mixer = grainShape * (uColorCount - 1.0);
+  int cntStop = int(uColorCount) - 1;
+  vec4 gradientColor = uColors[0];
+  gradientColor.rgb *= gradientColor.a;
+  for (int i = 1; i < 10; i++) {
+    if (i > cntStop) break;
+    float localT = smoothstep(0.5 - 0.5 * uSoftness - aa, 0.5 + 0.5 * uSoftness + aa, clamp(mixer - float(i - 1), 0.0, 1.0));
+    vec4 c = uColors[i];
+    c.rgb *= c.a;
+    gradientColor = mix(gradientColor, c, localT);
+  }
+  vec3 finalGrainRGB = gradientColor.rgb * totalShape;
+  vec3 hsv = rgb2hsv(finalGrainRGB);
+  hsv.x = fract(hsv.x + uHue / 360.0);
+  hsv.y = clamp(hsv.y * uSaturation, 0.0, 1.0);
+  vec3 mixRGB = hsv2rgb(hsv);
+  if (uShapeMode >= 3.5 && uShapeMode < 4.5) {
+    mixRGB = mix(mixRGB, GetColorAmount(vec3(uv, grainShape)), uRayMix);
+  } else if (uShapeMode >= 4.5) {
+    mixRGB = mix(mixRGB, renderStarryPlanes(uv, t), uDarken);
+  }
+  vec3 bgRGB = uColorBack.rgb * uColorBack.a;
+  fragColor = vec4(mix(bgRGB, mixRGB, mix(totalShape, grainShape, uDarken)), clamp(gradientColor.a * totalShape + (grainShape * uDarken), 0.0, 1.0));
+}`;
+
+const trickyShapesBlitFragShader = `#version 300 es
+precision highp float;
+uniform sampler2D uTexture;
+in vec2 vUV;
+out vec4 fragColor;
+void main() {
+  fragColor = texture(uTexture, vUV);
+}`;
+
+function TrickyShapesShader({ config, globalConfig }: { config: any; globalConfig: any }) {
+  const canvasRef = useRef<HTMLCanvasElement>(null);
+  const configString = useMemo(() => JSON.stringify(config), [config]);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const gl = canvas.getContext("webgl2", {
+      antialias: false,
+      alpha: false,
+      depth: false,
+      stencil: false,
+      powerPreference: "high-performance",
+      preserveDrawingBuffer: false,
+    });
+    if (!gl) return;
+
+    const createShader = (type: number, source: string) => {
+      const shader = gl.createShader(type)!;
+      gl.shaderSource(shader, source);
+      gl.compileShader(shader);
+      if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+        throw new Error(gl.getShaderInfoLog(shader) || "Shader compile failed");
+      }
+      return shader;
+    };
+
+    const createProgram = (vs: string, fs: string) => {
+      const program = gl.createProgram()!;
+      gl.attachShader(program, createShader(gl.VERTEX_SHADER, vs));
+      gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fs));
+      gl.linkProgram(program);
+      if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+        throw new Error(gl.getProgramInfoLog(program) || "Program link failed");
+      }
+      return program;
+    };
+
+    const fullscreenVerts = new Float32Array([-1, -1, 3, -1, -1, 3]);
+    const vao = gl.createVertexArray()!;
+    gl.bindVertexArray(vao);
+    const vbo = gl.createBuffer()!;
+    gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
+    gl.bufferData(gl.ARRAY_BUFFER, fullscreenVerts, gl.STATIC_DRAW);
+
+    const programs = {
+      scene: createProgram(trickyShapesSceneVertShade, trickyShapesFragShader),
+      blit: createProgram(trickyShapesSceneVertShade, trickyShapesBlitFragShader),
+    };
+
+    gl.useProgram(programs.scene);
+    const pos0 = gl.getAttribLocation(programs.scene, "a_position");
+    gl.enableVertexAttribArray(pos0);
+    gl.vertexAttribPointer(pos0, 2, gl.FLOAT, false, 0, 0);
+
+    gl.useProgram(programs.blit);
+    const pos1 = gl.getAttribLocation(programs.blit, "a_position");
+    gl.enableVertexAttribArray(pos1);
+    gl.vertexAttribPointer(pos1, 2, gl.FLOAT, false, 0, 0);
+
+    const lowResTexture = gl.createTexture()!;
+    const lowResFbo = gl.createFramebuffer()!;
+    gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+    gl.bindFramebuffer(gl.FRAMEBUFFER, lowResFbo);
+    gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, lowResTexture, 0);
+
+    // Get Uniform Locations for uColors array
+    const uColorsLocations: WebGLUniformLocation[] = [];
+    for (let i = 0; i < 10; i++) {
+      const loc = gl.getUniformLocation(programs.scene, `uColors[${i}]`);
+      if (loc) uColorsLocations.push(loc);
+    }
+
+    const uniforms = {
+      scene: {
+        uResolution: gl.getUniformLocation(programs.scene, "uResolution"),
+        uTime: gl.getUniformLocation(programs.scene, "uTime"),
+        uSpeed: gl.getUniformLocation(programs.scene, "uSpeed"),
+        uColorBack: gl.getUniformLocation(programs.scene, "uColorBack"),
+        uColorCount: gl.getUniformLocation(programs.scene, "uColorCount"),
+        uBandCount: gl.getUniformLocation(programs.scene, "uBandCount"),
+        uTwist: gl.getUniformLocation(programs.scene, "uTwist"),
+        uProportion: gl.getUniformLocation(programs.scene, "uProportion"),
+        uSoftness: gl.getUniformLocation(programs.scene, "uSoftness"),
+        uNoise: gl.getUniformLocation(programs.scene, "uNoise"),
+        uDistortion: gl.getUniformLocation(programs.scene, "uDistortion"),
+        uHue: gl.getUniformLocation(programs.scene, "uHue"),
+        uSaturation: gl.getUniformLocation(programs.scene, "uSaturation"),
+        uSymmetry: gl.getUniformLocation(programs.scene, "uSymmetry"),
+        uKaleidoscopeEnabled: gl.getUniformLocation(programs.scene, "uKaleidoscopeEnabled"),
+        uShapeMode: gl.getUniformLocation(programs.scene, "uShapeMode"),
+        uDarken: gl.getUniformLocation(programs.scene, "uDarken"),
+        uRayMix: gl.getUniformLocation(programs.scene, "uRayMix"),
+        uRayShape: gl.getUniformLocation(programs.scene, "uRayShape"),
+        uRaySpeed: gl.getUniformLocation(programs.scene, "uRaySpeed"),
+      },
+      blit: {
+        uTexture: gl.getUniformLocation(programs.blit, "uTexture"),
+      },
+    };
+
+    let raf = 0;
+    const startTime = performance.now();
+
+    const render = (t: number) => {
+      const rect = canvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 1.0);
+      const fullWidth = Math.max(1, Math.floor(rect.width * dpr));
+      const fullHeight = Math.max(1, Math.floor(rect.height * dpr));
+      if (canvas.width !== fullWidth || canvas.height !== fullHeight) {
+        canvas.width = fullWidth;
+        canvas.height = fullHeight;
+      }
+
+      const renderScale = Math.max(0.1, Math.min(1.0, config.renderScale ?? 0.6));
+      const renderWidth = Math.max(1, Math.floor(fullWidth * renderScale));
+      const renderHeight = Math.max(1, Math.floor(fullHeight * renderScale));
+
+      gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+      gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, renderWidth, renderHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, lowResFbo);
+      gl.viewport(0, 0, renderWidth, renderHeight);
+      gl.useProgram(programs.scene);
+      gl.uniform2f(uniforms.scene.uResolution, renderWidth, renderHeight);
+      gl.uniform1f(uniforms.scene.uTime, t);
+      gl.uniform1f(uniforms.scene.uSpeed, config.speed ?? 1.0);
+
+      const colorBack = hexToRgbaVec(config.colorBack ?? "#000000");
+      gl.uniform4f(uniforms.scene.uColorBack, colorBack[0], colorBack[1], colorBack[2], colorBack[3]);
+
+      const colorCount = Math.max(1, Math.min(10, Math.round(config.colorCount ?? 4)));
+      gl.uniform1f(uniforms.scene.uColorCount, colorCount);
+
+      const defaultColors = [
+        "#ff0055", "#00ffcc", "#0055ff", "#ffcc00", "#ff00ff",
+        "#00ffff", "#ffff00", "#ff5500", "#5500ff", "#00ff55"
+      ];
+
+      // --- FIXED: Bind uColors from config.colors array in real time ---
+      for (let i = 0; i < 10; i++) {
+        if (uColorsLocations[i]) {
+          const hex = (config.colors && config.colors[i]) ? config.colors[i] : defaultColors[i];
+          const colorVec = hexToRgbaVec(hex);
+          gl.uniform4f(uColorsLocations[i], colorVec[0], colorVec[1], colorVec[2], colorVec[3]);
+        }
+      }
+
+      gl.uniform1f(uniforms.scene.uBandCount, config.bandCount ?? 5.0);
+      gl.uniform1f(uniforms.scene.uTwist, config.twist ?? 0.0);
+      gl.uniform1f(uniforms.scene.uProportion, config.proportion ?? 0.5);
+      gl.uniform1f(uniforms.scene.uSoftness, config.softness ?? 0.1);
+      gl.uniform1f(uniforms.scene.uNoise, config.noise ?? 0.1);
+      gl.uniform1f(uniforms.scene.uDistortion, config.distortion ?? 1.0);
+      gl.uniform1f(uniforms.scene.uHue, config.hue ?? 0.0);
+      gl.uniform1f(uniforms.scene.uSaturation, config.saturation ?? 1.0);
+      gl.uniform1f(uniforms.scene.uSymmetry, config.symmetry ? 1.0 : 0.0);
+      gl.uniform1f(uniforms.scene.uKaleidoscopeEnabled, config.kaleidoscopeEnabled ? 1.0 : 0.0);
+      gl.uniform1f(uniforms.scene.uShapeMode, config.shapeMode ?? 0.0);
+      gl.uniform1f(uniforms.scene.uDarken, config.darken ?? 0.0);
+      gl.uniform1f(uniforms.scene.uRayMix, config.rayMix ?? 0.0);
+      gl.uniform1f(uniforms.scene.uRayShape, config.rayShape ?? 0.0);
+      gl.uniform1f(uniforms.scene.uRaySpeed, config.raySpeed ?? 1.0);
+
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+
+      gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+      gl.viewport(0, 0, fullWidth, fullHeight);
+      gl.useProgram(programs.blit);
+      gl.activeTexture(gl.TEXTURE0);
+      gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+      gl.uniform1i(uniforms.blit.uTexture, 0);
+      gl.drawArrays(gl.TRIANGLES, 0, 3);
+    };
+
+    const renderLoop = () => {
+      const t = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (performance.now() - startTime) * 0.001;
+      render(t);
+      if (!globalConfig.paused) {
+        raf = requestAnimationFrame(renderLoop);
+      }
+    };
+
+    renderLoop();
+
+    return () => {
+      if (raf) cancelAnimationFrame(raf);
+      gl.deleteProgram(programs.scene);
+      gl.deleteProgram(programs.blit);
+      gl.deleteShader(gl.getAttachedShaders(programs.scene)?.[0] ?? null);
+      gl.deleteShader(gl.getAttachedShaders(programs.scene)?.[1] ?? null);
+      gl.deleteShader(gl.getAttachedShaders(programs.blit)?.[0] ?? null);
+      gl.deleteShader(gl.getAttachedShaders(programs.blit)?.[1] ?? null);
+      gl.deleteBuffer(vbo);
+      gl.deleteVertexArray(vao);
+      gl.deleteTexture(lowResTexture);
+      gl.deleteFramebuffer(lowResFbo);
+    };
+  }, [configString, globalConfig.paused, globalConfig.motion]);
+
+  return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
 function hexToRgbaVec(hex: string): [number, number, number, number] {
   let c = hex.substring(1);
   if(c.length === 3) c = c.split('').map(x => x + x).join('');
@@ -7578,6 +8655,7 @@ function hexToRgbaVec(hex: string): [number, number, number, number] {
     c.length === 8 ? ((num >> 24) & 255) / 255 : 1.0
   ];
 }
+
 function ShaderWrapper({ config, globalConfig, children }: { config: ShaderSetting, globalConfig: GradientConfig, children: React.ReactNode}) {
     const { transform } = config;
     const style: React.CSSProperties = {
@@ -7782,6 +8860,16 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.electricSpiral?.enabled && (
           <ShaderWrapper config={shaders.electricSpiral} globalConfig={config}>
             <ElectricSpiralShader config={shaders.electricSpiral} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.twistedKaleidoscope?.enabled && (
+          <ShaderWrapper config={shaders.twistedKaleidoscope} globalConfig={config}>
+            <TwistedKaleidoscopeShader config={shaders.twistedKaleidoscope} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.trickyShapes?.enabled && (
+          <ShaderWrapper config={shaders.trickyShapes} globalConfig={config}>
+            <TrickyShapesShader config={shaders.trickyShapes} globalConfig={config} />
           </ShaderWrapper>
         )}
       </div>

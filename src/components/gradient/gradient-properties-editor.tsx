@@ -80,6 +80,8 @@ export function GradientPropertiesEditor({
     infiniteCorridor,
     spaceFlower,
     electricSpiral,
+    twistedKaleidoscope,
+    trickyShapes,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -4788,6 +4790,192 @@ export function GradientPropertiesEditor({
             </div>
           </>
         )}
+        {renderShaderControls(
+          "twistedKaleidoscope",
+          twistedKaleidoscope,
+          <>
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={twistedKaleidoscope.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-speed" value={twistedKaleidoscope.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "speed", v)} isRTL={isRTL} />
+
+            {/* HUE */}
+            <ControlSlider label={t("hue")} value={twistedKaleidoscope.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-hue" value={twistedKaleidoscope.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "hue", v)} isRTL={isRTL} />
+
+            {/* SATURATION */}
+            <ControlSlider label={t("saturation")} value={twistedKaleidoscope.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-saturation" value={twistedKaleidoscope.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "saturation", v)} isRTL={isRTL} />
+
+            {/* BAND COUNT */}
+            <ControlSlider label={t("bandCount")} value={twistedKaleidoscope.bandCount} min={2} max={24} step={1} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "bandCount", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-bandCount" value={twistedKaleidoscope.bandCount} min={2} max={24} step={1} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "bandCount", v)} isRTL={isRTL} />
+
+            {/* TWIST */}
+            <ControlSlider label={t("twist")} value={twistedKaleidoscope.twist} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "twist", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-twist" value={twistedKaleidoscope.twist} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "twist", v)} isRTL={isRTL} />
+
+            {/* CENTER */}
+            <ControlSlider label={t("center")} value={twistedKaleidoscope.center} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "center", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-center" value={twistedKaleidoscope.center} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "center", v)} isRTL={isRTL} />
+
+            {/* PROPORTION */}
+            <ControlSlider label={t("proportion")} value={twistedKaleidoscope.proportion} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "proportion", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-proportion" value={twistedKaleidoscope.proportion} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "proportion", v)} isRTL={isRTL} />
+
+            {/* SOFTNESS */}
+            <ControlSlider label={t("softness")} value={twistedKaleidoscope.softness} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "softness", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-softness" value={twistedKaleidoscope.softness} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "softness", v)} isRTL={isRTL} />
+
+            {/* NOISE */}
+            <ControlSlider label={t("noise")} value={twistedKaleidoscope.noise} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "noise", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-noise" value={twistedKaleidoscope.noise} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "noise", v)} isRTL={isRTL} />
+
+            {/* NOISE FREQUENCY */}
+            <ControlSlider label={t("noiseFrequency")} value={twistedKaleidoscope.noiseFrequency} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "noiseFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-noiseFrequency" value={twistedKaleidoscope.noiseFrequency} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "noiseFrequency", v)} isRTL={isRTL} />
+
+            {/* COLOR COUNT */}
+            <ControlSlider label={t("colorCount")} value={twistedKaleidoscope.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="twistedKaleidoscope-colorCount" value={twistedKaleidoscope.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("twistedKaleidoscope", "colorCount", v)} isRTL={isRTL} />
+
+            <CustomCheckbox
+              id="twistedKaleidoscope-symmetry"
+              direction={isRTL ? "rtl" : "ltr"}
+              checked={twistedKaleidoscope.symmetry === 1}
+              onChange={(checked) =>
+                updateShaderConfig("twistedKaleidoscope", "symmetry", checked ? 1 : 0)
+              }
+              label={t("symmetry")}
+            />
+
+            {/* BACKGROUND COLOR PICKER */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">
+                {t("backgroundColor")}
+              </span>
+              <ColorPicker value={twistedKaleidoscope.colorBack} onValueChange={(c) => {
+                updateShaderConfig("twistedKaleidoscope", "colorBack", hsvaToHex(c));
+              }} hideAlpha hideContrastRatio />
+            </div>
+
+            {/* DYNAMIC GRADIENT PICKERS */}
+            {twistedKaleidoscope.colors.slice(0, twistedKaleidoscope.colorCount).map((color: string, index: number) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">
+                  {t("color")} {index + 1}
+                </span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...twistedKaleidoscope.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("twistedKaleidoscope", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+        {renderShaderControls("trickyShapes", trickyShapes, (
+          <>
+            {/* SHAPE MODE SELECTOR */}
+            <ControlSlider label={t("shapeProfile")} value={trickyShapes.shapeMode} min={0} max={5} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "shapeMode", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-shapeMode" value={trickyShapes.shapeMode} min={0} max={5} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "shapeMode", v)} isRTL={isRTL} />
+
+            {/* VIRTUAL RENDER RESOLUTION DOWNSCALE */}
+            <ControlSlider label={t("renderScale")} value={trickyShapes.renderScale} min={0.1} max={1.0} step={0.05} onValueChange={(v) => updateShaderConfig("trickyShapes", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-renderScale" value={trickyShapes.renderScale} min={0.1} max={1.0} step={0.05} onValueChange={(v) => updateShaderConfig("trickyShapes", "renderScale", v)} isRTL={isRTL} />
+              
+            {/* SPEED */}
+            <ControlSlider label={t("speed")} value={trickyShapes.speed} min={0} max={10} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-speed" value={trickyShapes.speed} min={0} max={10} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "speed", v)} isRTL={isRTL} />
+
+            {/* HUE */}
+            <ControlSlider label={t("hue")} value={trickyShapes.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-hue" value={trickyShapes.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "hue", v)} isRTL={isRTL} />
+
+            {/* SATURATION */}
+            <ControlSlider label={t("saturation")} value={trickyShapes.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-saturation" value={trickyShapes.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "saturation", v)} isRTL={isRTL} />
+
+            {/* STACKED CHECKBOX CONTROLS */}
+            <div className="flex flex-col space-y-4 mt-4">
+              {/* Kaleidoscope Checkbox ALWAYS visible */}
+              <CustomCheckbox id="trickyShapes-kaleidoscopeEnabled" direction={isRTL ? "rtl" : "ltr"} checked={trickyShapes.kaleidoscopeEnabled === 1} onChange={(checked) => updateShaderConfig("trickyShapes", "kaleidoscopeEnabled", checked ? 1 : 0)} label={t("kaleidoscope")} />
+              
+              {/* Symmetry Checkbox ONLY shown if Kaleidoscope is checked */}
+              {trickyShapes.kaleidoscopeEnabled === 1 && (
+                <CustomCheckbox id="trickyShapes-symmetry" direction={isRTL ? "rtl" : "ltr"} checked={trickyShapes.symmetry === 1} onChange={(checked) => updateShaderConfig("trickyShapes", "symmetry", checked ? 1 : 0)} label={t("symmetry")} />
+              )}
+            </div>
+
+            {/* BAND COUNT - Shown for shapes 1-4, but for the 5th shape, only shown if Kaleidoscope is active */}
+            {(trickyShapes.shapeMode < 4.5 || trickyShapes.kaleidoscopeEnabled === 1) && (
+              <>
+                <ControlSlider label={t("bandCount")} value={trickyShapes.bandCount} min={1} max={36} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "bandCount", v)} isRTL={isRTL} />
+                <CustomSlider id="trickyShapes-bandCount" value={trickyShapes.bandCount} min={1} max={36} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "bandCount", v)} isRTL={isRTL} />
+              </>
+            )}
+
+            {/* TWIST - Hidden for Raymarched Shape Mode 4 */}
+            {!(trickyShapes.shapeMode >= 3.5 && trickyShapes.shapeMode < 4.5) && (
+              <>
+                <ControlSlider label={t("twist")} value={trickyShapes.twist} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "twist", v)} isRTL={isRTL} />
+                <CustomSlider id="trickyShapes-twist" value={trickyShapes.twist} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "twist", v)} isRTL={isRTL} />
+              </>
+            )}
+
+            {/* PROPORTION */}
+            <ControlSlider label={t("proportion")} value={trickyShapes.proportion} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "proportion", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-proportion" value={trickyShapes.proportion} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "proportion", v)} isRTL={isRTL} />
+
+            {/* SOFTNESS */}
+            <ControlSlider label={t("softness")} value={trickyShapes.softness} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "softness", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-softness" value={trickyShapes.softness} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "softness", v)} isRTL={isRTL} />
+
+            {/* NOISE */}
+            <ControlSlider label={t("noise")} value={trickyShapes.noise} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "noise", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-noise" value={trickyShapes.noise} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "noise", v)} isRTL={isRTL} />
+
+            {/* DISTORTION */}
+            <ControlSlider label={t("distortion")} value={trickyShapes.distortion} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "distortion", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-distortion" value={trickyShapes.distortion} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "distortion", v)} isRTL={isRTL} />
+            
+            {/* COLOR COUNT */}
+            <ControlSlider label={t("colorCount")} value={trickyShapes.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-colorCount" value={trickyShapes.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "colorCount", v)} isRTL={isRTL} />
+
+            {/* 3D RAYMARCH CONDITIONAL CONTROLS - Enabled ONLY for Mode 4 (3.5 <= mode < 4.5) */}
+            {trickyShapes.shapeMode >= 3.5 && trickyShapes.shapeMode < 4.5 && (
+              <>
+                <ControlSlider label={t("rayShape")} value={trickyShapes.rayShape} min={0} max={2} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "rayShape", v)} isRTL={isRTL} />
+                <CustomSlider id="trickyShapes-rayShape" value={trickyShapes.rayShape} min={0} max={2} step={1} onValueChange={(v) => updateShaderConfig("trickyShapes", "rayShape", v)} isRTL={isRTL} />
+
+                <ControlSlider label={t("raySpeed")} value={trickyShapes.raySpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "raySpeed", v)} isRTL={isRTL} />
+                <CustomSlider id="trickyShapes-raySpeed" value={trickyShapes.raySpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "raySpeed", v)} isRTL={isRTL} />
+              </>
+            )}
+
+            {/* DARKEN */}
+            <ControlSlider label={t("darken")} value={trickyShapes.darken} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "darken", v)} isRTL={isRTL} />
+            <CustomSlider id="trickyShapes-darken" value={trickyShapes.darken} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("trickyShapes", "darken", v)} isRTL={isRTL} />
+
+            {/* BACKGROUND COLOR PICKER */}
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("backgroundColor")}</span>
+              <ColorPicker value={trickyShapes.colorBack} onValueChange={(c) => updateShaderConfig("trickyShapes", "colorBack", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+
+            {/* DYNAMIC GRADIENT PICKERS */}
+            {trickyShapes.colors.slice(0, trickyShapes.colorCount).map((color: string, index: number) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...trickyShapes.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("trickyShapes", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        ))}
       </Accordion>
     </div>
   );
