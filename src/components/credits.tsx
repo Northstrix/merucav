@@ -71,6 +71,14 @@ export const Credits = () => {
 
 [Starry planes](https://www.shadertoy.com/view/MfjyWK) by [mrange](https://www.shadertoy.com/user/mrange)
 
+[Grid Attractor](https://www.shadertoy.com/view/43cBzn) by [takumifukasawa](https://www.shadertoy.com/user/takumifukasawa)
+
+[Tunnel Cylinders](https://www.shadertoy.com/view/MlsfWS) by [balkhan](https://www.shadertoy.com/user/balkhan)
+
+[psychedelic flower tunnel](https://www.shadertoy.com/view/WtsXzs) by [takumifukasawa](https://www.shadertoy.com/user/takumifukasawa)
+
+[Falling Through the Sky](https://codepen.io/editor/sabosugi/pen/019fb43d-e522-7293-9ac9-9ca77a280155) by [Sabo Sugi](https://codepen.io/sabosugi)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)
@@ -100,6 +108,8 @@ export const Credits = () => {
 [radix-ui](https://www.npmjs.com/package/radix-ui)
 
 [Google Gemini](https://gemini.google.com/app)
+
+[Anthropic's Claude Sonnet 5](https://claude.ai/)
 
 [Custom Checkbox](https://21st.dev/Edil-ozi/custom-checkbox/default) by [Edil Ozi](https://21st.dev/Edil-ozi)
 

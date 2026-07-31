@@ -82,6 +82,10 @@ export function GradientPropertiesEditor({
     electricSpiral,
     twistedKaleidoscope,
     trickyShapes,
+    gridAttractor,
+    tunnelCylinders,
+    psychedelicFlowerTunnel,
+    celestialJourney,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -4873,6 +4877,7 @@ export function GradientPropertiesEditor({
             ))}
           </>
         )}
+
         {renderShaderControls("trickyShapes", trickyShapes, (
           <>
             {/* SHAPE MODE SELECTOR */}
@@ -4976,6 +4981,278 @@ export function GradientPropertiesEditor({
             ))}
           </>
         ))}
+
+        {renderShaderControls(
+          "gridAttractor",
+          gridAttractor,
+          <>
+            <ControlSlider label={t("speed")} value={gridAttractor.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("gridAttractor", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="gridAttractor-speed" value={gridAttractor.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("gridAttractor", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cellSize")} value={gridAttractor.cellSize} min={0.03} max={0.3} step={0.005} onValueChange={(v) => updateShaderConfig("gridAttractor", "cellSize", v)} isRTL={isRTL} />
+            <CustomSlider id="gridAttractor-cellSize" value={gridAttractor.cellSize} min={0.03} max={0.3} step={0.005} onValueChange={(v) => updateShaderConfig("gridAttractor", "cellSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("sphereSize")} value={gridAttractor.sphereSize} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("gridAttractor", "sphereSize", v)} isRTL={isRTL} />
+            <CustomSlider id="gridAttractor-sphereSize" value={gridAttractor.sphereSize} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("gridAttractor", "sphereSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("boxHeight")} value={gridAttractor.boxHeight} min={0.02} max={0.3} step={0.005} onValueChange={(v) => updateShaderConfig("gridAttractor", "boxHeight", v)} isRTL={isRTL} />
+            <CustomSlider id="gridAttractor-boxHeight" value={gridAttractor.boxHeight} min={0.02} max={0.3} step={0.005} onValueChange={(v) => updateShaderConfig("gridAttractor", "boxHeight", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pulseHeight")} value={gridAttractor.pulseHeight} min={0} max={0.2} step={0.005} onValueChange={(v) => updateShaderConfig("gridAttractor", "pulseHeight", v)} isRTL={isRTL} />
+            <CustomSlider id="gridAttractor-pulseHeight" value={gridAttractor.pulseHeight} min={0} max={0.2} step={0.005} onValueChange={(v) => updateShaderConfig("gridAttractor", "pulseHeight", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={gridAttractor.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("gridAttractor", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="gridAttractor-hue" value={gridAttractor.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("gridAttractor", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={gridAttractor.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("gridAttractor", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="gridAttractor-saturation" value={gridAttractor.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("gridAttractor", "saturation", v)} isRTL={isRTL} />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("colorSphere")}</span>
+              <ColorPicker value={gridAttractor.colorSphere} onValueChange={(c) => updateShaderConfig("gridAttractor", "colorSphere", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("colorTop")}</span>
+              <ColorPicker value={gridAttractor.colorTop} onValueChange={(c) => updateShaderConfig("gridAttractor", "colorTop", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("colorSide")}</span>
+              <ColorPicker value={gridAttractor.colorSide} onValueChange={(c) => updateShaderConfig("gridAttractor", "colorSide", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("colorFront")}</span>
+              <ColorPicker value={gridAttractor.colorFront} onValueChange={(c) => updateShaderConfig("gridAttractor", "colorFront", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+          </>
+        )}
+
+        {renderShaderControls(
+          "tunnelCylinders",
+          tunnelCylinders,
+          <>
+            <ControlSlider label={t("renderScale")} value={tunnelCylinders.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-renderScale" value={tunnelCylinders.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelMix")} value={tunnelCylinders.tunnelMix} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "tunnelMix", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-tunnelMix" value={tunnelCylinders.tunnelMix} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "tunnelMix", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("swirlMix")} value={tunnelCylinders.swirlMix} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "swirlMix", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-swirlMix" value={tunnelCylinders.swirlMix} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "swirlMix", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("spiralMix")} value={tunnelCylinders.spiralMix} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "spiralMix", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-spiralMix" value={tunnelCylinders.spiralMix} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "spiralMix", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("speed")} value={tunnelCylinders.speed} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-speed" value={tunnelCylinders.speed} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("travelSpeed")} value={tunnelCylinders.travelSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "travelSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-travelSpeed" value={tunnelCylinders.travelSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "travelSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelRadius")} value={tunnelCylinders.tunnelRadius} min={0.3} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "tunnelRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-tunnelRadius" value={tunnelCylinders.tunnelRadius} min={0.3} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "tunnelRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("segments")} value={tunnelCylinders.segments} min={5} max={150} step={1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "segments", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-segments" value={tunnelCylinders.segments} min={5} max={150} step={1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "segments", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("ringFrequency")} value={tunnelCylinders.ringFrequency} min={0.5} max={8} step={0.1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "ringFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-ringFrequency" value={tunnelCylinders.ringFrequency} min={0.5} max={8} step={0.1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "ringFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cylinderThickness")} value={tunnelCylinders.cylinderThickness} min={0.005} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "cylinderThickness", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-cylinderThickness" value={tunnelCylinders.cylinderThickness} min={0.005} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "cylinderThickness", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("thicknessVariation")} value={tunnelCylinders.thicknessVariation} min={0} max={0.5} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "thicknessVariation", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-thicknessVariation" value={tunnelCylinders.thicknessVariation} min={0} max={0.5} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "thicknessVariation", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("glowIntensity")} value={tunnelCylinders.glowIntensity} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "glowIntensity", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-glowIntensity" value={tunnelCylinders.glowIntensity} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "glowIntensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("bandCount")} value={tunnelCylinders.swirlBandCount} min={1} max={20} step={1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "swirlBandCount", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-swirlBandCount" value={tunnelCylinders.swirlBandCount} min={1} max={20} step={1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "swirlBandCount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("twist")} value={tunnelCylinders.swirlTwist} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "swirlTwist", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-swirlTwist" value={tunnelCylinders.swirlTwist} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "swirlTwist", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("ribbonCount")} value={tunnelCylinders.spiralRibbonCount} min={10} max={100} step={10} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "spiralRibbonCount", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-spiralRibbonCount" value={tunnelCylinders.spiralRibbonCount} min={10} max={100} step={10} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "spiralRibbonCount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("spiralDensity")} value={tunnelCylinders.spiralDensity} min={0} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "spiralDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-spiralDensity" value={tunnelCylinders.spiralDensity} min={0} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "spiralDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("distortion")} value={tunnelCylinders.spiralDistortion} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "spiralDistortion", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-spiralDistortion" value={tunnelCylinders.spiralDistortion} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "spiralDistortion", v)} isRTL={isRTL} />
+
+            {/* noise: 0 = fully off */}
+            <ControlSlider label={t("noise")} value={tunnelCylinders.noiseIntensity} min={0} max={1.5} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "noiseIntensity", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-noiseIntensity" value={tunnelCylinders.noiseIntensity} min={0} max={1.5} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "noiseIntensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("noiseFrequency")} value={tunnelCylinders.noiseScale} min={0.1} max={5} step={0.1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "noiseScale", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-noiseScale" value={tunnelCylinders.noiseScale} min={0.1} max={5} step={0.1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "noiseScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("noiseSpeed")} value={tunnelCylinders.noiseSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "noiseSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-noiseSpeed" value={tunnelCylinders.noiseSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "noiseSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={tunnelCylinders.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-hue" value={tunnelCylinders.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={tunnelCylinders.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-saturation" value={tunnelCylinders.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "saturation", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorCount")} value={tunnelCylinders.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="tunnelCylinders-colorCount" value={tunnelCylinders.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("tunnelCylinders", "colorCount", v)} isRTL={isRTL} />
+
+            {tunnelCylinders.colors.slice(0, tunnelCylinders.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...tunnelCylinders.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("tunnelCylinders", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "psychedelicFlowerTunnel",
+          psychedelicFlowerTunnel,
+          <>
+            <ControlSlider label={t("renderScale")} value={psychedelicFlowerTunnel.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-renderScale" value={psychedelicFlowerTunnel.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("speed")} value={psychedelicFlowerTunnel.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-speed" value={psychedelicFlowerTunnel.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("travelSpeed")} value={psychedelicFlowerTunnel.travelSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "travelSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-travelSpeed" value={psychedelicFlowerTunnel.travelSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "travelSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("distance")} value={psychedelicFlowerTunnel.repeatSpacing} min={2} max={40} step={0.5} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "repeatSpacing", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-repeatSpacing" value={psychedelicFlowerTunnel.repeatSpacing} min={2} max={40} step={0.5} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "repeatSpacing", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("boxSize")} value={psychedelicFlowerTunnel.boxSize} min={0.05} max={0.6} step={0.005} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "boxSize", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-boxSize" value={psychedelicFlowerTunnel.boxSize} min={0.05} max={0.6} step={0.005} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "boxSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("borderThickness")} value={psychedelicFlowerTunnel.edgeThickness} min={0.005} max={0.2} step={0.005} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "edgeThickness", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-edgeThickness" value={psychedelicFlowerTunnel.edgeThickness} min={0.005} max={0.2} step={0.005} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "edgeThickness", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fractalScale")} value={psychedelicFlowerTunnel.scaleFactor} min={0.3} max={0.98} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "scaleFactor", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-scaleFactor" value={psychedelicFlowerTunnel.scaleFactor} min={0.3} max={0.98} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "scaleFactor", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("iterations")} value={psychedelicFlowerTunnel.iterations} min={1} max={12} step={1} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "iterations", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-iterations" value={psychedelicFlowerTunnel.iterations} min={1} max={12} step={1} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "iterations", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("sectors")} value={psychedelicFlowerTunnel.petalCount} min={2} max={30} step={1} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "petalCount", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-petalCount" value={psychedelicFlowerTunnel.petalCount} min={2} max={30} step={1} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "petalCount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rotationSpeed")} value={psychedelicFlowerTunnel.rotationSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "rotationSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-rotationSpeed" value={psychedelicFlowerTunnel.rotationSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "rotationSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fieldOfView")} value={psychedelicFlowerTunnel.fov} min={0.2} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "fov", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-fov" value={psychedelicFlowerTunnel.fov} min={0.2} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "fov", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogDensity")} value={psychedelicFlowerTunnel.fogDensity} min={0} max={0.3} step={0.001} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "fogDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-fogDensity" value={psychedelicFlowerTunnel.fogDensity} min={0} max={0.3} step={0.001} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "fogDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorShiftSpeed")} value={psychedelicFlowerTunnel.colorShiftSpeed} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "colorShiftSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-colorShiftSpeed" value={psychedelicFlowerTunnel.colorShiftSpeed} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "colorShiftSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={psychedelicFlowerTunnel.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-hue" value={psychedelicFlowerTunnel.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={psychedelicFlowerTunnel.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-saturation" value={psychedelicFlowerTunnel.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "saturation", v)} isRTL={isRTL} />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("backgroundColor")}</span>
+              <ColorPicker value={psychedelicFlowerTunnel.colorBack} onValueChange={(c) => updateShaderConfig("psychedelicFlowerTunnel", "colorBack", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+
+            <ControlSlider label={t("colorCount")} value={psychedelicFlowerTunnel.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="psychedelicFlowerTunnel-colorCount" value={psychedelicFlowerTunnel.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("psychedelicFlowerTunnel", "colorCount", v)} isRTL={isRTL} />
+
+            {psychedelicFlowerTunnel.colors.slice(0, psychedelicFlowerTunnel.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...psychedelicFlowerTunnel.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("psychedelicFlowerTunnel", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "celestialJourney",
+          celestialJourney,
+          <>
+            <ControlSlider label={t("renderScale")} value={celestialJourney.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("celestialJourney", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-renderScale" value={celestialJourney.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("celestialJourney", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSpeed")} value={celestialJourney.cameraSpeed} min={0} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "cameraSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-cameraSpeed" value={celestialJourney.cameraSpeed} min={0} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "cameraSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("focalLength")} value={celestialJourney.focalLength} min={0.6} max={2.5} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "focalLength", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-focalLength" value={celestialJourney.focalLength} min={0.6} max={2.5} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "focalLength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("distance")} value={celestialJourney.maxDistance} min={8} max={35} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "maxDistance", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-maxDistance" value={celestialJourney.maxDistance} min={8} max={35} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "maxDistance", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelRadius")} value={celestialJourney.tunnelRadius} min={0.3} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "tunnelRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-tunnelRadius" value={celestialJourney.tunnelRadius} min={0.3} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "tunnelRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelRoughness")} value={celestialJourney.tunnelRoughness} min={0} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "tunnelRoughness", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-tunnelRoughness" value={celestialJourney.tunnelRoughness} min={0} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "tunnelRoughness", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("density")} value={celestialJourney.volumeDensity} min={0.1} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "volumeDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-volumeDensity" value={celestialJourney.volumeDensity} min={0.1} max={5} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "volumeDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("glowStrength")} value={celestialJourney.glowStrength} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "glowStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-glowStrength" value={celestialJourney.glowStrength} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "glowStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("exposure")} value={celestialJourney.exposure} min={0.1} max={8} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "exposure", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-exposure" value={celestialJourney.exposure} min={0.1} max={8} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "exposure", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={celestialJourney.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("celestialJourney", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-hue" value={celestialJourney.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("celestialJourney", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={celestialJourney.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="celestialJourney-saturation" value={celestialJourney.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("celestialJourney", "saturation", v)} isRTL={isRTL} />
+
+            {[
+              celestialJourney.color1,
+              celestialJourney.color2,
+              celestialJourney.color3,
+              celestialJourney.color4,
+              celestialJourney.color5,
+              celestialJourney.color6,
+              celestialJourney.color7,
+            ].map((color, index) => {
+              const colorKeys = [
+                "color1",
+                "color2",
+                "color3",
+                "color4",
+                "color5",
+                "color6",
+                "color7",
+              ] as const;
+              
+              return (
+                <div key={index} className="flex flex-col gap-1 my-2">
+                  <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                  <ColorPicker 
+                    value={color} 
+                    onValueChange={(c) => updateShaderConfig("celestialJourney", colorKeys[index], hsvaToHex(c))} 
+                    hideAlpha 
+                    hideContrastRatio 
+                  />
+                </div>
+              );
+            })}
+          </>
+        )}
       </Accordion>
     </div>
   );
