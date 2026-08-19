@@ -118,6 +118,8 @@ Provide the AI of your choice with the [Adding-new-shaders.md](https://github.co
 
 [Falling Through the Sky](https://codepen.io/editor/sabosugi/pen/019fb43d-e522-7293-9ac9-9ca77a280155) by [Sabo Sugi](https://codepen.io/sabosugi)
 
+[Disco Hive](https://www.shadertoy.com/view/7c3XRj) by [noztol](https://www.shadertoy.com/user/noztol)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)

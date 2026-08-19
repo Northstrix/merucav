@@ -633,6 +633,28 @@ export interface GradientConfig {
       hue: number;
       saturation: number;
     };
+    discoHive: ShaderSetting & {
+      speed: number;
+      colorFlowSpeed: number;
+      camSpeed: number;
+      fov: number;
+      rollAmount: number;
+      rollSpeed: number;
+      pathAmpX: number;
+      pathFreqX: number;
+      pathAmpY: number;
+      pathFreqY: number;
+      tunnelRadius: number;
+      hexesAround: number;
+      hexBorder: number;
+      hexDotSize: number;
+      fogDensity: number;
+      vignetteStrength: number;
+      colors: string[];
+      renderScale: number;
+      hue: number;
+      saturation: number;
+    };
   };
   grainAmount: number;
   grainSize: number;
@@ -1294,6 +1316,36 @@ export function getDefaultGradientConfig(): GradientConfig {
           color5: "#1EC2FF",
           color6: "#A6FFFF",
           color7: "#FF6B42",
+          hue: 0,
+          saturation: 1.0,
+        },
+        discoHive: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          speed: 1.0,
+          colorFlowSpeed: 0.2,
+          camSpeed: 4.0,
+          fov: 1.2,
+          rollAmount: 0.2,
+          rollSpeed: 0.6,
+          pathAmpX: 2.5,
+          pathFreqX: 0.15,
+          pathAmpY: 2.0,
+          pathFreqY: 0.1,
+          tunnelRadius: 2.5,
+          hexesAround: 16.0,
+          hexBorder: 0.46,
+          hexDotSize: 0.22,
+          fogDensity: 0.006,
+          vignetteStrength: 1.0,
+          colors: [
+            "#FF6619",
+            "#FF3380",
+            "#FFCC66",
+            "#331A66",
+          ],
+          renderScale: 0.6,
           hue: 0,
           saturation: 1.0,
         },
@@ -10547,6 +10599,391 @@ function CelestialJourneyShader({ config, globalConfig }: { config: GradientConf
     return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
 
+const discoHiveBlitVertShader = `#version 300 es
+in vec2 a_position;
+out vec2 vUV;
+void main() {
+  vUV = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`;
+
+const discoHiveBlitFragShader = `#version 300 es
+precision highp float;
+uniform sampler2D uTexture;
+in vec2 vUV;
+out vec4 fragColor;
+void main() {
+  fragColor = texture(uTexture, vUV);
+}
+`;
+
+const discoHiveVertShader = `#version 300 es
+in vec2 a_position;
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`;
+
+const discoHiveFragShader = `#version 300 es
+precision highp float;
+
+uniform vec2 uResolution;
+uniform float uTime;
+
+uniform float uSpeed;
+uniform float uColorFlowSpeed;
+uniform float uCamSpeed;
+uniform float uFov;
+uniform float uRollAmount;
+uniform float uRollSpeed;
+uniform float uPathAmpX;
+uniform float uPathFreqX;
+uniform float uPathAmpY;
+uniform float uPathFreqY;
+uniform float uTunnelRadius;
+uniform float uHexesAround;
+uniform float uHexBorder;
+uniform float uHexDotSize;
+uniform float uFogDensity;
+uniform float uVignetteStrength;
+
+uniform vec4 uColors[4];
+
+uniform float uHue;
+uniform float uSaturation;
+
+out vec4 fragColor;
+
+#define PI 3.1415926535
+
+float dhTime;
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+// Hardcoded palette sampler for 4 colors (uColorCount removed)
+vec3 paletteColor(float t) {
+    float m = clamp(t, 0.0, 1.0) * 3.0; // 4 colors means 3 gradient intervals (0 to 3)
+    vec4 grad = uColors[0];
+    grad.rgb *= grad.a;
+    for (int i = 1; i < 4; i++) {
+        float mm = clamp(m - float(i - 1), 0.0, 1.0);
+        mm = smoothstep(0.1, 0.9, mm);
+        vec4 c = uColors[i];
+        c.rgb *= c.a;
+        grad = mix(grad, c, mm);
+    }
+    return grad.rgb;
+}
+
+vec3 discoColors(vec2 p) {
+    p += vec2(dhTime * uColorFlowSpeed);
+
+    float l = pow(0.5 + 0.5 * cos(p.x * PI * 2.0 + cos(p.y) * 8.0) * sin(p.y * 2.0), 4.0) * 2.0;
+    vec3 c = pow(
+        l * (
+            paletteColor(0.5 + 0.5 * cos(p.x * PI * 12.0 + sin(p.y * 10.0) * 3.0)) +
+            paletteColor(0.5 + 0.5 * cos(p.x * PI * 6.0 + sin(p.y * 3.0) * 3.0))
+        ),
+        vec3(1.2)
+    ) * 0.7;
+
+    vec3 highlight = paletteColor(0.95);
+    c += highlight * pow(0.5 + 0.5 * cos(p.x * PI * 6.0) * sin(p.y * 12.0), 20.0) * 2.0;
+
+    vec3 tint = paletteColor(0.05);
+    c += vec3(0.1, 0.5 + 0.5 * cos(p * PI * 6.0)) * tint * 0.7;
+
+    return c;
+}
+
+vec4 hexCoords(vec2 uv) {
+    vec2 r = vec2(1.0, 1.7320508);
+    vec2 h = r * 0.5;
+
+    vec2 a = mod(uv, r) - h;
+    vec2 b = mod(uv - h, r) - h;
+
+    vec2 gv = dot(a, a) < dot(b, b) ? a : b;
+    vec2 id = uv - gv;
+
+    return vec4(gv.x, gv.y, id.x, id.y);
+}
+
+vec3 hexTex(vec2 p, float border) {
+    vec4 hc = hexCoords(p);
+    vec2 gv = hc.xy;
+    vec2 id = hc.zw * 0.125;
+
+    float d = max(abs(gv.x), dot(abs(gv), vec2(0.5, 0.8660254)));
+
+    float sm = 0.03;
+    float m = 1.0 - smoothstep(border - sm, border, d);
+    m += 1.0 - smoothstep(0.0, uHexDotSize, length(gv));
+
+    return m * discoColors(id);
+}
+
+vec2 tunnelPath(float z) {
+    return vec2(
+        sin(z * uPathFreqX) * uPathAmpX,
+        cos(z * uPathFreqY) * uPathAmpY
+    );
+}
+
+float sceneMap(vec3 p) {
+    return uTunnelRadius - length(p.xy - tunnelPath(p.z));
+}
+
+void main() {
+    dhTime = uTime * uSpeed + 1.0;
+
+    vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+
+    float camZ = dhTime * uCamSpeed;
+
+    vec3 ro = vec3(tunnelPath(camZ), camZ);
+    vec3 ta = vec3(tunnelPath(camZ + 3.0), camZ + 3.0);
+
+    vec3 fwd = normalize(ta - ro);
+    vec3 right = normalize(cross(fwd, vec3(0.0, 1.0, 0.0)));
+    vec3 up = cross(right, fwd);
+
+    float roll = sin(dhTime * uRollSpeed) * uRollAmount;
+    mat2 rollRot = mat2(cos(roll), -sin(roll), sin(roll), cos(roll));
+    uv *= rollRot;
+
+    vec3 rd = normalize(uv.x * right + uv.y * up + uFov * fwd);
+
+    float t = 0.0;
+    for (int i = 0; i < 80; i++) {
+        vec3 p = ro + rd * t;
+        float d = sceneMap(p);
+        if (d < 0.01 || t > 100.0) break;
+        t += d * 0.7;
+    }
+
+    vec3 col = vec3(0.0);
+
+    if (t < 100.0) {
+        vec3 p = ro + rd * t;
+        vec2 tunObj = p.xy - tunnelPath(p.z);
+        float a = atan(tunObj.y, tunObj.x);
+
+        float hexesAround = max(uHexesAround, 2.0);
+        float xuv = (a / PI) * (hexesAround * 0.5);
+        float yuv = p.z * (hexesAround / (uTunnelRadius * 2.0 * PI));
+
+        vec2 tUv = vec2(xuv, yuv);
+
+        col = hexTex(tUv, uHexBorder);
+
+        float fog = exp(-uFogDensity * t * t);
+        col *= fog;
+
+        col *= 1.3;
+    }
+
+    vec2 q = gl_FragCoord.xy / uResolution.xy;
+    col *= mix(1.0, 0.5 + 0.5 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.1), uVignetteStrength);
+
+    vec3 hsv = rgb2hsv(clamp(col, 0.0, 1.0));
+    hsv.x = fract(hsv.x + uHue / 360.0);
+    hsv.y = clamp(hsv.y * uSaturation, 0.0, 1.0);
+    col = hsv2rgb(hsv);
+
+    fragColor = vec4(col, 1.0);
+}
+`;
+
+export function DiscoHiveShader({ config, globalConfig }: { config: GradientConfig['shaders']['discoHive'], globalConfig: GradientConfig }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl2');
+        if (!gl) {
+            console.error("WebGL2 not supported for Disco Hive Shader");
+            return;
+        }
+
+        const createShader = (type: number, source: string) => {
+            const shader = gl.createShader(type)!;
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Disco Hive shader compile error:', gl.getShaderInfoLog(shader));
+            }
+            return shader;
+        };
+
+        const createProgram = (vsSrc: string, fsSrc: string) => {
+            const program = gl.createProgram()!;
+            gl.attachShader(program, createShader(gl.VERTEX_SHADER, vsSrc));
+            gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fsSrc));
+            gl.linkProgram(program);
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Disco Hive program link error:', gl.getProgramInfoLog(program));
+            }
+            return program;
+        };
+
+        const sceneProgram = createProgram(discoHiveVertShader, discoHiveFragShader);
+        const blitProgram = createProgram(discoHiveBlitVertShader, discoHiveBlitFragShader);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+        const scenePosLoc = gl.getAttribLocation(sceneProgram, "a_position");
+        const blitPosLoc = gl.getAttribLocation(blitProgram, "a_position");
+
+        const lowResTexture = gl.createTexture()!;
+        gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        const lowResFbo = gl.createFramebuffer()!;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, lowResFbo);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, lowResTexture, 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        const sceneUniforms = {
+            uTime: gl.getUniformLocation(sceneProgram, 'uTime'),
+            uResolution: gl.getUniformLocation(sceneProgram, 'uResolution'),
+            uSpeed: gl.getUniformLocation(sceneProgram, 'uSpeed'),
+            uColorFlowSpeed: gl.getUniformLocation(sceneProgram, 'uColorFlowSpeed'),
+            uCamSpeed: gl.getUniformLocation(sceneProgram, 'uCamSpeed'),
+            uFov: gl.getUniformLocation(sceneProgram, 'uFov'),
+            uRollAmount: gl.getUniformLocation(sceneProgram, 'uRollAmount'),
+            uRollSpeed: gl.getUniformLocation(sceneProgram, 'uRollSpeed'),
+            uPathAmpX: gl.getUniformLocation(sceneProgram, 'uPathAmpX'),
+            uPathFreqX: gl.getUniformLocation(sceneProgram, 'uPathFreqX'),
+            uPathAmpY: gl.getUniformLocation(sceneProgram, 'uPathAmpY'),
+            uPathFreqY: gl.getUniformLocation(sceneProgram, 'uPathFreqY'),
+            uTunnelRadius: gl.getUniformLocation(sceneProgram, 'uTunnelRadius'),
+            uHexesAround: gl.getUniformLocation(sceneProgram, 'uHexesAround'),
+            uHexBorder: gl.getUniformLocation(sceneProgram, 'uHexBorder'),
+            uHexDotSize: gl.getUniformLocation(sceneProgram, 'uHexDotSize'),
+            uFogDensity: gl.getUniformLocation(sceneProgram, 'uFogDensity'),
+            uVignetteStrength: gl.getUniformLocation(sceneProgram, 'uVignetteStrength'),
+            uHue: gl.getUniformLocation(sceneProgram, 'uHue'),
+            uSaturation: gl.getUniformLocation(sceneProgram, 'uSaturation'),
+        };
+        const blitUniforms = {
+            uTexture: gl.getUniformLocation(blitProgram, 'uTexture'),
+        };
+
+        let startTime = Date.now();
+        let animationFrameId: number;
+
+        const render = (time: number) => {
+            const rect = canvas.getBoundingClientRect();
+            const fullWidth = Math.max(1, Math.floor(rect.width));
+            const fullHeight = Math.max(1, Math.floor(rect.height));
+            if (canvas.width !== fullWidth || canvas.height !== fullHeight) {
+                canvas.width = fullWidth;
+                canvas.height = fullHeight;
+            }
+
+            const renderScale = Math.max(0.1, Math.min(1.0, config.renderScale ?? 0.6));
+            const renderWidth = Math.max(1, Math.floor(fullWidth * renderScale));
+            const renderHeight = Math.max(1, Math.floor(fullHeight * renderScale));
+
+            gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, renderWidth, renderHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, lowResFbo);
+            gl.viewport(0, 0, renderWidth, renderHeight);
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(sceneProgram);
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(scenePosLoc);
+            gl.vertexAttribPointer(scenePosLoc, 2, gl.FLOAT, false, 0, 0);
+
+            gl.uniform1f(sceneUniforms.uTime, time);
+            gl.uniform2f(sceneUniforms.uResolution, renderWidth, renderHeight);
+            gl.uniform1f(sceneUniforms.uSpeed, config.speed);
+            gl.uniform1f(sceneUniforms.uColorFlowSpeed, config.colorFlowSpeed);
+            gl.uniform1f(sceneUniforms.uCamSpeed, config.camSpeed);
+            gl.uniform1f(sceneUniforms.uFov, config.fov);
+            gl.uniform1f(sceneUniforms.uRollAmount, config.rollAmount);
+            gl.uniform1f(sceneUniforms.uRollSpeed, config.rollSpeed);
+            gl.uniform1f(sceneUniforms.uPathAmpX, config.pathAmpX);
+            gl.uniform1f(sceneUniforms.uPathFreqX, config.pathFreqX);
+            gl.uniform1f(sceneUniforms.uPathAmpY, config.pathAmpY);
+            gl.uniform1f(sceneUniforms.uPathFreqY, config.pathFreqY);
+            gl.uniform1f(sceneUniforms.uTunnelRadius, config.tunnelRadius);
+            gl.uniform1f(sceneUniforms.uHexesAround, config.hexesAround);
+            gl.uniform1f(sceneUniforms.uHexBorder, config.hexBorder);
+            gl.uniform1f(sceneUniforms.uHexDotSize, config.hexDotSize);
+            gl.uniform1f(sceneUniforms.uFogDensity, config.fogDensity);
+            gl.uniform1f(sceneUniforms.uVignetteStrength, config.vignetteStrength);
+            gl.uniform1f(sceneUniforms.uHue, config.hue ?? 0.0);
+            gl.uniform1f(sceneUniforms.uSaturation, config.saturation ?? 1.0);
+
+            // Pass exactly 4 colors to the shader
+            for (let index = 0; index < 4; index++) {
+                const loc = gl.getUniformLocation(sceneProgram, `uColors[${index}]`);
+                const color = config.colors[index] || "#000000";
+                const rgba = hexToRgbaVec(color);
+                gl.uniform4f(loc, rgba[0], rgba[1], rgba[2], rgba[3]);
+            }
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, fullWidth, fullHeight);
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(blitProgram);
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(blitPosLoc);
+            gl.vertexAttribPointer(blitPosLoc, 2, gl.FLOAT, false, 0, 0);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+            gl.uniform1i(blitUniforms.uTexture, 0);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+
+        const renderLoop = () => {
+            const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+        };
+
+        renderLoop();
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            gl.deleteProgram(sceneProgram);
+            gl.deleteProgram(blitProgram);
+            gl.deleteBuffer(positionBuffer);
+            gl.deleteTexture(lowResTexture);
+            gl.deleteFramebuffer(lowResFbo);
+        };
+    }, [config, globalConfig.paused, globalConfig.motion]);
+
+    return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
 function hexToRgbaVec(hex: string): [number, number, number, number] {
   let c = hex.substring(1);
   if(c.length === 3) c = c.split('').map(x => x + x).join('');
@@ -10793,6 +11230,11 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.celestialJourney?.enabled && (
           <ShaderWrapper config={shaders.celestialJourney} globalConfig={config}>
             <CelestialJourneyShader config={shaders.celestialJourney} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.discoHive?.enabled && (
+          <ShaderWrapper config={shaders.discoHive} globalConfig={config}>
+            <DiscoHiveShader config={shaders.discoHive} globalConfig={config} />
           </ShaderWrapper>
         )}
       </div>

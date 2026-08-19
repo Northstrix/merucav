@@ -86,6 +86,7 @@ export function GradientPropertiesEditor({
     tunnelCylinders,
     psychedelicFlowerTunnel,
     celestialJourney,
+    discoHive,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -250,7 +251,7 @@ export function GradientPropertiesEditor({
   );
 
   return (
-    <div className="space-y-4 m-6">
+    <div style={{ textAlign: isRTL ? "right" : "left" }} className="space-y-4 m-6">
       <Accordion
         type="multiple"
         defaultValue={["flow"]}
@@ -5248,6 +5249,84 @@ export function GradientPropertiesEditor({
                     hideAlpha 
                     hideContrastRatio 
                   />
+                </div>
+              );
+            })}
+          </>
+        )}
+
+        {renderShaderControls(
+          "discoHive",
+          discoHive,
+          <>
+            <ControlSlider label={t("speed")} value={discoHive.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-speed" value={discoHive.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorFlowSpeed")} value={discoHive.colorFlowSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "colorFlowSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-colorFlowSpeed" value={discoHive.colorFlowSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "colorFlowSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSpeed")} value={discoHive.camSpeed} min={0} max={12} step={0.1} onValueChange={(v) => updateShaderConfig("discoHive", "camSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-camSpeed" value={discoHive.camSpeed} min={0} max={12} step={0.1} onValueChange={(v) => updateShaderConfig("discoHive", "camSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fieldOfView")} value={discoHive.fov} min={0.4} max={2.5} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "fov", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-fov" value={discoHive.fov} min={0.4} max={2.5} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "fov", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rollAmount")} value={discoHive.rollAmount} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "rollAmount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-rollAmount" value={discoHive.rollAmount} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "rollAmount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rollSpeed")} value={discoHive.rollSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "rollSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-rollSpeed" value={discoHive.rollSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "rollSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpX")} value={discoHive.pathAmpX} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "pathAmpX", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-pathAmpX" value={discoHive.pathAmpX} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "pathAmpX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqX")} value={discoHive.pathFreqX} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("discoHive", "pathFreqX", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-pathFreqX" value={discoHive.pathFreqX} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("discoHive", "pathFreqX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpY")} value={discoHive.pathAmpY} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "pathAmpY", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-pathAmpY" value={discoHive.pathAmpY} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "pathAmpY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqY")} value={discoHive.pathFreqY} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("discoHive", "pathFreqY", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-pathFreqY" value={discoHive.pathFreqY} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("discoHive", "pathFreqY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelRadius")} value={discoHive.tunnelRadius} min={0.5} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "tunnelRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-tunnelRadius" value={discoHive.tunnelRadius} min={0.5} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "tunnelRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hexesAround")} value={discoHive.hexesAround} min={4} max={40} step={2} onValueChange={(v) => updateShaderConfig("discoHive", "hexesAround", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-hexesAround" value={discoHive.hexesAround} min={4} max={40} step={2} onValueChange={(v) => updateShaderConfig("discoHive", "hexesAround", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hexBorder")} value={discoHive.hexBorder} min={0.1} max={0.7} step={0.005} onValueChange={(v) => updateShaderConfig("discoHive", "hexBorder", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-hexBorder" value={discoHive.hexBorder} min={0.1} max={0.7} step={0.005} onValueChange={(v) => updateShaderConfig("discoHive", "hexBorder", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hexDotSize")} value={discoHive.hexDotSize} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("discoHive", "hexDotSize", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-hexDotSize" value={discoHive.hexDotSize} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("discoHive", "hexDotSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogDensity")} value={discoHive.fogDensity} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("discoHive", "fogDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-fogDensity" value={discoHive.fogDensity} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("discoHive", "fogDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("vignette")} value={discoHive.vignetteStrength} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "vignetteStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-vignetteStrength" value={discoHive.vignetteStrength} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "vignetteStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={discoHive.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-renderScale" value={discoHive.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("discoHive", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={discoHive.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("discoHive", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-hue" value={discoHive.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("discoHive", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={discoHive.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHive-saturation" value={discoHive.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHive", "saturation", v)} isRTL={isRTL} />
+
+            {/* Number of colors hardcoded to 4 (no slice) */}
+            {[0, 1, 2, 3].map((index) => {
+              const color = discoHive.colors[index] || "#000000";
+              return (
+                <div key={index} className="flex flex-col gap-1 my-2">
+                  <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                  <ColorPicker value={color} onValueChange={(c) => {
+                    const updatedColors = [...discoHive.colors];
+                    updatedColors[index] = hsvaToHex(c);
+                    updateShaderConfig("discoHive", "colors", updatedColors);
+                  }} hideAlpha hideContrastRatio />
                 </div>
               );
             })}
