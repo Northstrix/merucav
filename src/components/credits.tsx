@@ -81,6 +81,10 @@ export const Credits = () => {
 
 [Disco Hive](https://www.shadertoy.com/view/7c3XRj) by [noztol](https://www.shadertoy.com/user/noztol)
 
+[Disco Hexnel](https://www.shadertoy.com/view/fcdSDM) by [noztol](https://www.shadertoy.com/user/noztol)
+
+[Kaleidoscope Wheels](https://www.shadertoy.com/view/fctXWM) by [noztol](https://www.shadertoy.com/user/noztol)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)

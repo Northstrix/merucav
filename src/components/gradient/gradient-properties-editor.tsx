@@ -87,6 +87,8 @@ export function GradientPropertiesEditor({
     psychedelicFlowerTunnel,
     celestialJourney,
     discoHive,
+    discoHexnel,
+    kaleidoscopeWheels,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -5330,6 +5332,250 @@ export function GradientPropertiesEditor({
                 </div>
               );
             })}
+          </>
+        )}
+
+        {renderShaderControls(
+          "discoHexnel",
+          discoHexnel,
+          <>
+            <ControlSlider label={t("speed")} value={discoHexnel.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-speed" value={discoHexnel.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSpeed")} value={discoHexnel.cameraSpeed} min={0} max={12} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "cameraSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-cameraSpeed" value={discoHexnel.cameraSpeed} min={0} max={12} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "cameraSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fieldOfView")} value={discoHexnel.fov} min={0.4} max={2.5} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "fov", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-fov" value={discoHexnel.fov} min={0.4} max={2.5} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "fov", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("distance")} value={discoHexnel.maxDistance} min={20} max={150} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "maxDistance", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-maxDistance" value={discoHexnel.maxDistance} min={20} max={150} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "maxDistance", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("precision")} value={discoHexnel.maxSteps} min={40} max={220} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "maxSteps", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-maxSteps" value={discoHexnel.maxSteps} min={40} max={220} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "maxSteps", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelRadius")} value={discoHexnel.tunnelRadius} min={2} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "tunnelRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-tunnelRadius" value={discoHexnel.tunnelRadius} min={2} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "tunnelRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelPulseAmount")} value={discoHexnel.tunnelPulseAmount} min={0} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "tunnelPulseAmount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-tunnelPulseAmount" value={discoHexnel.tunnelPulseAmount} min={0} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "tunnelPulseAmount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelPulseSpeed")} value={discoHexnel.tunnelPulseSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "tunnelPulseSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-tunnelPulseSpeed" value={discoHexnel.tunnelPulseSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "tunnelPulseSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hexWrapCount")} value={discoHexnel.hexWrapCount} min={6} max={60} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "hexWrapCount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-hexWrapCount" value={discoHexnel.hexWrapCount} min={6} max={60} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "hexWrapCount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hexBevelAmount")} value={discoHexnel.hexBevelAmount} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "hexBevelAmount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-hexBevelAmount" value={discoHexnel.hexBevelAmount} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "hexBevelAmount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rayCount")} value={discoHexnel.rayCount} min={2} max={40} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "rayCount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-rayCount" value={discoHexnel.rayCount} min={2} max={40} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "rayCount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("raySpeed")} value={discoHexnel.raySpinSpeed} min={0} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "raySpinSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-raySpinSpeed" value={discoHexnel.raySpinSpeed} min={0} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "raySpinSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("strobeSpeed")} value={discoHexnel.strobeSpeed} min={0} max={30} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "strobeSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-strobeSpeed" value={discoHexnel.strobeSpeed} min={0} max={30} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "strobeSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("centerGlowSize")} value={discoHexnel.centerGlowSize} min={0.05} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "centerGlowSize", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-centerGlowSize" value={discoHexnel.centerGlowSize} min={0.05} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "centerGlowSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogDensity")} value={discoHexnel.fogDensity} min={0} max={0.001} step={0.00001} onValueChange={(v) => updateShaderConfig("discoHexnel", "fogDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-fogDensity" value={discoHexnel.fogDensity} min={0} max={0.001} step={0.00001} onValueChange={(v) => updateShaderConfig("discoHexnel", "fogDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("whirlpoolScale")} value={discoHexnel.whirlpoolScale} min={2} max={30} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolScale", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-whirlpoolScale" value={discoHexnel.whirlpoolScale} min={2} max={30} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("whirlpoolArms")} value={discoHexnel.whirlpoolArms} min={1} max={30} step={0.5} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolArms", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-whirlpoolArms" value={discoHexnel.whirlpoolArms} min={1} max={30} step={0.5} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolArms", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("whirlpoolRings")} value={discoHexnel.whirlpoolRings} min={-20} max={20} step={0.5} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolRings", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-whirlpoolRings" value={discoHexnel.whirlpoolRings} min={-20} max={20} step={0.5} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolRings", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("whirlpoolTwistX")} value={discoHexnel.whirlpoolTwistX} min={-15} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolTwistX", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-whirlpoolTwistX" value={discoHexnel.whirlpoolTwistX} min={-15} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolTwistX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("whirlpoolTwistY")} value={discoHexnel.whirlpoolTwistY} min={-15} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolTwistY", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-whirlpoolTwistY" value={discoHexnel.whirlpoolTwistY} min={-15} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolTwistY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("whirlpoolFlowSpeedX")} value={discoHexnel.whirlpoolFlowSpeedX} min={-2} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolFlowSpeedX", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-whirlpoolFlowSpeedX" value={discoHexnel.whirlpoolFlowSpeedX} min={-2} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolFlowSpeedX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("whirlpoolFlowSpeedY")} value={discoHexnel.whirlpoolFlowSpeedY} min={-2} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolFlowSpeedY", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-whirlpoolFlowSpeedY" value={discoHexnel.whirlpoolFlowSpeedY} min={-2} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "whirlpoolFlowSpeedY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("liquidSwirlSpeed")} value={discoHexnel.liquidSwirlSpeed} min={0} max={8} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidSwirlSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-liquidSwirlSpeed" value={discoHexnel.liquidSwirlSpeed} min={0} max={8} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidSwirlSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("liquidRotSpeed")} value={discoHexnel.liquidRotSpeed} min={0} max={4} step={0.02} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidRotSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-liquidRotSpeed" value={discoHexnel.liquidRotSpeed} min={0} max={4} step={0.02} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidRotSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("detail")} value={discoHexnel.liquidDetail} min={2} max={16} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidDetail", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-liquidDetail" value={discoHexnel.liquidDetail} min={2} max={16} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidDetail", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("liquidGlowRadius")} value={discoHexnel.liquidGlowRadius} min={2} max={40} step={0.5} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidGlowRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-liquidGlowRadius" value={discoHexnel.liquidGlowRadius} min={2} max={40} step={0.5} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidGlowRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("liquidGlowPulseAmount")} value={discoHexnel.liquidGlowPulseAmount} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidGlowPulseAmount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-liquidGlowPulseAmount" value={discoHexnel.liquidGlowPulseAmount} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("discoHexnel", "liquidGlowPulseAmount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pulseAFrequency")} value={discoHexnel.pulseAFrequency} min={0} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "pulseAFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-pulseAFrequency" value={discoHexnel.pulseAFrequency} min={0} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "pulseAFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pulseBFrequency")} value={discoHexnel.pulseBFrequency} min={0} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "pulseBFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-pulseBFrequency" value={discoHexnel.pulseBFrequency} min={0} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "pulseBFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={discoHexnel.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-renderScale" value={discoHexnel.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("discoHexnel", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={discoHexnel.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-hue" value={discoHexnel.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={discoHexnel.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-saturation" value={discoHexnel.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoHexnel", "saturation", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorCount")} value={discoHexnel.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoHexnel-colorCount" value={discoHexnel.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("discoHexnel", "colorCount", v)} isRTL={isRTL} />
+
+            {discoHexnel.colors.slice(0, discoHexnel.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...discoHexnel.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("discoHexnel", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "kaleidoscopeWheels",
+          kaleidoscopeWheels,
+          <>
+            <ControlSlider label={t("speed")} value={kaleidoscopeWheels.speed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-speed" value={kaleidoscopeWheels.speed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmplitude")} value={kaleidoscopeWheels.pathAmplitude} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathAmplitude", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-pathAmplitude" value={kaleidoscopeWheels.pathAmplitude} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathAmplitude", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathTwistFrequency")} value={kaleidoscopeWheels.pathTwistFrequency} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathTwistFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-pathTwistFrequency" value={kaleidoscopeWheels.pathTwistFrequency} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathTwistFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathSecondaryFrequency")} value={kaleidoscopeWheels.pathSecondaryFrequency} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathSecondaryFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-pathSecondaryFrequency" value={kaleidoscopeWheels.pathSecondaryFrequency} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathSecondaryFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathTertiaryFrequency")} value={kaleidoscopeWheels.pathTertiaryFrequency} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathTertiaryFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-pathTertiaryFrequency" value={kaleidoscopeWheels.pathTertiaryFrequency} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathTertiaryFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathQuaternaryFrequency")} value={kaleidoscopeWheels.pathQuaternaryFrequency} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathQuaternaryFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-pathQuaternaryFrequency" value={kaleidoscopeWheels.pathQuaternaryFrequency} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathQuaternaryFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathDriftSpeed")} value={kaleidoscopeWheels.pathDriftSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathDriftSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-pathDriftSpeed" value={kaleidoscopeWheels.pathDriftSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pathDriftSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("segmentsMin")} value={kaleidoscopeWheels.segmentsMin} min={2} max={20} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "segmentsMin", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-segmentsMin" value={kaleidoscopeWheels.segmentsMin} min={2} max={20} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "segmentsMin", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("segmentsMax")} value={kaleidoscopeWheels.segmentsMax} min={2} max={30} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "segmentsMax", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-segmentsMax" value={kaleidoscopeWheels.segmentsMax} min={2} max={30} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "segmentsMax", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("kaleidoscopeSpeed")} value={kaleidoscopeWheels.segmentsSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "segmentsSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-segmentsSpeed" value={kaleidoscopeWheels.segmentsSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "segmentsSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("softness")} value={kaleidoscopeWheels.kaleidoscopeSoftness} min={0.1} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "kaleidoscopeSoftness", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-kaleidoscopeSoftness" value={kaleidoscopeWheels.kaleidoscopeSoftness} min={0.1} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "kaleidoscopeSoftness", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("planeRotationSpeed")} value={kaleidoscopeWheels.planeRotationSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "planeRotationSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-planeRotationSpeed" value={kaleidoscopeWheels.planeRotationSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "planeRotationSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("planeRotationAmplitude")} value={kaleidoscopeWheels.planeRotationAmplitude} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "planeRotationAmplitude", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-planeRotationAmplitude" value={kaleidoscopeWheels.planeRotationAmplitude} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "planeRotationAmplitude", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("spinSpeed")} value={kaleidoscopeWheels.internalSpinSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "internalSpinSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-internalSpinSpeed" value={kaleidoscopeWheels.internalSpinSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "internalSpinSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("zoomMin")} value={kaleidoscopeWheels.zoomMin} min={0.05} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "zoomMin", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-zoomMin" value={kaleidoscopeWheels.zoomMin} min={0.05} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "zoomMin", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("zoomMax")} value={kaleidoscopeWheels.zoomMax} min={0.05} max={1.5} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "zoomMax", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-zoomMax" value={kaleidoscopeWheels.zoomMax} min={0.05} max={1.5} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "zoomMax", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("truchetRadiusMin")} value={kaleidoscopeWheels.truchetRadiusMin} min={0.05} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "truchetRadiusMin", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-truchetRadiusMin" value={kaleidoscopeWheels.truchetRadiusMin} min={0.05} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "truchetRadiusMin", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("truchetRadiusMax")} value={kaleidoscopeWheels.truchetRadiusMax} min={0.05} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "truchetRadiusMax", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-truchetRadiusMax" value={kaleidoscopeWheels.truchetRadiusMax} min={0.05} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "truchetRadiusMax", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("truchetRadiusFrequency")} value={kaleidoscopeWheels.truchetRadiusFrequency} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "truchetRadiusFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-truchetRadiusFrequency" value={kaleidoscopeWheels.truchetRadiusFrequency} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "truchetRadiusFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("lineWidth")} value={kaleidoscopeWheels.lineWidth} min={0.005} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "lineWidth", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-lineWidth" value={kaleidoscopeWheels.lineWidth} min={0.005} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "lineWidth", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("planeSpacing")} value={kaleidoscopeWheels.planeSpacing} min={0.2} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "planeSpacing", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-planeSpacing" value={kaleidoscopeWheels.planeSpacing} min={0.2} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "planeSpacing", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("planeCount")} value={kaleidoscopeWheels.planeCount} min={2} max={14} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "planeCount", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-planeCount" value={kaleidoscopeWheels.planeCount} min={2} max={14} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "planeCount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorDistanceScale")} value={kaleidoscopeWheels.colorDistanceScale} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "colorDistanceScale", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-colorDistanceScale" value={kaleidoscopeWheels.colorDistanceScale} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "colorDistanceScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorShiftSpeed")} value={kaleidoscopeWheels.colorTimeSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "colorTimeSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-colorTimeSpeed" value={kaleidoscopeWheels.colorTimeSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "colorTimeSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorPlaneScale")} value={kaleidoscopeWheels.colorPlaneScale} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "colorPlaneScale", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-colorPlaneScale" value={kaleidoscopeWheels.colorPlaneScale} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "colorPlaneScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("waveSpeed")} value={kaleidoscopeWheels.waveSpeed} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "waveSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-waveSpeed" value={kaleidoscopeWheels.waveSpeed} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "waveSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("frequency")} value={kaleidoscopeWheels.waveFrequency} min={10} max={300} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "waveFrequency", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-waveFrequency" value={kaleidoscopeWheels.waveFrequency} min={10} max={300} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "waveFrequency", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fieldOfView")} value={kaleidoscopeWheels.fovBase} min={0.5} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "fovBase", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-fovBase" value={kaleidoscopeWheels.fovBase} min={0.5} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "fovBase", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fovVariation")} value={kaleidoscopeWheels.fovVariation} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "fovVariation", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-fovVariation" value={kaleidoscopeWheels.fovVariation} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "fovVariation", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pulseColorSpeed")} value={kaleidoscopeWheels.pulseColorSpeed} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pulseColorSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-pulseColorSpeed" value={kaleidoscopeWheels.pulseColorSpeed} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pulseColorSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("power")} value={kaleidoscopeWheels.pulseColorPower} min={1} max={30} step={0.5} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pulseColorPower", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-pulseColorPower" value={kaleidoscopeWheels.pulseColorPower} min={1} max={30} step={0.5} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "pulseColorPower", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("contrast")} value={kaleidoscopeWheels.contrastAmount} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "contrastAmount", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-contrastAmount" value={kaleidoscopeWheels.contrastAmount} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "contrastAmount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("vignette")} value={kaleidoscopeWheels.vignetteStrength} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "vignetteStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-vignetteStrength" value={kaleidoscopeWheels.vignetteStrength} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "vignetteStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={kaleidoscopeWheels.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-renderScale" value={kaleidoscopeWheels.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={kaleidoscopeWheels.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-hue" value={kaleidoscopeWheels.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={kaleidoscopeWheels.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-saturation" value={kaleidoscopeWheels.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "saturation", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorCount")} value={kaleidoscopeWheels.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="kaleidoscopeWheels-colorCount" value={kaleidoscopeWheels.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("kaleidoscopeWheels", "colorCount", v)} isRTL={isRTL} />
+
+            {kaleidoscopeWheels.colors.slice(0, kaleidoscopeWheels.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...kaleidoscopeWheels.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("kaleidoscopeWheels", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
           </>
         )}
       </Accordion>
