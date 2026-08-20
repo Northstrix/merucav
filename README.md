@@ -124,6 +124,10 @@ Provide the AI of your choice with the [Adding-new-shaders.md](https://github.co
 
 [Kaleidoscope Wheels](https://www.shadertoy.com/view/fctXWM) by [noztol](https://www.shadertoy.com/user/noztol)
 
+[Disco Fever](https://www.shadertoy.com/view/NftXzj) by [noztol](https://www.shadertoy.com/user/noztol)
+
+[Fly in Particles CIty](https://codepen.io/editor/sabosugi/pen/019fd6d0-e2fe-7d58-a1c3-69c53d13b500) by [Sabo Sugi](https://codepen.io/sabosugi)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)

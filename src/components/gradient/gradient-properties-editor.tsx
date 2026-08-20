@@ -89,6 +89,8 @@ export function GradientPropertiesEditor({
     discoHive,
     discoHexnel,
     kaleidoscopeWheels,
+    discoFever,
+    cosmicCity,
   } = config.shaders;
 
   const renderShaderControls = (
@@ -5576,6 +5578,182 @@ export function GradientPropertiesEditor({
                 }} hideAlpha hideContrastRatio />
               </div>
             ))}
+          </>
+        )}
+        {renderShaderControls(
+          "discoFever",
+          discoFever,
+          <>
+            <ControlSlider label={t("speed")} value={discoFever.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-speed" value={discoFever.speed} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSpeed")} value={discoFever.cameraSpeed} min={0} max={12} step={0.1} onValueChange={(v) => updateShaderConfig("discoFever", "cameraSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-cameraSpeed" value={discoFever.cameraSpeed} min={0} max={12} step={0.1} onValueChange={(v) => updateShaderConfig("discoFever", "cameraSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fieldOfView")} value={discoFever.fov} min={0.4} max={2.5} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "fov", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-fov" value={discoFever.fov} min={0.4} max={2.5} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "fov", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rollAmount")} value={discoFever.rollAmount} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "rollAmount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-rollAmount" value={discoFever.rollAmount} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "rollAmount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rollSpeed")} value={discoFever.rollSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "rollSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-rollSpeed" value={discoFever.rollSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "rollSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpX")} value={discoFever.pathAmpX} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "pathAmpX", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-pathAmpX" value={discoFever.pathAmpX} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "pathAmpX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqX")} value={discoFever.pathFreqX} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("discoFever", "pathFreqX", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-pathFreqX" value={discoFever.pathFreqX} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("discoFever", "pathFreqX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpY")} value={discoFever.pathAmpY} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "pathAmpY", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-pathAmpY" value={discoFever.pathAmpY} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "pathAmpY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqY")} value={discoFever.pathFreqY} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("discoFever", "pathFreqY", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-pathFreqY" value={discoFever.pathFreqY} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("discoFever", "pathFreqY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelRadius")} value={discoFever.tunnelRadius} min={0.5} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "tunnelRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-tunnelRadius" value={discoFever.tunnelRadius} min={0.5} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "tunnelRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hexesAround")} value={discoFever.tilesAround} min={4} max={40} step={2} onValueChange={(v) => updateShaderConfig("discoFever", "tilesAround", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-tilesAround" value={discoFever.tilesAround} min={4} max={40} step={2} onValueChange={(v) => updateShaderConfig("discoFever", "tilesAround", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hexBorder")} value={discoFever.tileBorder} min={0.1} max={0.7} step={0.005} onValueChange={(v) => updateShaderConfig("discoFever", "tileBorder", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-tileBorder" value={discoFever.tileBorder} min={0.1} max={0.7} step={0.005} onValueChange={(v) => updateShaderConfig("discoFever", "tileBorder", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tileGlowStrength")} value={discoFever.tileGlowStrength} min={0.2} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "tileGlowStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-tileGlowStrength" value={discoFever.tileGlowStrength} min={0.2} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "tileGlowStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tileGlowMin")} value={discoFever.tileGlowMin} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "tileGlowMin", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-tileGlowMin" value={discoFever.tileGlowMin} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "tileGlowMin", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tileTwist")} value={discoFever.tileTwist} min={-1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "tileTwist", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-tileTwist" value={discoFever.tileTwist} min={-1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "tileTwist", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fbmSpeed")} value={discoFever.fbmSpeed} min={0} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("discoFever", "fbmSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-fbmSpeed" value={discoFever.fbmSpeed} min={0} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("discoFever", "fbmSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fbmPower")} value={discoFever.fbmPower} min={0.5} max={8} step={0.1} onValueChange={(v) => updateShaderConfig("discoFever", "fbmPower", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-fbmPower" value={discoFever.fbmPower} min={0.5} max={8} step={0.1} onValueChange={(v) => updateShaderConfig("discoFever", "fbmPower", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fbmMin")} value={discoFever.fbmMin} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "fbmMin", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-fbmMin" value={discoFever.fbmMin} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "fbmMin", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogDensity")} value={discoFever.fogDensity} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("discoFever", "fogDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-fogDensity" value={discoFever.fogDensity} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("discoFever", "fogDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("vignette")} value={discoFever.vignetteStrength} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "vignetteStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-vignetteStrength" value={discoFever.vignetteStrength} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "vignetteStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={discoFever.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-renderScale" value={discoFever.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("discoFever", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={discoFever.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("discoFever", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-hue" value={discoFever.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("discoFever", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={discoFever.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-saturation" value={discoFever.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("discoFever", "saturation", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorCount")} value={discoFever.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("discoFever", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="discoFever-colorCount" value={discoFever.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("discoFever", "colorCount", v)} isRTL={isRTL} />
+
+            {discoFever.colors.slice(0, discoFever.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updatedColors = [...discoFever.colors];
+                  updatedColors[index] = hsvaToHex(c);
+                  updateShaderConfig("discoFever", "colors", updatedColors);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+        {renderShaderControls(
+          "cosmicCity",
+          cosmicCity,
+          <>
+            <ControlSlider label={t("fieldOfView")} value={cosmicCity.fov} min={45} max={100} step={1} onValueChange={(v) => updateShaderConfig("cosmicCity", "fov", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-fov" value={cosmicCity.fov} min={45} max={100} step={1} onValueChange={(v) => updateShaderConfig("cosmicCity", "fov", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSway")} value={cosmicCity.cameraSway} min={0} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "cameraSway", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-cameraSway" value={cosmicCity.cameraSway} min={0} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "cameraSway", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraVertical")} value={cosmicCity.cameraVertical} min={-2} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "cameraVertical", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-cameraVertical" value={cosmicCity.cameraVertical} min={-2} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "cameraVertical", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraRoll")} value={cosmicCity.cameraRoll} min={0} max={0.18} step={0.001} onValueChange={(v) => updateShaderConfig("cosmicCity", "cameraRoll", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-cameraRoll" value={cosmicCity.cameraRoll} min={0} max={0.18} step={0.001} onValueChange={(v) => updateShaderConfig("cosmicCity", "cameraRoll", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("speed")} value={cosmicCity.speed} min={0} max={30} step={0.1} onValueChange={(v) => updateShaderConfig("cosmicCity", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-speed" value={cosmicCity.speed} min={0} max={30} step={0.1} onValueChange={(v) => updateShaderConfig("cosmicCity", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pulse")} value={cosmicCity.pulse} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "pulse", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-pulse" value={cosmicCity.pulse} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "pulse", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("buildingDensity")} value={cosmicCity.buildingDensity} min={0.2} max={1.3} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "buildingDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-buildingDensity" value={cosmicCity.buildingDensity} min={0.2} max={1.3} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "buildingDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("corridorWidth")} value={cosmicCity.corridorWidth} min={8} max={26} step={0.1} onValueChange={(v) => updateShaderConfig("cosmicCity", "corridorWidth", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-corridorWidth" value={cosmicCity.corridorWidth} min={8} max={26} step={0.1} onValueChange={(v) => updateShaderConfig("cosmicCity", "corridorWidth", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("curveAmount")} value={cosmicCity.curveAmount} min={0} max={7} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "curveAmount", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-curveAmount" value={cosmicCity.curveAmount} min={0} max={7} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "curveAmount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cityHeight")} value={cosmicCity.cityHeight} min={0.5} max={2.2} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "cityHeight", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-cityHeight" value={cosmicCity.cityHeight} min={0.5} max={2.2} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "cityHeight", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pointSize")} value={cosmicCity.pointSize} min={0.5} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "pointSize", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-pointSize" value={cosmicCity.pointSize} min={0.5} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "pointSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pointOpacity")} value={cosmicCity.pointOpacity} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "pointOpacity", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-pointOpacity" value={cosmicCity.pointOpacity} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "pointOpacity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("edgeOpacity")} value={cosmicCity.edgeOpacity} min={0} max={0.8} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "edgeOpacity", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-edgeOpacity" value={cosmicCity.edgeOpacity} min={0} max={0.8} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "edgeOpacity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("bloomStrength")} value={cosmicCity.bloomStrength} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "bloomStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-bloomStrength" value={cosmicCity.bloomStrength} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "bloomStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("bloomRadius")} value={cosmicCity.bloomRadius} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "bloomRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-bloomRadius" value={cosmicCity.bloomRadius} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "bloomRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("bloomThreshold")} value={cosmicCity.bloomThreshold} min={0} max={1} step={0.001} onValueChange={(v) => updateShaderConfig("cosmicCity", "bloomThreshold", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-bloomThreshold" value={cosmicCity.bloomThreshold} min={0} max={1} step={0.001} onValueChange={(v) => updateShaderConfig("cosmicCity", "bloomThreshold", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("trailPersistence")} value={cosmicCity.trailPersistence} min={0} max={0.97} step={0.001} onValueChange={(v) => updateShaderConfig("cosmicCity", "trailPersistence", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-trailPersistence" value={cosmicCity.trailPersistence} min={0} max={0.97} step={0.001} onValueChange={(v) => updateShaderConfig("cosmicCity", "trailPersistence", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("chromaticShift")} value={cosmicCity.chromaticShift} min={0} max={0.012} step={0.0001} onValueChange={(v) => updateShaderConfig("cosmicCity", "chromaticShift", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-chromaticShift" value={cosmicCity.chromaticShift} min={0} max={0.012} step={0.0001} onValueChange={(v) => updateShaderConfig("cosmicCity", "chromaticShift", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("grainNoise")} value={cosmicCity.grain} min={0} max={0.2} step={0.001} onValueChange={(v) => updateShaderConfig("cosmicCity", "grain", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-grain" value={cosmicCity.grain} min={0} max={0.2} step={0.001} onValueChange={(v) => updateShaderConfig("cosmicCity", "grain", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("vignette")} value={cosmicCity.vignette} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "vignette", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-vignette" value={cosmicCity.vignette} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "vignette", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={cosmicCity.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("cosmicCity", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-hue" value={cosmicCity.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("cosmicCity", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={cosmicCity.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="cosmicCity-saturation" value={cosmicCity.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("cosmicCity", "saturation", v)} isRTL={isRTL} />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("color")} 1</span>
+              <ColorPicker value={cosmicCity.color1} onValueChange={(c) => updateShaderConfig("cosmicCity", "color1", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("color")} 2</span>
+              <ColorPicker value={cosmicCity.color2} onValueChange={(c) => updateShaderConfig("cosmicCity", "color2", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("color")} 3</span>
+              <ColorPicker value={cosmicCity.color3} onValueChange={(c) => updateShaderConfig("cosmicCity", "color3", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("color")} 4</span>
+              <ColorPicker value={cosmicCity.color4} onValueChange={(c) => updateShaderConfig("cosmicCity", "color4", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
           </>
         )}
       </Accordion>

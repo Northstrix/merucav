@@ -6,6 +6,13 @@ import { v4 as uuidv4 } from 'uuid';
 import { hslToRgb } from '@/lib/color-utils';
 import * as icons from 'lucide-react';
 import { hexToRgb } from '@/lib/color-utils';
+import * as THREE from 'three';
+import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js';
+import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js';
+import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js';
+import { AfterimagePass } from 'three/examples/jsm/postprocessing/AfterimagePass.js';
+import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js';
+import { OutputPass } from 'three/examples/jsm/postprocessing/OutputPass.js';
 export type PositionOrigin =
   | 'top-left' | 'top-center' | 'top-right'
   | 'left-center' | 'center' | 'right-center'
@@ -728,6 +735,61 @@ export interface GradientConfig {
       colors: string[];
       colorCount: number;
       renderScale: number;
+      hue: number;
+      saturation: number;
+    };
+    discoFever: ShaderSetting & {
+      speed: number;
+      cameraSpeed: number;
+      fov: number;
+      rollAmount: number;
+      rollSpeed: number;
+      pathAmpX: number;
+      pathFreqX: number;
+      pathAmpY: number;
+      pathFreqY: number;
+      tunnelRadius: number;
+      tilesAround: number;
+      tileBorder: number;
+      tileGlowStrength: number;
+      tileGlowMin: number;
+      tileTwist: number;
+      fbmSpeed: number;
+      fbmPower: number;
+      fbmMin: number;
+      fogDensity: number;
+      vignetteStrength: number;
+      colors: string[];
+      colorCount: number;
+      renderScale: number;
+      hue: number;
+      saturation: number;
+    };
+    cosmicCity: ShaderSetting & {
+      fov: number;
+      cameraSway: number;
+      cameraVertical: number;
+      cameraRoll: number;
+      speed: number;
+      pulse: number;
+      buildingDensity: number;
+      corridorWidth: number;
+      curveAmount: number;
+      cityHeight: number;
+      pointSize: number;
+      pointOpacity: number;
+      edgeOpacity: number;
+      color1: string;
+      color2: string;
+      color3: string;
+      color4: string;
+      bloomStrength: number;
+      bloomRadius: number;
+      bloomThreshold: number;
+      trailPersistence: number;
+      chromaticShift: number;
+      grain: number;
+      vignette: number;
       hue: number;
       saturation: number;
     };
@@ -1527,6 +1589,70 @@ export function getDefaultGradientConfig(): GradientConfig {
           ],
           colorCount: 3,
           renderScale: 0.6,
+          hue: 0,
+          saturation: 1.0,
+        },
+        discoFever: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          speed: 1.0,
+          cameraSpeed: 4.0,
+          fov: 1.2,
+          rollAmount: 0.2,
+          rollSpeed: 0.6,
+          pathAmpX: 2.5,
+          pathFreqX: 0.15,
+          pathAmpY: 2.0,
+          pathFreqY: 0.1,
+          tunnelRadius: 2.5,
+          tilesAround: 16.0,
+          tileBorder: 0.46,
+          tileGlowStrength: 1.2,
+          tileGlowMin: 0.4,
+          tileTwist: 0.15,
+          fbmSpeed: 5.0,
+          fbmPower: 3.0,
+          fbmMin: 0.75,
+          fogDensity: 0.005,
+          vignetteStrength: 1.0,
+          colors: [
+            "#FF3B5C", "#FFB300", "#33D6A6", "#3DA5FF", "#B14BFF",
+            "#000000", "#000000", "#000000", "#000000", "#000000",
+          ],
+          colorCount: 5,
+          renderScale: 0.6,
+          hue: 0,
+          saturation: 1.0,
+        },
+        cosmicCity: {
+          enabled: false,
+          opacity: 1,
+          transform: { ...defaultTransform },
+          fov: 72,
+          cameraSway: 1.2,
+          cameraVertical: 1.16,
+          cameraRoll: 0,
+          speed: 4.9,
+          pulse: 0.3,
+          buildingDensity: 0.76,
+          corridorWidth: 19.5,
+          curveAmount: 5.45,
+          cityHeight: 1.8,
+          pointSize: 0.86,
+          pointOpacity: 1.0,
+          edgeOpacity: 0.22,
+          color1: "#766DFF",
+          color2: "#38C9FF",
+          color3: "#FF48D7",
+          color4: "#FF4B5E",
+          bloomStrength: 0.31,
+          bloomRadius: 0.82,
+          bloomThreshold: 0.045,
+          trailPersistence: 0.565,
+          chromaticShift: 0.0036,
+          grain: 0.035,
+          vignette: 0.58,
           hue: 0,
           saturation: 1.0,
         },
@@ -12232,6 +12358,754 @@ export function KaleidoscopeWheelsShader({ config, globalConfig }: { config: Gra
     return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
 }
 
+const discoFeverBlitVertShader = `#version 300 es
+in vec2 a_position;
+out vec2 vUV;
+void main() {
+  vUV = a_position * 0.5 + 0.5;
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`;
+
+const discoFeverBlitFragShader = `#version 300 es
+precision highp float;
+uniform sampler2D uTexture;
+in vec2 vUV;
+out vec4 fragColor;
+void main() {
+  fragColor = texture(uTexture, vUV);
+}
+`;
+
+const discoFeverVertShader = `#version 300 es
+in vec2 a_position;
+void main() {
+  gl_Position = vec4(a_position, 0.0, 1.0);
+}
+`;
+
+const discoFeverFragShader = `#version 300 es
+precision highp float;
+
+uniform vec2 uResolution;
+uniform float uTime;
+
+uniform float uSpeed;
+uniform float uCameraSpeed;
+uniform float uFov;
+uniform float uRollAmount;
+uniform float uRollSpeed;
+uniform float uPathAmpX;
+uniform float uPathFreqX;
+uniform float uPathAmpY;
+uniform float uPathFreqY;
+uniform float uTunnelRadius;
+uniform float uTilesAround;
+uniform float uTileBorder;
+uniform float uTileGlowStrength;
+uniform float uTileGlowMin;
+uniform float uTileTwist;
+uniform float uTileSaturation;
+uniform float uFbmSpeed;
+uniform float uFbmPower;
+uniform float uFbmMin;
+uniform float uFogDensity;
+uniform float uVignetteStrength;
+
+uniform vec4 uColors[10];
+uniform float uColorCount;
+
+uniform float uHue;
+uniform float uSaturation;
+
+out vec4 fragColor;
+
+#define PI 3.1415926535
+
+float dfTime;
+
+vec3 rgb2hsv(vec3 c) {
+    vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);
+    vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));
+    vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));
+    float d = q.x - min(q.w, q.y);
+    float e = 1.0e-10;
+    return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);
+}
+
+vec3 hsv2rgb(vec3 c) {
+    vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);
+    vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);
+    return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);
+}
+
+// Every color the shader uses (each tile picks one) comes from this array.
+vec3 paletteColor(float t) {
+    float m = clamp(fract(t), 0.0, 1.0) * uColorCount;
+    vec4 grad = uColors[0];
+    grad.rgb *= grad.a;
+    for (int i = 1; i < 10; i++) {
+        if (float(i) > uColorCount) break;
+        float mm = clamp(m - float(i - 1), 0.0, 1.0);
+        mm = smoothstep(0.0, 1.0, mm);
+        vec4 c = uColors[i - 1];
+        c.rgb *= c.a;
+        grad = mix(grad, c, mm);
+    }
+    return grad.rgb;
+}
+
+float hash1(float n) { return fract(sin(n) * 437518.56453) + 0.1; }
+
+float fbmValue(vec2 st) {
+    float value = (sin(dfTime * uFbmSpeed * hash1(st.x + hash1(st.y))) + 4.0) * 0.25;
+    return max(uFbmMin, pow(value, uFbmPower));
+}
+
+vec3 squaresColours(vec2 p) {
+    float hueSeed = fract(hash1(p.y + hash1(p.x)));
+    vec3 baseColor = paletteColor(hueSeed);
+    baseColor = mix(vec3(1.0), baseColor, uTileSaturation);
+    return baseColor * fbmValue(p);
+}
+
+vec3 squaresTex(vec2 p, float border) {
+    vec2 ip = floor(p);
+    vec2 fp = fract(p);
+
+    ip.x = mod(ip.x, uTilesAround);
+
+    vec3 tileColor = squaresColours(ip);
+
+    float glow = 1.0 - length(fp - 0.5) * uTileGlowStrength;
+    glow = clamp(glow, uTileGlowMin, 1.0);
+    tileColor *= glow;
+
+    float edgeDist = max(abs(fp.x - 0.5), abs(fp.y - 0.5));
+
+    float sm = 0.03;
+    float borderMask = smoothstep(border - sm, border, edgeDist);
+
+    return mix(tileColor, vec3(0.01), borderMask);
+}
+
+vec2 tunnelPath(float z) {
+    return vec2(
+        sin(z * uPathFreqX) * uPathAmpX,
+        cos(z * uPathFreqY) * uPathAmpY
+    );
+}
+
+float sceneMap(vec3 p) {
+    return uTunnelRadius - length(p.xy - tunnelPath(p.z));
+}
+
+void main() {
+    dfTime = uTime * uSpeed + 1.0;
+
+    vec2 uv = (gl_FragCoord.xy - 0.5 * uResolution.xy) / uResolution.y;
+
+    float camZ = dfTime * uCameraSpeed;
+
+    vec3 ro = vec3(tunnelPath(camZ), camZ);
+    vec3 ta = vec3(tunnelPath(camZ + 3.0), camZ + 3.0);
+
+    vec3 fwd = normalize(ta - ro);
+    vec3 right = normalize(cross(fwd, vec3(0.0, 1.0, 0.0)));
+    vec3 up = cross(right, fwd);
+
+    float roll = sin(dfTime * uRollSpeed) * uRollAmount;
+    mat2 rollRot = mat2(cos(roll), -sin(roll), sin(roll), cos(roll));
+    uv *= rollRot;
+
+    vec3 rd = normalize(uv.x * right + uv.y * up + uFov * fwd);
+
+    float t = 0.0;
+    for (int i = 0; i < 80; i++) {
+        vec3 p = ro + rd * t;
+        float d = sceneMap(p);
+        if (d < 0.01 || t > 100.0) break;
+        t += d * 0.7;
+    }
+
+    vec3 col = vec3(0.0);
+
+    if (t < 100.0) {
+        vec3 p = ro + rd * t;
+        vec2 tunObj = p.xy - tunnelPath(p.z);
+
+        float a = atan(tunObj.y, tunObj.x);
+        a += p.z * uTileTwist;
+
+        float tilesAround = max(uTilesAround, 2.0);
+        float xuv = (a / PI) * (tilesAround * 0.5);
+        float yuv = p.z * (tilesAround / (uTunnelRadius * 2.0 * PI));
+
+        vec2 tUv = vec2(xuv, yuv);
+
+        col = squaresTex(tUv, uTileBorder);
+
+        float fog = exp(-uFogDensity * t * t);
+        col *= fog;
+    }
+
+    vec2 q = gl_FragCoord.xy / uResolution.xy;
+    col *= mix(1.0, 0.5 + 0.5 * pow(16.0 * q.x * q.y * (1.0 - q.x) * (1.0 - q.y), 0.1), uVignetteStrength);
+
+    vec3 hsv = rgb2hsv(clamp(col, 0.0, 1.0));
+    hsv.x = fract(hsv.x + uHue / 360.0);
+    hsv.y = clamp(hsv.y * uSaturation, 0.0, 1.0);
+    col = hsv2rgb(hsv);
+
+    fragColor = vec4(col, 1.0);
+}
+`;
+
+export function DiscoFeverShader({ config, globalConfig }: { config: GradientConfig['shaders']['discoFever'], globalConfig: GradientConfig }) {
+    const canvasRef = useRef<HTMLCanvasElement>(null);
+
+    useEffect(() => {
+        const canvas = canvasRef.current;
+        if (!canvas) return;
+        const gl = canvas.getContext('webgl2');
+        if (!gl) {
+            return;
+        }
+
+        const createShader = (type: number, source: string) => {
+            const shader = gl.createShader(type)!;
+            gl.shaderSource(shader, source);
+            gl.compileShader(shader);
+            return shader;
+        };
+
+        const createProgram = (vsSrc: string, fsSrc: string) => {
+            const program = gl.createProgram()!;
+            gl.attachShader(program, createShader(gl.VERTEX_SHADER, vsSrc));
+            gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fsSrc));
+            gl.linkProgram(program);
+            return program;
+        };
+
+        const sceneProgram = createProgram(discoFeverVertShader, discoFeverFragShader);
+        const blitProgram = createProgram(discoFeverBlitVertShader, discoFeverBlitFragShader);
+
+        const positionBuffer = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+        gl.bufferData(gl.ARRAY_BUFFER, new Float32Array([-1, -1, 1, -1, -1, 1, 1, 1]), gl.STATIC_DRAW);
+
+        const scenePosLoc = gl.getAttribLocation(sceneProgram, "a_position");
+        const blitPosLoc = gl.getAttribLocation(blitProgram, "a_position");
+
+        const lowResTexture = gl.createTexture()!;
+        gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        const lowResFbo = gl.createFramebuffer()!;
+        gl.bindFramebuffer(gl.FRAMEBUFFER, lowResFbo);
+        gl.framebufferTexture2D(gl.FRAMEBUFFER, gl.COLOR_ATTACHMENT0, gl.TEXTURE_2D, lowResTexture, 0);
+        gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+
+        const sceneUniforms = {
+            uTime: gl.getUniformLocation(sceneProgram, 'uTime'),
+            uResolution: gl.getUniformLocation(sceneProgram, 'uResolution'),
+            uSpeed: gl.getUniformLocation(sceneProgram, 'uSpeed'),
+            uCameraSpeed: gl.getUniformLocation(sceneProgram, 'uCameraSpeed'),
+            uFov: gl.getUniformLocation(sceneProgram, 'uFov'),
+            uRollAmount: gl.getUniformLocation(sceneProgram, 'uRollAmount'),
+            uRollSpeed: gl.getUniformLocation(sceneProgram, 'uRollSpeed'),
+            uPathAmpX: gl.getUniformLocation(sceneProgram, 'uPathAmpX'),
+            uPathFreqX: gl.getUniformLocation(sceneProgram, 'uPathFreqX'),
+            uPathAmpY: gl.getUniformLocation(sceneProgram, 'uPathAmpY'),
+            uPathFreqY: gl.getUniformLocation(sceneProgram, 'uPathFreqY'),
+            uTunnelRadius: gl.getUniformLocation(sceneProgram, 'uTunnelRadius'),
+            uTilesAround: gl.getUniformLocation(sceneProgram, 'uTilesAround'),
+            uTileBorder: gl.getUniformLocation(sceneProgram, 'uTileBorder'),
+            uTileGlowStrength: gl.getUniformLocation(sceneProgram, 'uTileGlowStrength'),
+            uTileGlowMin: gl.getUniformLocation(sceneProgram, 'uTileGlowMin'),
+            uTileTwist: gl.getUniformLocation(sceneProgram, 'uTileTwist'),
+            uFbmSpeed: gl.getUniformLocation(sceneProgram, 'uFbmSpeed'),
+            uFbmPower: gl.getUniformLocation(sceneProgram, 'uFbmPower'),
+            uFbmMin: gl.getUniformLocation(sceneProgram, 'uFbmMin'),
+            uFogDensity: gl.getUniformLocation(sceneProgram, 'uFogDensity'),
+            uVignetteStrength: gl.getUniformLocation(sceneProgram, 'uVignetteStrength'),
+            uColorCount: gl.getUniformLocation(sceneProgram, 'uColorCount'),
+            uHue: gl.getUniformLocation(sceneProgram, 'uHue'),
+            uSaturation: gl.getUniformLocation(sceneProgram, 'uSaturation'),
+        };
+        const blitUniforms = { uTexture: gl.getUniformLocation(blitProgram, 'uTexture') };
+
+        let startTime = Date.now();
+        let animationFrameId: number;
+
+        const render = (time: number) => {
+            const rect = canvas.getBoundingClientRect();
+            const fullWidth = Math.max(1, Math.floor(rect.width));
+            const fullHeight = Math.max(1, Math.floor(rect.height));
+            if (canvas.width !== fullWidth || canvas.height !== fullHeight) {
+                canvas.width = fullWidth;
+                canvas.height = fullHeight;
+            }
+
+            const renderScale = Math.max(0.1, Math.min(1.0, config.renderScale ?? 0.6));
+            const renderWidth = Math.max(1, Math.floor(fullWidth * renderScale));
+            const renderHeight = Math.max(1, Math.floor(fullHeight * renderScale));
+
+            gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, renderWidth, renderHeight, 0, gl.RGBA, gl.UNSIGNED_BYTE, null);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, lowResFbo);
+            gl.viewport(0, 0, renderWidth, renderHeight);
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(sceneProgram);
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(scenePosLoc);
+            gl.vertexAttribPointer(scenePosLoc, 2, gl.FLOAT, false, 0, 0);
+
+            gl.uniform1f(sceneUniforms.uTime, time);
+            gl.uniform2f(sceneUniforms.uResolution, renderWidth, renderHeight);
+            gl.uniform1f(sceneUniforms.uSpeed, config.speed);
+            gl.uniform1f(sceneUniforms.uCameraSpeed, config.cameraSpeed);
+            gl.uniform1f(sceneUniforms.uFov, config.fov);
+            gl.uniform1f(sceneUniforms.uRollAmount, config.rollAmount);
+            gl.uniform1f(sceneUniforms.uRollSpeed, config.rollSpeed);
+            gl.uniform1f(sceneUniforms.uPathAmpX, config.pathAmpX);
+            gl.uniform1f(sceneUniforms.uPathFreqX, config.pathFreqX);
+            gl.uniform1f(sceneUniforms.uPathAmpY, config.pathAmpY);
+            gl.uniform1f(sceneUniforms.uPathFreqY, config.pathFreqY);
+            gl.uniform1f(sceneUniforms.uTunnelRadius, config.tunnelRadius);
+            gl.uniform1f(sceneUniforms.uTilesAround, config.tilesAround);
+            gl.uniform1f(sceneUniforms.uTileBorder, config.tileBorder);
+            gl.uniform1f(sceneUniforms.uTileGlowStrength, config.tileGlowStrength);
+            gl.uniform1f(sceneUniforms.uTileGlowMin, config.tileGlowMin);
+            gl.uniform1f(sceneUniforms.uTileTwist, config.tileTwist);
+            gl.uniform1f(sceneUniforms.uFbmSpeed, config.fbmSpeed);
+            gl.uniform1f(sceneUniforms.uFbmPower, config.fbmPower);
+            gl.uniform1f(sceneUniforms.uFbmMin, config.fbmMin);
+            gl.uniform1f(sceneUniforms.uFogDensity, config.fogDensity);
+            gl.uniform1f(sceneUniforms.uVignetteStrength, config.vignetteStrength);
+            gl.uniform1f(sceneUniforms.uHue, config.hue ?? 0.0);
+            gl.uniform1f(sceneUniforms.uSaturation, config.saturation ?? 1.0);
+
+            config.colors.forEach((color, index) => {
+                if (index >= 10) return;
+                const loc = gl.getUniformLocation(sceneProgram, `uColors[${index}]`);
+                const rgba = hexToRgbaVec(color);
+                gl.uniform4f(loc, rgba[0], rgba[1], rgba[2], rgba[3]);
+            });
+            gl.uniform1f(sceneUniforms.uColorCount, config.colorCount);
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+
+            gl.bindFramebuffer(gl.FRAMEBUFFER, null);
+            gl.viewport(0, 0, fullWidth, fullHeight);
+            gl.clearColor(0, 0, 0, 1);
+            gl.clear(gl.COLOR_BUFFER_BIT);
+
+            gl.useProgram(blitProgram);
+            gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+            gl.enableVertexAttribArray(blitPosLoc);
+            gl.vertexAttribPointer(blitPosLoc, 2, gl.FLOAT, false, 0, 0);
+            gl.activeTexture(gl.TEXTURE0);
+            gl.bindTexture(gl.TEXTURE_2D, lowResTexture);
+            gl.uniform1i(blitUniforms.uTexture, 0);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+        };
+
+        const renderLoop = () => {
+            const time = globalConfig.paused ? (globalConfig.motion / 100) * 10 : (Date.now() - startTime) * 0.001;
+            render(time);
+            if (!globalConfig.paused) animationFrameId = requestAnimationFrame(renderLoop);
+        };
+
+        renderLoop();
+        return () => {
+            cancelAnimationFrame(animationFrameId);
+            gl.deleteProgram(sceneProgram);
+            gl.deleteProgram(blitProgram);
+            gl.deleteBuffer(positionBuffer);
+            gl.deleteTexture(lowResTexture);
+            gl.deleteFramebuffer(lowResFbo);
+        };
+    }, [config, globalConfig.paused, globalConfig.motion]);
+
+    return <canvas ref={canvasRef} className="w-full h-full absolute inset-0 block" />;
+}
+
+export function CosmicCityShader({ config, globalConfig }: { config: GradientConfig['shaders']['cosmicCity'], globalConfig: GradientConfig }) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const configRef = useRef(config);
+  configRef.current = config;
+  const globalConfigRef = useRef(globalConfig);
+  globalConfigRef.current = globalConfig;
+
+  useEffect(() => {
+    let disposed = false;
+    let cleanup: (() => void) | null = null;
+    if (!containerRef.current) return;
+    const container = containerRef.current;
+    const WORLD_LENGTH = 430.0;
+    const WORLD_HALF = WORLD_LENGTH * 0.5;
+    const TAU = Math.PI * 2.0;
+    const SIDEWALK_CENTER_OFFSET = 1.7;
+    const SIDEWALK_WIDTH = 2.8;
+    const BUILDING_GAP = 2.1;
+    const scene = new THREE.Scene();
+    scene.background = null;
+    const camera = new THREE.PerspectiveCamera(configRef.current.fov, Math.max(1, container.clientWidth) / Math.max(1, container.clientHeight), 0.08, 360.0);
+    const renderer = new THREE.WebGLRenderer({ antialias: false, alpha: true, powerPreference: "high-performance" });
+    renderer.setPixelRatio(1);
+    renderer.setSize(container.clientWidth, container.clientHeight, false);
+    renderer.outputColorSpace = THREE.SRGBColorSpace;
+    renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    renderer.toneMappingExposure = 1.0;
+    renderer.domElement.style.width = '100%';
+    renderer.domElement.style.height = '100%';
+    renderer.domElement.style.display = 'block';
+    container.appendChild(renderer.domElement);
+    const renderPass = new RenderPass(scene, camera);
+    const bloomPass = new UnrealBloomPass(new THREE.Vector2(container.clientWidth, container.clientHeight), configRef.current.bloomStrength, configRef.current.bloomRadius, configRef.current.bloomThreshold);
+    const afterimagePass = new AfterimagePass();
+    afterimagePass.uniforms.damp.value = configRef.current.trailPersistence;
+    const finalPass = new ShaderPass({
+      uniforms: {
+        tDiffuse: { value: null },
+        uTime: { value: 0 },
+        uFrame: { value: 0 },
+        uResolution: { value: new THREE.Vector2(1, 1) },
+        uPixelRatio: { value: 1 },
+        uChromaticShift: { value: configRef.current.chromaticShift },
+        uGrain: { value: configRef.current.grain },
+        uVignette: { value: configRef.current.vignette },
+        uHue: { value: configRef.current.hue },
+        uSaturation: { value: configRef.current.saturation },
+      },
+      vertexShader: `varying vec2 vUv;void main() {vUv = uv;gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);}`,
+      fragmentShader: `uniform sampler2D tDiffuse;uniform float uTime;uniform float uFrame;uniform vec2 uResolution;uniform float uPixelRatio;uniform float uChromaticShift;uniform float uGrain;uniform float uVignette;uniform float uHue;uniform float uSaturation;varying vec2 vUv;vec3 rgb2hsv(vec3 c) {vec4 K = vec4(0.0, -1.0 / 3.0, 2.0 / 3.0, -1.0);vec4 p = mix(vec4(c.bg, K.wz), vec4(c.gb, K.xy), step(c.b, c.g));vec4 q = mix(vec4(p.xyw, c.r), vec4(c.r, p.yzx), step(p.x, c.r));float d = q.x - min(q.w, q.y);float e = 1.0e-10;return vec3(abs(q.z + (q.w - q.y) / (6.0 * d + e)), d / (q.x + e), q.x);}vec3 hsv2rgb(vec3 c) {vec4 K = vec4(1.0, 2.0 / 3.0, 1.0 / 3.0, 3.0);vec3 p = abs(fract(c.xxx + K.xyz) * 6.0 - K.www);return c.z * mix(K.xxx, clamp(p - K.xxx, 0.0, 1.0), c.y);}float pixelHash(vec2 position) {vec3 value = fract(vec3(position.x, position.y, position.x) * vec3(0.1031, 0.1030, 0.0973));value += dot(value, value.yzx + 33.33);return fract((value.x + value.y) * value.z);}void main() {vec2 centered = vUv - 0.5;float radial = dot(centered, centered);vec2 direction = normalize(centered + vec2(0.00001));float shift = uChromaticShift * (0.42 + radial * 2.6);float redChannel = texture2D(tDiffuse, vUv + direction * shift).r;float greenChannel = texture2D(tDiffuse, vUv).g;float blueChannel = texture2D(tDiffuse, vUv - direction * shift).b;vec3 color = vec3(redChannel, greenChannel, blueChannel);float effectivePixelRatio = max(uPixelRatio, 1.0);vec2 safeResolution = max(uResolution, vec2(1.0));vec2 cssResolution = max(floor(safeResolution / effectivePixelRatio), vec2(1.0));vec2 normalizedFragment = clamp(gl_FragCoord.xy / safeResolution, vec2(0.0), vec2(1.0));vec2 cssPixel = floor(normalizedFragment * cssResolution);float cssPixelY = gl_FragCoord.y / effectivePixelRatio;float scan = sin((cssPixelY + uTime * 42.0) * 3.14159265) * 0.5 + 0.5;color *= 0.985 + scan * 0.015;vec2 temporalOffset = vec2(mod(uFrame * 37.0, 4096.0), mod(uFrame * 61.0, 4096.0));float grain = pixelHash(cssPixel + temporalOffset) - 0.5;float luminance = dot(color, vec3(0.2126, 0.7152, 0.0722));float grainVisibility = 0.3 + 0.7 * clamp(luminance, 0.0, 1.0);color += grain * uGrain * grainVisibility;float vignette = smoothstep(0.92, 0.18, radial * (1.05 + uVignette));color *= mix(1.0, vignette, uVignette);vec3 hsv = rgb2hsv(clamp(color, 0.0, 1.0));hsv.x = fract(hsv.x + uHue / 360.0);hsv.y = clamp(hsv.y * uSaturation, 0.0, 1.0);color = hsv2rgb(hsv);gl_FragColor = vec4(max(color, 0.0), 1.0);}`,
+    });
+    const outputPass = new OutputPass();
+    const composer = new EffectComposer(renderer);
+    composer.addPass(renderPass);
+    composer.addPass(bloomPass);
+    composer.addPass(afterimagePass);
+    composer.addPass(finalPass);
+    composer.addPass(outputPass);
+    function getPathX(z: number, curveAmount: number) {
+      const phase = (z / WORLD_LENGTH) * TAU;
+      return (Math.sin(phase * 2.0) * 0.72 + Math.sin(phase * 5.0 + 1.8) * 0.22 + Math.sin(phase - 0.7) * 0.35) * curveAmount;
+    }
+    function getPathY(z: number) {
+      const phase = (z / WORLD_LENGTH) * TAU;
+      return Math.sin(phase * 2.0 + 0.8) * 0.48;
+    }
+    const sharedUniforms = {
+      uTime: { value: 0 },
+      uCameraWorldZ: { value: 0 },
+      uWorldLength: { value: WORLD_LENGTH },
+      uCurveAmount: { value: configRef.current.curveAmount },
+      uCityHeight: { value: configRef.current.cityHeight },
+      uPointSize: { value: configRef.current.pointSize },
+      uPointOpacity: { value: configRef.current.pointOpacity },
+      uDpr: { value: 1 },
+      uPulse: { value: configRef.current.pulse },
+      uColor1: { value: new THREE.Color(configRef.current.color1) },
+      uColor2: { value: new THREE.Color(configRef.current.color2) },
+      uColor3: { value: new THREE.Color(configRef.current.color3) },
+      uColor4: { value: new THREE.Color(configRef.current.color4) },
+    };
+    const pointMaterial = new THREE.ShaderMaterial({
+      uniforms: sharedUniforms,
+      vertexShader: `uniform float uTime;uniform float uCameraWorldZ;uniform float uWorldLength;uniform float uCurveAmount;uniform float uCityHeight;uniform float uPointSize;uniform float uDpr;uniform float uPulse;attribute float aSeed;attribute float aSize;attribute float aBrightness;attribute float aPalette;varying float vSeed;varying float vBrightness;varying float vPalette;varying float vDepthFade;const float TAU = 6.28318530718;float wrapRelativeZ(float z) {float halfLength = uWorldLength * 0.5;return mod(z + halfLength, uWorldLength) - halfLength;}float pathPhase(float z) { return z / uWorldLength * TAU; }float pathX(float z) {float phase = pathPhase(z);return (sin(phase * 2.0) * 0.72 + sin(phase * 5.0 + 1.8) * 0.22 + sin(phase - 0.7) * 0.35) * uCurveAmount;}float pathY(float z) {float phase = pathPhase(z);return sin(phase * 2.0 + 0.8) * 0.48;}void main() {float relativeZ = position.z - uCameraWorldZ;float wrappedZ = wrapRelativeZ(relativeZ);float cameraPathX = pathX(uCameraWorldZ);float cameraPathY = pathY(uCameraWorldZ);float pointPathX = pathX(position.z);float pointPathY = pathY(position.z);vec3 transformed = vec3(position.x + pointPathX - cameraPathX, position.y * uCityHeight + pointPathY - cameraPathY, wrappedZ);vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);float distanceScale = 105.0 / max(18.0, -mvPosition.z);float pulse = 1.0 + sin(uTime * 2.1 + aSeed * 13.0) * uPulse * 0.12;gl_PointSize = clamp(uPointSize * aSize * uDpr * distanceScale * pulse, 0.55, 5.2 * uDpr);gl_Position = projectionMatrix * mvPosition;vSeed = aSeed;vBrightness = aBrightness;vPalette = aPalette;float farFade = smoothstep(-uWorldLength * 0.5, -uWorldLength * 0.5 + 92.0, mvPosition.z);float nearFade = 1.0 - smoothstep(-17.0, -3.0, mvPosition.z);vDepthFade = farFade * nearFade;}`,
+      fragmentShader: `uniform float uTime;uniform float uPointOpacity;uniform vec3 uColor1;uniform vec3 uColor2;uniform vec3 uColor3;uniform vec3 uColor4;varying float vSeed;varying float vBrightness;varying float vPalette;varying float vDepthFade;void main() {vec2 pointPosition = abs(gl_PointCoord - 0.5);float pointEdge = max(pointPosition.x, pointPosition.y);float pointShape = 1.0 - smoothstep(0.36, 0.5, pointEdge);vec3 colorA = mix(uColor1, uColor2, smoothstep(0.0, 0.45, vPalette));vec3 colorB = mix(uColor3, uColor4, smoothstep(0.55, 1.0, vPalette));vec3 color = mix(colorA, colorB, smoothstep(0.38, 0.72, vPalette));float spectral = fract(vSeed * 19.17);if (spectral < 0.055) { color = uColor4; }else if (spectral < 0.105) { color = vec3(0.25, 1.0, 0.45); }else if (spectral < 0.165) { color = uColor2; }float brightnessPulse = 0.9 + 0.1 * sin(uTime * 3.0 + vSeed * 43.0);float alpha = pointShape * uPointOpacity * vBrightness * vDepthFade * brightnessPulse;gl_FragColor = vec4(color * (0.72 + vBrightness * 0.75), alpha);}`,
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.AdditiveBlending,
+    });
+    const edgeMaterial = new THREE.ShaderMaterial({
+      uniforms: {
+        uCameraWorldZ: sharedUniforms.uCameraWorldZ,
+        uWorldLength: sharedUniforms.uWorldLength,
+        uCurveAmount: sharedUniforms.uCurveAmount,
+        uCityHeight: sharedUniforms.uCityHeight,
+        uOpacity: { value: configRef.current.edgeOpacity },
+        uColor1: sharedUniforms.uColor1,
+        uColor2: sharedUniforms.uColor2,
+      },
+      vertexShader: `uniform float uCameraWorldZ;uniform float uWorldLength;uniform float uCurveAmount;uniform float uCityHeight;attribute float aLineSeed;attribute float aSegmentCenterZ;varying float vLineSeed;varying float vDepthFade;const float TAU = 6.28318530718;float wrapRelativeZ(float z) {float halfLength = uWorldLength * 0.5;return mod(z + halfLength, uWorldLength) - halfLength;}float pathPhase(float z) { return z / uWorldLength * TAU; }float pathX(float z) {float phase = pathPhase(z);return (sin(phase * 2.0) * 0.72 + sin(phase * 5.0 + 1.8) * 0.22 + sin(phase - 0.7) * 0.35) * uCurveAmount;}float pathY(float z) {float phase = pathPhase(z);return sin(phase * 2.0 + 0.8) * 0.48;}void main() {float relativeCenterZ = aSegmentCenterZ - uCameraWorldZ;float wrappedCenterZ = wrapRelativeZ(relativeCenterZ);float sharedWrapOffset = wrappedCenterZ - relativeCenterZ;float wrappedVertexZ = position.z - uCameraWorldZ + sharedWrapOffset;float cameraPathX = pathX(uCameraWorldZ);float cameraPathY = pathY(uCameraWorldZ);float pointPathX = pathX(position.z);float pointPathY = pathY(position.z);vec3 transformed = vec3(position.x + pointPathX - cameraPathX, position.y * uCityHeight + pointPathY - cameraPathY, wrappedVertexZ);vec4 mvPosition = modelViewMatrix * vec4(transformed, 1.0);gl_Position = projectionMatrix * mvPosition;vLineSeed = aLineSeed;float farFade = smoothstep(-uWorldLength * 0.5, -uWorldLength * 0.5 + 96.0, wrappedCenterZ);float nearFade = 1.0 - smoothstep(-30.0, -14.0, wrappedCenterZ);float frontVisibility = 1.0 - step(0.0, wrappedCenterZ);vDepthFade = farFade * nearFade * frontVisibility;}`,
+      fragmentShader: `uniform float uOpacity;uniform vec3 uColor1;uniform vec3 uColor2;varying float vLineSeed;varying float vDepthFade;void main() {if (vDepthFade <= 0.001) { discard; }vec3 color = mix(uColor1, uColor2, fract(vLineSeed * 7.37));gl_FragColor = vec4(color * 1.15, uOpacity * vDepthFade);}`,
+      transparent: true,
+      depthWrite: false,
+      depthTest: true,
+      blending: THREE.AdditiveBlending,
+    });
+    let cityPoints: any = null;
+    let cityEdges: any = null;
+    function mulberry32(seed: number) {
+      return function () {
+        let t = (seed += 0x6D2B79F5);
+        t = Math.imul(t ^ (t >>> 15), t | 1);
+        t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+        return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+      };
+    }
+    function addBoxEdges(target: any, centerX: number, baseY: number, centerZ: number, sizeX: number, sizeY: number, sizeZ: number, seed: number) {
+      const x0 = centerX - sizeX * 0.5, x1 = centerX + sizeX * 0.5;
+      const y0 = baseY, y1 = baseY + sizeY;
+      const z0 = centerZ - sizeZ * 0.5, z1 = centerZ + sizeZ * 0.5;
+      const corners = [[x0,y0,z0],[x1,y0,z0],[x1,y0,z1],[x0,y0,z1],[x0,y1,z0],[x1,y1,z0],[x1,y1,z1],[x0,y1,z1]];
+      const indices = [4,5,5,6,6,7,7,4,0,4,1,5,2,6,3,7];
+      for (let index = 0; index < indices.length; index += 2) {
+        const pointA = corners[indices[index]];
+        const pointB = corners[indices[index + 1]];
+        const segmentCenterZ = (pointA[2] + pointB[2]) * 0.5;
+        target.positions.push(pointA[0], pointA[1], pointA[2], pointB[0], pointB[1], pointB[2]);
+        target.seeds.push(seed, seed);
+        target.centers.push(segmentCenterZ, segmentCenterZ);
+      }
+    }
+    function sampleBoxSurface(random: () => number, target: any, centerX: number, baseY: number, centerZ: number, sizeX: number, sizeY: number, sizeZ: number, count: number, paletteBias: number) {
+      const topArea = sizeX * sizeZ;
+      const sideXArea = sizeY * sizeZ * 2.0;
+      const sideZArea = sizeX * sizeY * 2.0;
+      const totalArea = topArea + sideXArea + sideZArea;
+      for (let index = 0; index < count; index += 1) {
+        const face = random() * totalArea;
+        let pointX: number, pointY: number, pointZ: number;
+        let brightness = 0.48 + random() * 0.48;
+        if (face < topArea) {
+          pointX = centerX + (random() - 0.5) * sizeX;
+          pointY = baseY + sizeY;
+          pointZ = centerZ + (random() - 0.5) * sizeZ;
+          brightness *= 1.08;
+        } else if (face < topArea + sideXArea) {
+          pointX = centerX + (random() < 0.5 ? -0.5 : 0.5) * sizeX;
+          pointY = baseY + random() * sizeY;
+          pointZ = centerZ + (random() - 0.5) * sizeZ;
+        } else {
+          pointX = centerX + (random() - 0.5) * sizeX;
+          pointY = baseY + random() * sizeY;
+          pointZ = centerZ + (random() < 0.5 ? -0.5 : 0.5) * sizeZ;
+          brightness *= 1.12;
+        }
+        target.positions.push(pointX, pointY, pointZ);
+        target.seeds.push(random());
+        target.sizes.push(0.72 + random() * 0.92);
+        target.brightness.push(brightness);
+        target.palette.push(THREE.MathUtils.clamp(paletteBias + (random() - 0.5) * 0.34, 0, 1));
+      }
+    }
+    function sampleDeck(random: () => number, target: any, centerX: number, y: number, width: number, zStart: number, zEnd: number, count: number, paletteBias: number) {
+      for (let index = 0; index < count; index += 1) {
+        const pointZ = THREE.MathUtils.lerp(zStart, zEnd, random());
+        const pointX = centerX + (random() - 0.5) * width;
+        const ripple = Math.sin(pointZ * 0.19 + pointX * 0.41) * 0.08;
+        target.positions.push(pointX, y + ripple, pointZ);
+        target.seeds.push(random());
+        target.sizes.push(0.62 + random() * 0.82);
+        target.brightness.push(0.42 + random() * 0.5);
+        target.palette.push(THREE.MathUtils.clamp(paletteBias + (random() - 0.5) * 0.28, 0, 1));
+      }
+    }
+    function createCityGeometry() {
+      const random = mulberry32(4293815);
+      const densityScale = Math.max(0.1, configRef.current.buildingDensity);
+      const corridorHalf = configRef.current.corridorWidth * 0.5;
+      const sidewalkOuterDistance = corridorHalf + SIDEWALK_CENTER_OFFSET + SIDEWALK_WIDTH * 0.5;
+      const pointData: any = { positions: [], seeds: [], sizes: [], brightness: [], palette: [] };
+      const lineData: any = { positions: [], seeds: [], centers: [] };
+      const baseY = -4.1;
+      const blockStep = 5.2;
+      const blockCount = Math.floor(WORLD_LENGTH / blockStep);
+      for (let blockIndex = 0; blockIndex < blockCount; blockIndex += 1) {
+        const centerZ = -WORLD_HALF + blockIndex * blockStep + (random() - 0.5) * 2.2;
+        for (const side of [-1, 1]) {
+          const layers = random() < 0.56 ? 2 : 3;
+          for (let layer = 0; layer < layers; layer += 1) {
+            const sizeX = 3.5 + random() * 6.0;
+            const sizeZ = 3.2 + random() * 6.5;
+            const heightBias = layer === 0 ? 0.68 : 1.0;
+            const sizeY = (4.2 + Math.pow(random(), 0.62) * 19.0) * heightBias;
+            const facadeDistance = sidewalkOuterDistance + BUILDING_GAP + random() * 1.8 + layer * 7.3;
+            const centerDistance = facadeDistance + sizeX * 0.5;
+            const centerX = side * centerDistance;
+            const paletteBias = side < 0 ? 0.28 + random() * 0.28 : 0.46 + random() * 0.34;
+            const surfaceArea = sizeX * sizeZ + 2.0 * sizeY * (sizeX + sizeZ);
+            const pointCount = Math.max(95, Math.floor(surfaceArea * 0.72 * densityScale));
+            sampleBoxSurface(random, pointData, centerX, baseY, centerZ, sizeX, sizeY, sizeZ, pointCount, paletteBias);
+            if (random() < 0.77 || layer === 0) {
+              addBoxEdges(lineData, centerX, baseY, centerZ, sizeX, sizeY, sizeZ, random());
+            }
+          }
+        }
+      }
+      const sidewalkCount = Math.floor(41000 * densityScale);
+      sampleDeck(random, pointData, -(corridorHalf + SIDEWALK_CENTER_OFFSET), -2.7, SIDEWALK_WIDTH, -WORLD_HALF, WORLD_HALF, sidewalkCount, 0.27);
+      sampleDeck(random, pointData, corridorHalf + SIDEWALK_CENTER_OFFSET, -2.7, SIDEWALK_WIDTH, -WORLD_HALF, WORLD_HALF, sidewalkCount, 0.63);
+      const edgeParticleCount = Math.floor(18000 * densityScale);
+      for (let pointIndex = 0; pointIndex < edgeParticleCount; pointIndex += 1) {
+        const pointZ = -WORLD_HALF + random() * WORLD_LENGTH;
+        const side = random() < 0.5 ? -1 : 1;
+        const sidewalkInner = corridorHalf + 0.25;
+        const sidewalkOuter = sidewalkOuterDistance - 0.15;
+        const distance = THREE.MathUtils.lerp(sidewalkInner, sidewalkOuter, random());
+        const pointX = side * distance;
+        const pointY = -3.55 + Math.sin(pointZ * 0.08 + pointX) * 0.12;
+        pointData.positions.push(pointX, pointY, pointZ);
+        pointData.seeds.push(random());
+        pointData.sizes.push(0.7 + random() * 0.65);
+        pointData.brightness.push(0.58 + random() * 0.42);
+        pointData.palette.push(side < 0 ? 0.28 + random() * 0.28 : 0.54 + random() * 0.28);
+      }
+      const verticalMistCount = Math.floor(14500 * densityScale);
+      for (let pointIndex = 0; pointIndex < verticalMistCount; pointIndex += 1) {
+        const pointZ = -WORLD_HALF + random() * WORLD_LENGTH;
+        const side = random() < 0.5 ? -1 : 1;
+        const pointX = side * (sidewalkOuterDistance + BUILDING_GAP + 1.0 + Math.pow(random(), 1.8) * 18.0);
+        const pointY = baseY + Math.pow(random(), 0.92) * 23.0;
+        pointData.positions.push(pointX, pointY, pointZ);
+        pointData.seeds.push(random());
+        pointData.sizes.push(0.52 + random() * 0.72);
+        pointData.brightness.push(0.18 + random() * 0.32);
+        pointData.palette.push(0.22 + random() * 0.66);
+      }
+      const pointGeometry = new THREE.BufferGeometry();
+      pointGeometry.setAttribute("position", new THREE.Float32BufferAttribute(pointData.positions, 3));
+      pointGeometry.setAttribute("aSeed", new THREE.Float32BufferAttribute(pointData.seeds, 1));
+      pointGeometry.setAttribute("aSize", new THREE.Float32BufferAttribute(pointData.sizes, 1));
+      pointGeometry.setAttribute("aBrightness", new THREE.Float32BufferAttribute(pointData.brightness, 1));
+      pointGeometry.setAttribute("aPalette", new THREE.Float32BufferAttribute(pointData.palette, 1));
+      pointGeometry.computeBoundingSphere();
+      const lineGeometry = new THREE.BufferGeometry();
+      lineGeometry.setAttribute("position", new THREE.Float32BufferAttribute(lineData.positions, 3));
+      lineGeometry.setAttribute("aLineSeed", new THREE.Float32BufferAttribute(lineData.seeds, 1));
+      lineGeometry.setAttribute("aSegmentCenterZ", new THREE.Float32BufferAttribute(lineData.centers, 1));
+      lineGeometry.computeBoundingSphere();
+      return { pointGeometry, lineGeometry };
+    }
+    function rebuildCity() {
+      const geometries = createCityGeometry();
+      if (cityPoints) { scene.remove(cityPoints); cityPoints.geometry.dispose(); }
+      if (cityEdges) { scene.remove(cityEdges); cityEdges.geometry.dispose(); }
+      cityPoints = new THREE.Points(geometries.pointGeometry, pointMaterial);
+      cityPoints.frustumCulled = false;
+      cityPoints.renderOrder = 1;
+      scene.add(cityPoints);
+      cityEdges = new THREE.LineSegments(geometries.lineGeometry, edgeMaterial);
+      cityEdges.frustumCulled = false;
+      cityEdges.renderOrder = 0;
+      scene.add(cityEdges);
+    }
+    rebuildCity();
+    const drawingBufferSize = new THREE.Vector2();
+    function updateRenderMetrics() {
+      renderer.getDrawingBufferSize(drawingBufferSize);
+      finalPass.uniforms.uResolution.value.copy(drawingBufferSize);
+    }
+    updateRenderMetrics();
+    const clock = new THREE.Clock();
+    const cameraTarget = new THREE.Vector3();
+    let elapsed = 0;
+    let frameIndex = 0;
+    let rafId = 0;
+    let lastDensity = configRef.current.buildingDensity;
+    let lastCorridor = configRef.current.corridorWidth;
+    let lastWidth = container.clientWidth;
+    let lastHeight = container.clientHeight;
+    function updateCamera(time: number, cameraWorldZ: number) {
+      const cfg = configRef.current;
+      const lookDistance = 28.0;
+      const lookWorldZ = cameraWorldZ - lookDistance;
+      const cameraPathX = getPathX(cameraWorldZ, cfg.curveAmount);
+      const cameraPathY = getPathY(cameraWorldZ);
+      const lookPathX = getPathX(lookWorldZ, cfg.curveAmount);
+      const lookPathY = getPathY(lookWorldZ);
+      const sway = Math.sin(time * 0.18) * cfg.cameraSway;
+      camera.position.set(sway, cfg.cameraVertical, 0);
+      cameraTarget.set(lookPathX - cameraPathX + sway * 0.42, cfg.cameraVertical + lookPathY - cameraPathY, -lookDistance);
+      camera.lookAt(cameraTarget);
+      camera.rotation.z += Math.sin(time * 0.24 + 0.9) * cfg.cameraRoll + Math.sin(time * 0.61) * cfg.cameraRoll * 0.24;
+    }
+    function animate() {
+      rafId = requestAnimationFrame(animate);
+      const cfg = configRef.current;
+      const gCfg = globalConfigRef.current;
+      if (cfg.buildingDensity !== lastDensity || cfg.corridorWidth !== lastCorridor) {
+        lastDensity = cfg.buildingDensity;
+        lastCorridor = cfg.corridorWidth;
+        rebuildCity();
+      }
+      const width = container.clientWidth || 1;
+      const height = container.clientHeight || 1;
+      if (width !== lastWidth || height !== lastHeight) {
+        lastWidth = width;
+        lastHeight = height;
+        camera.aspect = width / height;
+        renderer.setSize(width, height, false);
+        composer.setSize(width, height);
+      }
+      camera.fov = cfg.fov;
+      camera.updateProjectionMatrix();
+      updateRenderMetrics();
+      sharedUniforms.uCurveAmount.value = cfg.curveAmount;
+      sharedUniforms.uCityHeight.value = cfg.cityHeight;
+      sharedUniforms.uPointSize.value = cfg.pointSize;
+      sharedUniforms.uPointOpacity.value = cfg.pointOpacity;
+      sharedUniforms.uPulse.value = cfg.pulse;
+      sharedUniforms.uColor1.value.set(cfg.color1);
+      sharedUniforms.uColor2.value.set(cfg.color2);
+      sharedUniforms.uColor3.value.set(cfg.color3);
+      sharedUniforms.uColor4.value.set(cfg.color4);
+      edgeMaterial.uniforms.uOpacity.value = cfg.edgeOpacity;
+      finalPass.uniforms.uChromaticShift.value = cfg.chromaticShift;
+      finalPass.uniforms.uGrain.value = cfg.grain;
+      finalPass.uniforms.uVignette.value = cfg.vignette;
+      finalPass.uniforms.uHue.value = cfg.hue ?? 0;
+      finalPass.uniforms.uSaturation.value = cfg.saturation ?? 1;
+      const paused = !!gCfg?.paused;
+      const rawDelta = Math.min(clock.getDelta(), 0.05);
+      if (!paused) {
+        elapsed += rawDelta;
+        frameIndex = (frameIndex + 1) % 4096;
+      } else {
+        elapsed = ((gCfg?.motion ?? 0) / 100) * 10;
+      }
+      const travel = (elapsed * cfg.speed) % WORLD_LENGTH;
+      const cameraWorldZ = -travel;
+      sharedUniforms.uTime.value = elapsed;
+      sharedUniforms.uCameraWorldZ.value = cameraWorldZ;
+      finalPass.uniforms.uTime.value = elapsed;
+      finalPass.uniforms.uFrame.value = frameIndex;
+      const beat = 0.5 + 0.5 * Math.sin(elapsed * 2.1);
+      bloomPass.strength = cfg.bloomStrength * (1.0 + beat * cfg.pulse * 0.09);
+      bloomPass.radius = cfg.bloomRadius;
+      bloomPass.threshold = cfg.bloomThreshold;
+      afterimagePass.uniforms.damp.value = cfg.trailPersistence;
+      updateCamera(elapsed, cameraWorldZ);
+      composer.render(paused ? 0 : rawDelta);
+    }
+    animate();
+    cleanup = () => {
+      cancelAnimationFrame(rafId);
+      if (cityPoints) { scene.remove(cityPoints); cityPoints.geometry.dispose(); }
+      if (cityEdges) { scene.remove(cityEdges); cityEdges.geometry.dispose(); }
+      pointMaterial.dispose();
+      edgeMaterial.dispose();
+      renderer.dispose();
+      if (container.contains(renderer.domElement)) container.removeChild(renderer.domElement);
+    };
+    return () => {
+      disposed = true;
+      cleanup?.();
+    };
+  }, []);
+  return <div ref={containerRef} className="w-full h-full absolute inset-0" />;
+}
+
 function hexToRgbaVec(hex: string): [number, number, number, number] {
   let c = hex.substring(1);
   if(c.length === 3) c = c.split('').map(x => x + x).join('');
@@ -12493,6 +13367,17 @@ export function GradientCanvas({ config }: { config: GradientConfig }) {
         {shaders.kaleidoscopeWheels?.enabled && (
           <ShaderWrapper config={shaders.kaleidoscopeWheels} globalConfig={config}>
             <KaleidoscopeWheelsShader config={shaders.kaleidoscopeWheels} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+        {shaders.discoFever?.enabled && (
+          <ShaderWrapper config={shaders.discoFever} globalConfig={config}>
+            <DiscoFeverShader config={shaders.discoFever} globalConfig={config} />
+          </ShaderWrapper>
+        )}
+
+        {shaders.cosmicCity?.enabled && (
+          <ShaderWrapper config={shaders.cosmicCity} globalConfig={config}>
+            <CosmicCityShader config={shaders.cosmicCity} globalConfig={config} />
           </ShaderWrapper>
         )}
       </div>
