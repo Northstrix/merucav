@@ -1617,10 +1617,17 @@ export function getDefaultGradientConfig(): GradientConfig {
           fogDensity: 0.005,
           vignetteStrength: 1.0,
           colors: [
-            "#FF3B5C", "#FFB300", "#33D6A6", "#3DA5FF", "#B14BFF",
-            "#000000", "#000000", "#000000", "#000000", "#000000",
+            "#00a2fa",
+            "#a020f0",
+            "#f97316",
+            "#22c55e",
+            "#1270E7",
+            "#FF3380",
+            "#331A66",
+            "#34C759",
+            "#00C7BE",
           ],
-          colorCount: 5,
+          colorCount: 4,
           renderScale: 0.6,
           hue: 0,
           saturation: 1.0,
@@ -12379,7 +12386,9 @@ void main() {
 
 const discoFeverVertShader = `#version 300 es
 in vec2 a_position;
+out vec2 vUV;
 void main() {
+  vUV = a_position * 0.5 + 0.5;
   gl_Position = vec4(a_position, 0.0, 1.0);
 }
 `;
@@ -12405,7 +12414,6 @@ uniform float uTileBorder;
 uniform float uTileGlowStrength;
 uniform float uTileGlowMin;
 uniform float uTileTwist;
-uniform float uTileSaturation;
 uniform float uFbmSpeed;
 uniform float uFbmPower;
 uniform float uFbmMin;
@@ -12465,7 +12473,7 @@ float fbmValue(vec2 st) {
 vec3 squaresColours(vec2 p) {
     float hueSeed = fract(hash1(p.y + hash1(p.x)));
     vec3 baseColor = paletteColor(hueSeed);
-    baseColor = mix(vec3(1.0), baseColor, uTileSaturation);
+    baseColor = mix(vec3(1.0), baseColor, 1.0);
     return baseColor * fbmValue(p);
 }
 
@@ -12569,6 +12577,7 @@ export function DiscoFeverShader({ config, globalConfig }: { config: GradientCon
         if (!canvas) return;
         const gl = canvas.getContext('webgl2');
         if (!gl) {
+            console.error("WebGL2 not supported for Disco Fever Shader");
             return;
         }
 
@@ -12576,6 +12585,9 @@ export function DiscoFeverShader({ config, globalConfig }: { config: GradientCon
             const shader = gl.createShader(type)!;
             gl.shaderSource(shader, source);
             gl.compileShader(shader);
+            if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+                console.error('Disco Fever shader compile error:', gl.getShaderInfoLog(shader));
+            }
             return shader;
         };
 
@@ -12584,6 +12596,9 @@ export function DiscoFeverShader({ config, globalConfig }: { config: GradientCon
             gl.attachShader(program, createShader(gl.VERTEX_SHADER, vsSrc));
             gl.attachShader(program, createShader(gl.FRAGMENT_SHADER, fsSrc));
             gl.linkProgram(program);
+            if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+                console.error('Disco Fever program link error:', gl.getProgramInfoLog(program));
+            }
             return program;
         };
 
