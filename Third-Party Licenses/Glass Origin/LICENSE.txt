@@ -1,0 +1,11 @@
+// -----------------------------------------------------------------------------
+//  Author: Frostbyte_ - https://www.shadertoy.com/user/Frostbyte_
+//
+//  Licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 4.0
+//  International License (CC BY-NC-SA 4.0). You must give appropriate credit,
+//  provide a link to the license, indicate if changes were made, and you may not
+//  use the material for commercial purposes. If you remix, transform, or build
+//  upon this material, you must distribute your contributions under the same
+//  license.
+//  License: https://creativecommons.org/licenses/by-nc-sa/4.0/
+// -----------------------------------------------------------------------------

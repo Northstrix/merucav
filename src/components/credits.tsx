@@ -89,6 +89,22 @@ export const Credits = () => {
 
 [Fly in Particles CIty](https://codepen.io/editor/sabosugi/pen/019fd6d0-e2fe-7d58-a1c3-69c53d13b500) by [Sabo Sugi](https://codepen.io/sabosugi)
 
+[Quantum Shapes](https://www.shadertoy.com/view/ff3SR4) by [noztol](https://www.shadertoy.com/user/noztol)
+
+[Glass Origin](https://www.shadertoy.com/view/scS3Wy) by [Frostbyte_](https://www.shadertoy.com/user/Frostbyte_)
+
+[Mandala Dice](https://www.shadertoy.com/view/NfG3zm) by [noztol](https://www.shadertoy.com/user/noztol)
+
+[Rainbow Travel](https://www.shadertoy.com/view/f3XGWS) by [noztol](https://www.shadertoy.com/user/noztol)
+
+[Cubic Spin](https://www.shadertoy.com/view/scV3DR) by [noztol](https://www.shadertoy.com/user/noztol)
+
+[Formless](https://www.shadertoy.com/view/Ncy3R3) by [noztol](https://www.shadertoy.com/user/noztol)
+
+[Inside Quantum Core](https://codepen.io/editor/sabosugi/pen/01a02fca-0d14-7e50-a9b8-283d419ccaea) by [Sabo Sugi](https://codepen.io/sabosugi)
+
+[Neon Kaleidoscope](https://codepen.io/editor/sabosugi/pen/01a02f92-c5a4-7680-9919-88d6778ba369) by [Sabo Sugi](https://codepen.io/sabosugi)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)
