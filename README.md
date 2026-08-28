@@ -145,6 +145,20 @@ Provide the AI of your choice with the [Adding-new-shaders.md](https://github.co
 
 [Neon Kaleidoscope](https://codepen.io/editor/sabosugi/pen/01a02f92-c5a4-7680-9919-88d6778ba369) by [Sabo Sugi](https://codepen.io/sabosugi)
 
+[KuKo #243](https://www.shadertoy.com/view/wc3BDX) by [kukovisuals](https://www.shadertoy.com/user/kukovisuals)
+
+[Whirlpool by @YoheiNishitsuji](https://www.shadertoy.com/view/wXV3zt) by [kukovisuals](https://www.shadertoy.com/user/kukovisuals)
+
+[KuKo #365.2](https://www.shadertoy.com/view/scjSzK) by [kukovisuals](https://www.shadertoy.com/user/kukovisuals)
+
+[Mandelbrot KuKo](https://www.shadertoy.com/view/X3fSDj) by [kukovisuals](https://www.shadertoy.com/user/kukovisuals)
+
+[KuKo #351](https://www.shadertoy.com/view/fffXzl) by [kukovisuals](https://www.shadertoy.com/user/kukovisuals)
+
+[Blobby World](https://www.shadertoy.com/view/7fVSDR) by [noztol](https://www.shadertoy.com/user/noztol)
+
+[KuKo #363.3](https://www.shadertoy.com/view/NfjXWm) by [kukovisuals](https://www.shadertoy.com/user/kukovisuals)
+
 [Color Picker](https://21st.dev/community/components/uplusion23/color-picker/color-picker-with-swatches-and-onchange) by [Trevor McIntire](https://21st.dev/community/uplusion23)
 
 [vue-color-wheel](https://vue-color-wheel.vercel.app/) by [Robert Shaw](https://github.com/xiaoluoboding)

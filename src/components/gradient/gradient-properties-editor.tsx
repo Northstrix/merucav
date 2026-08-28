@@ -99,6 +99,13 @@ export function GradientPropertiesEditor({
     membranes,
     quantumCore,
     neonKaleidoscope,
+    sparkTunnel,
+    whirlpool,
+    containerFlow,
+    mandelbrot,
+    neuralGlass,
+    blobbyWorld,
+    spaceThreads 
   } = config.shaders;
 
   const renderShaderControls = (
@@ -6327,9 +6334,6 @@ export function GradientPropertiesEditor({
             <ControlSlider label={t("facetSpin")} value={neonKaleidoscope.facetSpin} min={-1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("neonKaleidoscope", "facetSpin", v)} isRTL={isRTL} />
             <CustomSlider id="neonKaleidoscope-facetSpin" value={neonKaleidoscope.facetSpin} min={-1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("neonKaleidoscope", "facetSpin", v)} isRTL={isRTL} />
 
-            <ControlSlider label={t("colorShiftSpeed")} value={neonKaleidoscope.colorRate} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neonKaleidoscope", "colorRate", v)} isRTL={isRTL} />
-            <CustomSlider id="neonKaleidoscope-colorRate" value={neonKaleidoscope.colorRate} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neonKaleidoscope", "colorRate", v)} isRTL={isRTL} />
-
             <ControlSlider label={t("phaseRate")} value={neonKaleidoscope.phaseRate} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("neonKaleidoscope", "phaseRate", v)} isRTL={isRTL} />
             <CustomSlider id="neonKaleidoscope-phaseRate" value={neonKaleidoscope.phaseRate} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("neonKaleidoscope", "phaseRate", v)} isRTL={isRTL} />
 
@@ -6362,6 +6366,653 @@ export function GradientPropertiesEditor({
                 hideAlpha 
                 hideContrastRatio 
               />
+            </div>
+          </>
+        )}
+
+        {renderShaderControls(
+          "sparkTunnel",
+          sparkTunnel,
+          <>
+            <ControlSlider label={t("speed")} value={sparkTunnel.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-speed" value={sparkTunnel.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={sparkTunnel.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-renderScale" value={sparkTunnel.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("facetCount")} value={sparkTunnel.facetCount} min={3} max={24} step={1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "facetCount", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-facetCount" value={sparkTunnel.facetCount} min={3} max={24} step={1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "facetCount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("tunnelRadius")} value={sparkTunnel.tunnelRadius} min={0.3} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("sparkTunnel", "tunnelRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-tunnelRadius" value={sparkTunnel.tunnelRadius} min={0.3} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("sparkTunnel", "tunnelRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("bounces")} value={sparkTunnel.bounces} min={1} max={8} step={1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "bounces", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-bounces" value={sparkTunnel.bounces} min={1} max={8} step={1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "bounces", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("alphaFalloff")} value={sparkTunnel.alphaFalloff} min={0.1} max={0.95} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "alphaFalloff", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-alphaFalloff" value={sparkTunnel.alphaFalloff} min={0.1} max={0.95} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "alphaFalloff", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("gridScale")} value={sparkTunnel.gridScale} min={1} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "gridScale", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-gridScale" value={sparkTunnel.gridScale} min={1} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "gridScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("densityThreshold")} value={sparkTunnel.densityThreshold} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "densityThreshold", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-densityThreshold" value={sparkTunnel.densityThreshold} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "densityThreshold", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("sphereMinRadius")} value={sparkTunnel.sphereMinRadius} min={0.01} max={0.5} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "sphereMinRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-sphereMinRadius" value={sparkTunnel.sphereMinRadius} min={0.01} max={0.5} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "sphereMinRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("sphereMaxRadius")} value={sparkTunnel.sphereMaxRadius} min={0.05} max={0.6} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "sphereMaxRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-sphereMaxRadius" value={sparkTunnel.sphereMaxRadius} min={0.05} max={0.6} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "sphereMaxRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("glowIntensity")} value={sparkTunnel.glowIntensity} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "glowIntensity", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-glowIntensity" value={sparkTunnel.glowIntensity} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "glowIntensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("glowFalloff")} value={sparkTunnel.glowFalloff} min={1} max={40} step={0.5} onValueChange={(v) => updateShaderConfig("sparkTunnel", "glowFalloff", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-glowFalloff" value={sparkTunnel.glowFalloff} min={1} max={40} step={0.5} onValueChange={(v) => updateShaderConfig("sparkTunnel", "glowFalloff", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("brightnessMultiplier")} value={sparkTunnel.brightnessMultiplier} min={0.5} max={12} step={0.1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "brightnessMultiplier", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-brightnessMultiplier" value={sparkTunnel.brightnessMultiplier} min={0.5} max={12} step={0.1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "brightnessMultiplier", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogDensity")} value={sparkTunnel.fogStrength} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("sparkTunnel", "fogStrength", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-fogStrength" value={sparkTunnel.fogStrength} min={0} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("sparkTunnel", "fogStrength", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogFalloff")} value={sparkTunnel.fogFalloff} min={0.1} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("sparkTunnel", "fogFalloff", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-fogFalloff" value={sparkTunnel.fogFalloff} min={0.1} max={10} step={0.05} onValueChange={(v) => updateShaderConfig("sparkTunnel", "fogFalloff", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorPhaseScale")} value={sparkTunnel.colorPaletteScale} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "colorPaletteScale", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-colorPaletteScale" value={sparkTunnel.colorPaletteScale} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "colorPaletteScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("offset")} value={sparkTunnel.colorPaletteOffset} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "colorPaletteOffset", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-colorPaletteOffset" value={sparkTunnel.colorPaletteOffset} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "colorPaletteOffset", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={sparkTunnel.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-hue" value={sparkTunnel.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={sparkTunnel.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-saturation" value={sparkTunnel.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("sparkTunnel", "saturation", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorCount")} value={sparkTunnel.colorCount} min={1} max={9} step={1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="sparkTunnel-colorCount" value={sparkTunnel.colorCount} min={1} max={9} step={1} onValueChange={(v) => updateShaderConfig("sparkTunnel", "colorCount", v)} isRTL={isRTL} />
+
+            {sparkTunnel.colors.slice(0, sparkTunnel.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updated = [...sparkTunnel.colors];
+                  updated[index] = hsvaToHex(c);
+                  updateShaderConfig("sparkTunnel", "colors", updated);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "whirlpool",
+          whirlpool,
+          <>
+            <ControlSlider label={t("speed")} value={whirlpool.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-speed" value={whirlpool.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={whirlpool.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-renderScale" value={whirlpool.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("spiralFrequency")} value={whirlpool.spiralSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "spiralSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-spiralSpeed" value={whirlpool.spiralSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "spiralSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("precision")} value={whirlpool.marchSteps} min={20} max={220} step={1} onValueChange={(v) => updateShaderConfig("whirlpool", "marchSteps", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-marchSteps" value={whirlpool.marchSteps} min={20} max={220} step={1} onValueChange={(v) => updateShaderConfig("whirlpool", "marchSteps", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("seriesStart")} value={whirlpool.seriesStart} min={1} max={20} step={0.5} onValueChange={(v) => updateShaderConfig("whirlpool", "seriesStart", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-seriesStart" value={whirlpool.seriesStart} min={1} max={20} step={0.5} onValueChange={(v) => updateShaderConfig("whirlpool", "seriesStart", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("seriesMax")} value={whirlpool.seriesMax} min={20} max={400} step={1} onValueChange={(v) => updateShaderConfig("whirlpool", "seriesMax", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-seriesMax" value={whirlpool.seriesMax} min={20} max={400} step={1} onValueChange={(v) => updateShaderConfig("whirlpool", "seriesMax", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("stepScale")} value={whirlpool.stepScale} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("whirlpool", "stepScale", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-stepScale" value={whirlpool.stepScale} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("whirlpool", "stepScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("densityScale")} value={whirlpool.densityExponent} min={50} max={800} step={5} onValueChange={(v) => updateShaderConfig("whirlpool", "densityExponent", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-densityExponent" value={whirlpool.densityExponent} min={50} max={800} step={5} onValueChange={(v) => updateShaderConfig("whirlpool", "densityExponent", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("density")} value={whirlpool.densityScale} min={0.005} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("whirlpool", "densityScale", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-densityScale" value={whirlpool.densityScale} min={0.005} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("whirlpool", "densityScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("intensity")} value={whirlpool.colorIntensity} min={0.001} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("whirlpool", "colorIntensity", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-colorIntensity" value={whirlpool.colorIntensity} min={0.001} max={0.1} step={0.001} onValueChange={(v) => updateShaderConfig("whirlpool", "colorIntensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraOffsetX")} value={whirlpool.cameraOffsetX} min={-1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "cameraOffsetX", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-cameraOffsetX" value={whirlpool.cameraOffsetX} min={-1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "cameraOffsetX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraOffsetY")} value={whirlpool.cameraOffsetY} min={-3} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "cameraOffsetY", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-cameraOffsetY" value={whirlpool.cameraOffsetY} min={-3} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "cameraOffsetY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={whirlpool.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("whirlpool", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-hue" value={whirlpool.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("whirlpool", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={whirlpool.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="whirlpool-saturation" value={whirlpool.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("whirlpool", "saturation", v)} isRTL={isRTL} />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("color")}</span>
+              <ColorPicker value={whirlpool.colorTint} onValueChange={(c) => updateShaderConfig("whirlpool", "colorTint", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+          </>
+        )}
+
+        {renderShaderControls(
+          "containerFlow",
+          containerFlow,
+          <>
+            <ControlSlider label={t("speed")} value={containerFlow.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-speed" value={containerFlow.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={containerFlow.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-renderScale" value={containerFlow.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSpeed")} value={containerFlow.cameraForwardSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "cameraForwardSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-cameraForwardSpeed" value={containerFlow.cameraForwardSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "cameraForwardSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpX")} value={containerFlow.pathSwayAmpX} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "pathSwayAmpX", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-pathSwayAmpX" value={containerFlow.pathSwayAmpX} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "pathSwayAmpX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpY")} value={containerFlow.pathSwayAmpY} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "pathSwayAmpY", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-pathSwayAmpY" value={containerFlow.pathSwayAmpY} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "pathSwayAmpY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqX")} value={containerFlow.pathSwayFreq} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "pathSwayFreq", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-pathSwayFreq" value={containerFlow.pathSwayFreq} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "pathSwayFreq", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("twist")} value={containerFlow.rotationSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "rotationSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-rotationSpeed" value={containerFlow.rotationSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "rotationSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("latticeThickness")} value={containerFlow.latticeThickness} min={0.01} max={0.3} step={0.005} onValueChange={(v) => updateShaderConfig("containerFlow", "latticeThickness", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-latticeThickness" value={containerFlow.latticeThickness} min={0.01} max={0.3} step={0.005} onValueChange={(v) => updateShaderConfig("containerFlow", "latticeThickness", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("voxelResolution")} value={containerFlow.voxelResolution} min={5} max={80} step={1} onValueChange={(v) => updateShaderConfig("containerFlow", "voxelResolution", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-voxelResolution" value={containerFlow.voxelResolution} min={5} max={80} step={1} onValueChange={(v) => updateShaderConfig("containerFlow", "voxelResolution", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("precision")} value={containerFlow.marchSteps} min={20} max={150} step={1} onValueChange={(v) => updateShaderConfig("containerFlow", "marchSteps", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-marchSteps" value={containerFlow.marchSteps} min={20} max={150} step={1} onValueChange={(v) => updateShaderConfig("containerFlow", "marchSteps", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("stepScale")} value={containerFlow.stepScale} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("containerFlow", "stepScale", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-stepScale" value={containerFlow.stepScale} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("containerFlow", "stepScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorPlaneScale")} value={containerFlow.colorZFreq} min={0} max={8} step={0.05} onValueChange={(v) => updateShaderConfig("containerFlow", "colorZFreq", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-colorZFreq" value={containerFlow.colorZFreq} min={0} max={8} step={0.05} onValueChange={(v) => updateShaderConfig("containerFlow", "colorZFreq", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorShiftSpeed")} value={containerFlow.colorTimeSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("containerFlow", "colorTimeSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-colorTimeSpeed" value={containerFlow.colorTimeSpeed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("containerFlow", "colorTimeSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("density")} value={containerFlow.densityScale} min={0.5} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("containerFlow", "densityScale", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-densityScale" value={containerFlow.densityScale} min={0.5} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("containerFlow", "densityScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("glowIntensity")} value={containerFlow.densityBoost} min={0.05} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "densityBoost", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-densityBoost" value={containerFlow.densityBoost} min={0.05} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "densityBoost", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("exposure")} value={containerFlow.toneMapDivisor} min={500} max={30000} step={100} onValueChange={(v) => updateShaderConfig("containerFlow", "toneMapDivisor", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-toneMapDivisor" value={containerFlow.toneMapDivisor} min={500} max={30000} step={100} onValueChange={(v) => updateShaderConfig("containerFlow", "toneMapDivisor", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={containerFlow.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("containerFlow", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-hue" value={containerFlow.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("containerFlow", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={containerFlow.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-saturation" value={containerFlow.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("containerFlow", "saturation", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorCount")} value={containerFlow.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("containerFlow", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="containerFlow-colorCount" value={containerFlow.colorCount} min={1} max={10} step={1} onValueChange={(v) => updateShaderConfig("containerFlow", "colorCount", v)} isRTL={isRTL} />
+
+            {containerFlow.colors.slice(0, containerFlow.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updated = [...containerFlow.colors];
+                  updated[index] = hsvaToHex(c);
+                  updateShaderConfig("containerFlow", "colors", updated);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "mandelbrot",
+          mandelbrot,
+          <>
+            <ControlSlider label={t("speed")} value={mandelbrot.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("mandelbrot", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-speed" value={mandelbrot.speed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("mandelbrot", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={mandelbrot.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("mandelbrot", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-renderScale" value={mandelbrot.renderScale} min={0.1} max={1} step={0.05} onValueChange={(v) => updateShaderConfig("mandelbrot", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("zoomSpeed")} value={mandelbrot.zoomSpeed} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-zoomSpeed" value={mandelbrot.zoomSpeed} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("zoomBase")} value={mandelbrot.zoomBase} min={0.00001} max={0.05} step={0.00001} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomBase", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-zoomBase" value={mandelbrot.zoomBase} min={0.00001} max={0.05} step={0.00001} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomBase", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("zoomAmplitude")} value={mandelbrot.zoomAmplitude} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomAmplitude", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-zoomAmplitude" value={mandelbrot.zoomAmplitude} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomAmplitude", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("zoomCenterX")} value={mandelbrot.zoomCenterX} min={-2} max={1} step={0.001} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomCenterX", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-zoomCenterX" value={mandelbrot.zoomCenterX} min={-2} max={1} step={0.001} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomCenterX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("zoomCenterY")} value={mandelbrot.zoomCenterY} min={-1.5} max={1.5} step={0.001} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomCenterY", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-zoomCenterY" value={mandelbrot.zoomCenterY} min={-1.5} max={1.5} step={0.001} onValueChange={(v) => updateShaderConfig("mandelbrot", "zoomCenterY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rotationSpeed")} value={mandelbrot.rotationSpeed} min={0} max={0.3} step={0.001} onValueChange={(v) => updateShaderConfig("mandelbrot", "rotationSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-rotationSpeed" value={mandelbrot.rotationSpeed} min={0} max={0.3} step={0.001} onValueChange={(v) => updateShaderConfig("mandelbrot", "rotationSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("precision")} value={mandelbrot.maxIterations} min={16} max={1024} step={1} onValueChange={(v) => updateShaderConfig("mandelbrot", "maxIterations", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-maxIterations" value={mandelbrot.maxIterations} min={16} max={1024} step={1} onValueChange={(v) => updateShaderConfig("mandelbrot", "maxIterations", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("escapeRadius")} value={mandelbrot.escapeRadius} min={2} max={1000} step={1} onValueChange={(v) => updateShaderConfig("mandelbrot", "escapeRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-escapeRadius" value={mandelbrot.escapeRadius} min={2} max={1000} step={1} onValueChange={(v) => updateShaderConfig("mandelbrot", "escapeRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("waveFreqA")} value={mandelbrot.waveFreqA} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveFreqA", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-waveFreqA" value={mandelbrot.waveFreqA} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveFreqA", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("waveFreqB")} value={mandelbrot.waveFreqB} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveFreqB", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-waveFreqB" value={mandelbrot.waveFreqB} min={0} max={20} step={0.1} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveFreqB", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("waveTimeSpeedA")} value={mandelbrot.waveTimeSpeedA} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveTimeSpeedA", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-waveTimeSpeedA" value={mandelbrot.waveTimeSpeedA} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveTimeSpeedA", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("waveTimeSpeedB")} value={mandelbrot.waveTimeSpeedB} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveTimeSpeedB", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-waveTimeSpeedB" value={mandelbrot.waveTimeSpeedB} min={0} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveTimeSpeedB", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("waveSharpness")} value={mandelbrot.waveSharpness} min={1} max={800} step={1} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveSharpness", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-waveSharpness" value={mandelbrot.waveSharpness} min={1} max={800} step={1} onValueChange={(v) => updateShaderConfig("mandelbrot", "waveSharpness", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={mandelbrot.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("mandelbrot", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-hue" value={mandelbrot.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("mandelbrot", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={mandelbrot.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("mandelbrot", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="mandelbrot-saturation" value={mandelbrot.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("mandelbrot", "saturation", v)} isRTL={isRTL} />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("firstColor")}</span>
+              <ColorPicker value={mandelbrot.firstColor} onValueChange={(c) => updateShaderConfig("mandelbrot", "firstColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("secondColor")}</span>
+              <ColorPicker value={mandelbrot.secondColor} onValueChange={(c) => updateShaderConfig("mandelbrot", "secondColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+          </>
+        )}
+
+        {renderShaderControls(
+          "neuralGlass",
+          neuralGlass,
+          <>
+            <ControlSlider label={t("cameraSpeed")} value={neuralGlass.cameraSpeed} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "cameraSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cameraSpeed" value={neuralGlass.cameraSpeed} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "cameraSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={neuralGlass.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-renderScale" value={neuralGlass.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpY")} value={neuralGlass.pathAmpY} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "pathAmpY", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-pathAmpY" value={neuralGlass.pathAmpY} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "pathAmpY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqX")} value={neuralGlass.pathFreqX} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "pathFreqX", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-pathFreqX" value={neuralGlass.pathFreqX} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "pathFreqX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqZ")} value={neuralGlass.pathFreqZ} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "pathFreqZ", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-pathFreqZ" value={neuralGlass.pathFreqZ} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "pathFreqZ", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathTimeFreq")} value={neuralGlass.pathTimeFreq} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "pathTimeFreq", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-pathTimeFreq" value={neuralGlass.pathTimeFreq} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "pathTimeFreq", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rot3Base")} value={neuralGlass.rot3Base} min={-3.14} max={3.14} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "rot3Base", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-rot3Base" value={neuralGlass.rot3Base} min={-3.14} max={3.14} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "rot3Base", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rot3Offset")} value={neuralGlass.rot3Offset} min={-3.14} max={3.14} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "rot3Offset", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-rot3Offset" value={neuralGlass.rot3Offset} min={-3.14} max={3.14} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "rot3Offset", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rot4Base")} value={neuralGlass.rot4Base} min={-3.14} max={3.14} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "rot4Base", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-rot4Base" value={neuralGlass.rot4Base} min={-3.14} max={3.14} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "rot4Base", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rot4Offset")} value={neuralGlass.rot4Offset} min={-3.14} max={3.14} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "rot4Offset", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-rot4Offset" value={neuralGlass.rot4Offset} min={-3.14} max={3.14} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "rot4Offset", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("offset2X")} value={neuralGlass.offset2X} min={-4} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("neuralGlass", "offset2X", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-offset2X" value={neuralGlass.offset2X} min={-4} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("neuralGlass", "offset2X", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("offset2Y")} value={neuralGlass.offset2Y} min={-4} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("neuralGlass", "offset2Y", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-offset2Y" value={neuralGlass.offset2Y} min={-4} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("neuralGlass", "offset2Y", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("offset2Z")} value={neuralGlass.offset2Z} min={-4} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("neuralGlass", "offset2Z", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-offset2Z" value={neuralGlass.offset2Z} min={-4} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("neuralGlass", "offset2Z", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cellSizeX")} value={neuralGlass.cellSizeX} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cellSizeX", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cellSizeX" value={neuralGlass.cellSizeX} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cellSizeX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cellSizeY")} value={neuralGlass.cellSizeY} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cellSizeY", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cellSizeY" value={neuralGlass.cellSizeY} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cellSizeY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cellSizeZ")} value={neuralGlass.cellSizeZ} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cellSizeZ", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cellSizeZ" value={neuralGlass.cellSizeZ} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cellSizeZ", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cell2X")} value={neuralGlass.cell2X} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cell2X", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cell2X" value={neuralGlass.cell2X} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cell2X", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cell2Y")} value={neuralGlass.cell2Y} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cell2Y", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cell2Y" value={neuralGlass.cell2Y} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cell2Y", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cell2Z")} value={neuralGlass.cell2Z} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cell2Z", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cell2Z" value={neuralGlass.cell2Z} min={1} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cell2Z", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cylinderThickness")} value={neuralGlass.thickness1} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "thickness1", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-thickness1" value={neuralGlass.thickness1} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "thickness1", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("thickness2")} value={neuralGlass.thickness2} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "thickness2", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-thickness2" value={neuralGlass.thickness2} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "thickness2", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("thickness3")} value={neuralGlass.thickness3} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "thickness3", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-thickness3" value={neuralGlass.thickness3} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "thickness3", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("softness")} value={neuralGlass.blendSmooth1} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "blendSmooth1", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-blendSmooth1" value={neuralGlass.blendSmooth1} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "blendSmooth1", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("blendSmooth2")} value={neuralGlass.blendSmooth2} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "blendSmooth2", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-blendSmooth2" value={neuralGlass.blendSmooth2} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "blendSmooth2", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("lightSpeed")} value={neuralGlass.lightSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "lightSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-lightSpeed" value={neuralGlass.lightSpeed} min={0} max={3} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "lightSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("power")} value={neuralGlass.specPower} min={1} max={200} step={1} onValueChange={(v) => updateShaderConfig("neuralGlass", "specPower", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-specPower" value={neuralGlass.specPower} min={1} max={200} step={1} onValueChange={(v) => updateShaderConfig("neuralGlass", "specPower", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("glassFade")} value={neuralGlass.glassFade} min={0.01} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "glassFade", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-glassFade" value={neuralGlass.glassFade} min={0.01} max={1} step={0.005} onValueChange={(v) => updateShaderConfig("neuralGlass", "glassFade", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("ior")} value={neuralGlass.ior} min={0.3} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "ior", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-ior" value={neuralGlass.ior} min={0.3} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "ior", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("volPower")} value={neuralGlass.volPower} min={0.1} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "volPower", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-volPower" value={neuralGlass.volPower} min={0.1} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "volPower", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("volScale")} value={neuralGlass.volScale} min={0.0001} max={0.01} step={0.0001} onValueChange={(v) => updateShaderConfig("neuralGlass", "volScale", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-volScale" value={neuralGlass.volScale} min={0.0001} max={0.01} step={0.0001} onValueChange={(v) => updateShaderConfig("neuralGlass", "volScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogDensity")} value={neuralGlass.fogDensity} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("neuralGlass", "fogDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-fogDensity" value={neuralGlass.fogDensity} min={0} max={0.05} step={0.0005} onValueChange={(v) => updateShaderConfig("neuralGlass", "fogDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("precision")} value={neuralGlass.marchSteps} min={10} max={80} step={1} onValueChange={(v) => updateShaderConfig("neuralGlass", "marchSteps", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-marchSteps" value={neuralGlass.marchSteps} min={10} max={80} step={1} onValueChange={(v) => updateShaderConfig("neuralGlass", "marchSteps", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fieldOfView")} value={neuralGlass.fov} min={0.5} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("neuralGlass", "fov", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-fov" value={neuralGlass.fov} min={0.5} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("neuralGlass", "fov", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraPosX")} value={neuralGlass.cameraPosX} min={-10} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cameraPosX", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cameraPosX" value={neuralGlass.cameraPosX} min={-10} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cameraPosX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraPosY")} value={neuralGlass.cameraPosY} min={-10} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cameraPosY", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cameraPosY" value={neuralGlass.cameraPosY} min={-10} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cameraPosY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraPosZ")} value={neuralGlass.cameraPosZ} min={-10} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cameraPosZ", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-cameraPosZ" value={neuralGlass.cameraPosZ} min={-10} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("neuralGlass", "cameraPosZ", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={neuralGlass.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("neuralGlass", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-hue" value={neuralGlass.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("neuralGlass", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={neuralGlass.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-saturation" value={neuralGlass.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("neuralGlass", "saturation", v)} isRTL={isRTL} />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("lightcol1")}</span>
+              <ColorPicker value={neuralGlass.colorLightcol1} onValueChange={(c) => updateShaderConfig("neuralGlass", "colorLightcol1", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("lightcol2")}</span>
+              <ColorPicker value={neuralGlass.colorLightcol2} onValueChange={(c) => updateShaderConfig("neuralGlass", "colorLightcol2", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+
+            <ControlSlider label={t("colorCount")} value={neuralGlass.colorCount} min={1} max={4} step={1} onValueChange={(v) => updateShaderConfig("neuralGlass", "colorCount", v)} isRTL={isRTL} />
+            <CustomSlider id="neuralGlass-colorCount" value={neuralGlass.colorCount} min={1} max={4} step={1} onValueChange={(v) => updateShaderConfig("neuralGlass", "colorCount", v)} isRTL={isRTL} />
+
+            {neuralGlass.colors.slice(0, neuralGlass.colorCount).map((color, index) => (
+              <div key={index} className="flex flex-col gap-1 my-2">
+                <span className="text-sm font-medium">{t("color")} {index + 1}</span>
+                <ColorPicker value={color} onValueChange={(c) => {
+                  const updated = [...neuralGlass.colors];
+                  updated[index] = hsvaToHex(c);
+                  updateShaderConfig("neuralGlass", "colors", updated);
+                }} hideAlpha hideContrastRatio />
+              </div>
+            ))}
+          </>
+        )}
+
+        {renderShaderControls(
+          "blobbyWorld",
+          blobbyWorld,
+          <>
+            <ControlSlider label={t("speed")} value={blobbyWorld.speed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-speed" value={blobbyWorld.speed} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={blobbyWorld.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-renderScale" value={blobbyWorld.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cellSize")} value={blobbyWorld.cellSize} min={2} max={20} step={0.5} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cellSize", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-cellSize" value={blobbyWorld.cellSize} min={2} max={20} step={0.5} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cellSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rotSpeedA")} value={blobbyWorld.rotSpeedA} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rotSpeedA", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-rotSpeedA" value={blobbyWorld.rotSpeedA} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rotSpeedA", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rotZInfluence")} value={blobbyWorld.rotZInfluence} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rotZInfluence", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-rotZInfluence" value={blobbyWorld.rotZInfluence} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rotZInfluence", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rotSpeedB")} value={blobbyWorld.rotSpeedB} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rotSpeedB", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-rotSpeedB" value={blobbyWorld.rotSpeedB} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rotSpeedB", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("blobRadius")} value={blobbyWorld.blobRadius} min={0.2} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "blobRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-blobRadius" value={blobbyWorld.blobRadius} min={0.2} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "blobRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fluidFreq")} value={blobbyWorld.fluidFreq} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidFreq", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-fluidFreq" value={blobbyWorld.fluidFreq} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidFreq", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fluidTimeX")} value={blobbyWorld.fluidTimeX} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidTimeX", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-fluidTimeX" value={blobbyWorld.fluidTimeX} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidTimeX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fluidTimeY")} value={blobbyWorld.fluidTimeY} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidTimeY", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-fluidTimeY" value={blobbyWorld.fluidTimeY} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidTimeY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fluidTimeZ")} value={blobbyWorld.fluidTimeZ} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidTimeZ", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-fluidTimeZ" value={blobbyWorld.fluidTimeZ} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidTimeZ", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fluidAmount")} value={blobbyWorld.fluidAmount} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidAmount", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-fluidAmount" value={blobbyWorld.fluidAmount} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fluidAmount", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fieldScale")} value={blobbyWorld.fieldScale} min={0.1} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fieldScale", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-fieldScale" value={blobbyWorld.fieldScale} min={0.1} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fieldScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraDistX")} value={blobbyWorld.cameraDistX} min={0} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraDistX", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-cameraDistX" value={blobbyWorld.cameraDistX} min={0} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraDistX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraDistY")} value={blobbyWorld.cameraDistY} min={0} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraDistY", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-cameraDistY" value={blobbyWorld.cameraDistY} min={0} max={15} step={0.1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraDistY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSwayAmpX")} value={blobbyWorld.cameraSwayAmpX} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraSwayAmpX", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-cameraSwayAmpX" value={blobbyWorld.cameraSwayAmpX} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraSwayAmpX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSwayAmpY")} value={blobbyWorld.cameraSwayAmpY} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraSwayAmpY", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-cameraSwayAmpY" value={blobbyWorld.cameraSwayAmpY} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraSwayAmpY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSwayFreqX")} value={blobbyWorld.cameraSwayFreqX} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraSwayFreqX", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-cameraSwayFreqX" value={blobbyWorld.cameraSwayFreqX} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraSwayFreqX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cameraSwayFreqY")} value={blobbyWorld.cameraSwayFreqY} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraSwayFreqY", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-cameraSwayFreqY" value={blobbyWorld.cameraSwayFreqY} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "cameraSwayFreqY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rayRotAmpA")} value={blobbyWorld.rayRotAmpA} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rayRotAmpA", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-rayRotAmpA" value={blobbyWorld.rayRotAmpA} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rayRotAmpA", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rayRotFreqA")} value={blobbyWorld.rayRotFreqA} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rayRotFreqA", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-rayRotFreqA" value={blobbyWorld.rayRotFreqA} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rayRotFreqA", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rayRotAmpB")} value={blobbyWorld.rayRotAmpB} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rayRotAmpB", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-rayRotAmpB" value={blobbyWorld.rayRotAmpB} min={0} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rayRotAmpB", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("rayRotFreqB")} value={blobbyWorld.rayRotFreqB} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rayRotFreqB", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-rayRotFreqB" value={blobbyWorld.rayRotFreqB} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "rayRotFreqB", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("glowIntensity")} value={blobbyWorld.glowNumerator} min={0.001} max={0.05} step={0.001} onValueChange={(v) => updateShaderConfig("blobbyWorld", "glowNumerator", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-glowNumerator" value={blobbyWorld.glowNumerator} min={0.001} max={0.05} step={0.001} onValueChange={(v) => updateShaderConfig("blobbyWorld", "glowNumerator", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("glowEpsilon")} value={blobbyWorld.glowEpsilon} min={0.001} max={0.2} step={0.001} onValueChange={(v) => updateShaderConfig("blobbyWorld", "glowEpsilon", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-glowEpsilon" value={blobbyWorld.glowEpsilon} min={0.001} max={0.2} step={0.001} onValueChange={(v) => updateShaderConfig("blobbyWorld", "glowEpsilon", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("precision")} value={blobbyWorld.maxSteps} min={20} max={200} step={1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "maxSteps", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-maxSteps" value={blobbyWorld.maxSteps} min={20} max={200} step={1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "maxSteps", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("distance")} value={blobbyWorld.maxDist} min={10} max={150} step={1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "maxDist", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-maxDist" value={blobbyWorld.maxDist} min={10} max={150} step={1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "maxDist", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("surfDist")} value={blobbyWorld.surfDist} min={0.001} max={0.05} step={0.001} onValueChange={(v) => updateShaderConfig("blobbyWorld", "surfDist", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-surfDist" value={blobbyWorld.surfDist} min={0.001} max={0.05} step={0.001} onValueChange={(v) => updateShaderConfig("blobbyWorld", "surfDist", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("intensity")} value={blobbyWorld.colorIntensity} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("blobbyWorld", "colorIntensity", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-colorIntensity" value={blobbyWorld.colorIntensity} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("blobbyWorld", "colorIntensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscTimeFreq1")} value={blobbyWorld.oscTimeFreq1} min={-3} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscTimeFreq1", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscTimeFreq1" value={blobbyWorld.oscTimeFreq1} min={-3} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscTimeFreq1", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscDistFreq1")} value={blobbyWorld.oscDistFreq1} min={-2} max={2} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscDistFreq1", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscDistFreq1" value={blobbyWorld.oscDistFreq1} min={-2} max={2} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscDistFreq1", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscPhase1")} value={blobbyWorld.oscPhase1} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscPhase1", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscPhase1" value={blobbyWorld.oscPhase1} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscPhase1", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscTimeFreq2")} value={blobbyWorld.oscTimeFreq2} min={-3} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscTimeFreq2", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscTimeFreq2" value={blobbyWorld.oscTimeFreq2} min={-3} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscTimeFreq2", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscDistFreq2")} value={blobbyWorld.oscDistFreq2} min={-2} max={2} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscDistFreq2", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscDistFreq2" value={blobbyWorld.oscDistFreq2} min={-2} max={2} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscDistFreq2", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscPhase2")} value={blobbyWorld.oscPhase2} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscPhase2", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscPhase2" value={blobbyWorld.oscPhase2} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscPhase2", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscTimeFreq3")} value={blobbyWorld.oscTimeFreq3} min={-3} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscTimeFreq3", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscTimeFreq3" value={blobbyWorld.oscTimeFreq3} min={-3} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscTimeFreq3", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscDistFreq3")} value={blobbyWorld.oscDistFreq3} min={-2} max={2} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscDistFreq3", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscDistFreq3" value={blobbyWorld.oscDistFreq3} min={-2} max={2} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscDistFreq3", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("oscPhase3")} value={blobbyWorld.oscPhase3} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscPhase3", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-oscPhase3" value={blobbyWorld.oscPhase3} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "oscPhase3", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fogDensity")} value={blobbyWorld.fogDensity} min={0} max={0.2} step={0.001} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fogDensity", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-fogDensity" value={blobbyWorld.fogDensity} min={0} max={0.2} step={0.001} onValueChange={(v) => updateShaderConfig("blobbyWorld", "fogDensity", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("exposure")} value={blobbyWorld.exposure} min={0.1} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "exposure", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-exposure" value={blobbyWorld.exposure} min={0.1} max={4} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "exposure", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturationBoost")} value={blobbyWorld.saturationBoost} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "saturationBoost", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-saturationBoost" value={blobbyWorld.saturationBoost} min={0} max={3} step={0.05} onValueChange={(v) => updateShaderConfig("blobbyWorld", "saturationBoost", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={blobbyWorld.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-hue" value={blobbyWorld.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("blobbyWorld", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={blobbyWorld.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="blobbyWorld-saturation" value={blobbyWorld.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("blobbyWorld", "saturation", v)} isRTL={isRTL} />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("color")} 1</span>
+              <ColorPicker value={blobbyWorld.firstColor} onValueChange={(c) => updateShaderConfig("blobbyWorld", "firstColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("color")} 2</span>
+              <ColorPicker value={blobbyWorld.secondColor} onValueChange={(c) => updateShaderConfig("blobbyWorld", "secondColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("color")} 3</span>
+              <ColorPicker value={blobbyWorld.thirdColor} onValueChange={(c) => updateShaderConfig("blobbyWorld", "thirdColor", hsvaToHex(c))} hideAlpha hideContrastRatio />
+            </div>
+          </>
+        )}
+
+        {renderShaderControls(
+          "spaceThreads",
+          spaceThreads,
+          <>
+            <ControlSlider label={t("speed")} value={spaceThreads.speed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "speed", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-speed" value={spaceThreads.speed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "speed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("renderScale")} value={spaceThreads.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "renderScale", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-renderScale" value={spaceThreads.renderScale} min={0.1} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "renderScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqY")} value={spaceThreads.pathFreqY} min={0} max={8} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathFreqY", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-pathFreqY" value={spaceThreads.pathFreqY} min={0} max={8} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathFreqY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathTimeY")} value={spaceThreads.pathTimeY} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathTimeY", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-pathTimeY" value={spaceThreads.pathTimeY} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathTimeY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpY")} value={spaceThreads.pathAmpY} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathAmpY", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-pathAmpY" value={spaceThreads.pathAmpY} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathAmpY", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathFreqX")} value={spaceThreads.pathFreqX} min={0} max={8} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathFreqX", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-pathFreqX" value={spaceThreads.pathFreqX} min={0} max={8} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathFreqX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathTimeX")} value={spaceThreads.pathTimeX} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathTimeX", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-pathTimeX" value={spaceThreads.pathTimeX} min={0} max={5} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathTimeX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("pathAmpX")} value={spaceThreads.pathAmpX} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathAmpX", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-pathAmpX" value={spaceThreads.pathAmpX} min={0} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("spaceThreads", "pathAmpX", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cellSize")} value={spaceThreads.cellSize} min={0.5} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "cellSize", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-cellSize" value={spaceThreads.cellSize} min={0.5} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "cellSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("threadThickness")} value={spaceThreads.threadThickness} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("spaceThreads", "threadThickness", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-threadThickness" value={spaceThreads.threadThickness} min={0.01} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("spaceThreads", "threadThickness", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("gridSize")} value={spaceThreads.voxelResolution} min={5} max={80} step={1} onValueChange={(v) => updateShaderConfig("spaceThreads", "voxelResolution", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-voxelResolution" value={spaceThreads.voxelResolution} min={5} max={80} step={1} onValueChange={(v) => updateShaderConfig("spaceThreads", "voxelResolution", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("precision")} value={spaceThreads.marchSteps} min={10} max={120} step={1} onValueChange={(v) => updateShaderConfig("spaceThreads", "marchSteps", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-marchSteps" value={spaceThreads.marchSteps} min={10} max={120} step={1} onValueChange={(v) => updateShaderConfig("spaceThreads", "marchSteps", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("stepScale")} value={spaceThreads.stepScale} min={0.05} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "stepScale", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-stepScale" value={spaceThreads.stepScale} min={0.05} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "stepScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("reflectCellSize")} value={spaceThreads.reflectCellSize} min={0.5} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "reflectCellSize", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-reflectCellSize" value={spaceThreads.reflectCellSize} min={0.5} max={6} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "reflectCellSize", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cylinderRadius")} value={spaceThreads.cylinderRadius} min={0.01} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "cylinderRadius", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-cylinderRadius" value={spaceThreads.cylinderRadius} min={0.01} max={1} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "cylinderRadius", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("cylinderEpsilon")} value={spaceThreads.cylinderEpsilon} min={0.001} max={0.2} step={0.001} onValueChange={(v) => updateShaderConfig("spaceThreads", "cylinderEpsilon", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-cylinderEpsilon" value={spaceThreads.cylinderEpsilon} min={0.001} max={0.2} step={0.001} onValueChange={(v) => updateShaderConfig("spaceThreads", "cylinderEpsilon", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorFreqScale")} value={spaceThreads.colorFreqScale} min={0} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("spaceThreads", "colorFreqScale", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-colorFreqScale" value={spaceThreads.colorFreqScale} min={0} max={10} step={0.1} onValueChange={(v) => updateShaderConfig("spaceThreads", "colorFreqScale", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorShiftSpeed")} value={spaceThreads.colorTimeSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "colorTimeSpeed", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-colorTimeSpeed" value={spaceThreads.colorTimeSpeed} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "colorTimeSpeed", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("colorFloor")} value={spaceThreads.colorFloor} min={0.005} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("spaceThreads", "colorFloor", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-colorFloor" value={spaceThreads.colorFloor} min={0.005} max={0.5} step={0.005} onValueChange={(v) => updateShaderConfig("spaceThreads", "colorFloor", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("phaseG")} value={spaceThreads.phaseG} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "phaseG", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-phaseG" value={spaceThreads.phaseG} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "phaseG", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("phaseB")} value={spaceThreads.phaseB} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "phaseB", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-phaseB" value={spaceThreads.phaseB} min={-6.28} max={6.28} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "phaseB", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("exposure")} value={spaceThreads.toneMapDivisor} min={200} max={20000} step={50} onValueChange={(v) => updateShaderConfig("spaceThreads", "toneMapDivisor", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-toneMapDivisor" value={spaceThreads.toneMapDivisor} min={200} max={20000} step={50} onValueChange={(v) => updateShaderConfig("spaceThreads", "toneMapDivisor", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("fieldOfView")} value={spaceThreads.fov} min={0.5} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "fov", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-fov" value={spaceThreads.fov} min={0.5} max={4} step={0.05} onValueChange={(v) => updateShaderConfig("spaceThreads", "fov", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("hue")} value={spaceThreads.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("spaceThreads", "hue", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-hue" value={spaceThreads.hue} min={0} max={360} step={1} onValueChange={(v) => updateShaderConfig("spaceThreads", "hue", v)} isRTL={isRTL} />
+
+            <ControlSlider label={t("saturation")} value={spaceThreads.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "saturation", v)} isRTL={isRTL} />
+            <CustomSlider id="spaceThreads-saturation" value={spaceThreads.saturation} min={0} max={2} step={0.01} onValueChange={(v) => updateShaderConfig("spaceThreads", "saturation", v)} isRTL={isRTL} />
+
+            <div className="flex flex-col gap-1 my-2">
+              <span className="text-sm font-medium">{t("baseColor")}</span>
+              <ColorPicker value={spaceThreads.colorTint} onValueChange={(c) => updateShaderConfig("spaceThreads", "colorTint", hsvaToHex(c))} hideAlpha hideContrastRatio />
             </div>
           </>
         )}
