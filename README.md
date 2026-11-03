@@ -205,6 +205,6 @@ Provide the AI of your choice with the [Adding-new-shaders.md](https://github.co
 
 Regarding the shaders distributed under the Creative Commons Attribution-NonCommercial-ShareAlike (CC BY-NC-SA 3.0 / CC BY-NC-SA 4.0) licenses:
 
-These shaders have been modified, at the very least, to the extent necessary to run on Mercurav, and may have been further altered to have their appearance enhanced, remixed, or changed by modifying and/or extending the shaders' logic. 
+These shaders have been modified, at the very least, to the extent necessary to run on Merucav, and may have been further altered to have their appearance enhanced, remixed, or changed by modifying and/or extending the shaders' logic. 
 
 Links to the original works are present in the "Credit" section of this [`README.md`](https://github.com/Northstrix/merucav/blob/main/README.md) and the "Credit & Info" section within [the web application](https://merucav.netlify.app/).
